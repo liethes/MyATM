@@ -1,0 +1,96 @@
+//------------------------------------------------------------------------
+// 简称: CL_Three_EMA_Crossover_System_S
+// 名称: 基于指数移动平均线组进行判断 空
+// 类别: 公式应用
+// 类型: 内建应用
+// 输出:
+//------------------------------------------------------------------------
+//------------------------------------------------------------------------
+// 策略说明:
+//			1.计算三条指数移动平均线(Avg1, Avg2 , Avg3)；
+//			2.通过指数移动平均线的组合来判断趋势
+//			 
+// 入场条件:
+//			1.当Avg1向上穿过Avg2并且Avg2大于Avg3时，在下一根k线开盘处买入
+//			2.当Avg1向下穿过Avg2并且Avg2小于Avg3时，在下一根k线开盘处卖出
+// 出场条件: 
+//			1.Avg1上穿Avg2空头出场
+//			2.跟踪止损
+//
+//		 注: 当前策略仅为做空系统, 如需做多, 请参见CL_Three_EMA_Crossover_System_L
+//----------------------------------------------------------------------//
+
+
+Params
+	Numeric  AvgLen1(6);
+	Numeric  AvgLen2(12);
+	Numeric  AvgLen3(28);
+	Numeric  RLength(4);
+	
+Vars
+    NumericSeries  Avg1;	//指数移动平均1
+	NumericSeries  Avg2;	//指数移动平均2
+	NumericSeries  Avg3;	//指数移动平均3
+	BoolSeries     SellCon1(False);	//做空条件之一
+	NumericSeries  ShortStopPrice;	//跟踪止损价
+	NumericSeries  Range;			//K线幅度
+	NumericSeries  RangeS;
+	
+Begin
+
+	// 集合竞价和小节休息过滤
+	If(!CallAuctionFilter()) Return;
+	
+	//初始设置
+	Avg1=XAverage(Close,AvgLen1);
+	Avg2=XAverage(Close,AvgLen2);
+	Avg3=XAverage(Close,AvgLen3);
+	Range=High-Low;		//定义K线幅度
+	
+	
+	//在图表上画出指数移动平均线
+	PlotNumeric("Avg1",Avg1);
+	PlotNumeric("Avg2",Avg2);
+	PlotNumeric("Avg3",Avg3);
+	
+	//Avg1向下穿过Avg2为卖出条件之一
+	SellCon1=CrossUnder(Avg1,Avg2);
+	
+	
+	//SellCon1满足且Avg2小于Avg3时，做空
+	If(SellCon1[1] And Avg2[1]<Avg3[1] And Vol > 0)
+	SellShort(0,Open);
+	
+	
+	//Avg1大于Avg2空头出场
+	If(MarketPosition==-1 And BarsSinceEntry>0 And Avg1[1]>Avg2[1] And Vol > 0)
+	BuyToCover(0,Open);
+	
+	
+	//空头进场后记录跟踪止损价
+	
+	RangeS=Average(Range,RLength);
+	If(MarketPosition==-1 And BarsSinceEntry==0)
+	{
+	    ShortStopPrice=High+RangeS;
+	}Else If(MarketPosition==-1 And BarsSinceEntry>0)
+	{
+	    ShortStopPrice=ShortStopPrice-(ShortStopPrice-High)/3;
+	}
+	
+	//Commentary("ShortStopPrice="+Text(ShortStopPrice));
+	
+	
+	//向上突破跟踪止损价空头出场
+	If(MarketPosition==-1 And BarsSinceEntry>0 And High>=ShortStopPrice[1] And Vol > 0)
+	{
+		BuyToCover(0,Max(Open,ShortStopPrice[1]));
+	}
+End
+
+//------------------------------------------------------------------------
+// 编译版本	GS2014.10.25
+// 版权所有	TradeBlazer Software 2003－2014
+// 更改声明	TradeBlazer Software保留对TradeBlazer平
+//			台每一版本的TradeBlazer公式修改和重写的权利
+//------------------------------------------------------------------------

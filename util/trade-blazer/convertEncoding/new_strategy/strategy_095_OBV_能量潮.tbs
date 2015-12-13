@@ -1,0 +1,35 @@
+//------------------------------------------------------------------------
+// 简称: OBV
+// 名称: 能量潮
+// 类别: 公式应用
+// 类型: 内建应用
+//------------------------------------------------------------------------
+
+Vars
+	NumericSeries OBVValue;
+Begin
+	If(CurrentBar == 0)
+	{
+		OBVValue = 0;
+	}Else
+	{
+		If(Close>Close[1])
+		{
+			OBVValue = OBVValue[1]+Vol;
+		}Else If(Close<Close[1])
+		{
+			OBVValue = OBVValue[1]-Vol;
+		}Else
+		{
+			OBVValue = OBVValue[1];
+		}
+	}
+	PlotNumeric("OBV",OBVValue);
+End
+
+//------------------------------------------------------------------------
+// 编译版本	GS2010.12.08
+// 版权所有	TradeBlazer Software 2003－2010
+// 更改声明	TradeBlazer Software保留对TradeBlazer平
+//			台每一版本的TradeBlazer公式修改和重写的权利
+//------------------------------------------------------------------------

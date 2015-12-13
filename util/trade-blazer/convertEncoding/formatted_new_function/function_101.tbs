@@ -1,0 +1,40 @@
+//------------------------------------------------------------------------
+// 简称: SkewnessArray
+// 名称: 求数组的偏度系数
+// 类别: 用户函数
+// 类型: 内建函数
+// 输出: 数值型
+//------------------------------------------------------------------------
+
+PARAMS
+	NumericArrayRef arr;
+VARS
+	Numeric arrSize;
+	Numeric SkewValue(0);
+	Numeric Sum(0);
+	Numeric Y;
+	Numeric Mean;
+	Numeric SDev;
+	Numeric i;
+BEGIN
+	arrSize = GetNumericArraySize(arr);
+	if (arrSize > 2) {
+		Mean = AverageArray(arr);
+		SDev = StandardDevArray(arr, 2);
+		if (SDev > 0) {
+			for i = 0 to arrSize - 1 {
+				Sum = Sum + Power((arr[i] - Mean) / SDev, 3);
+			}
+			Y = arrSize / ((arrSize - 1) * (arrSize - 2));
+			SkewValue = Y * Sum;
+		}
+	}
+	RETURN SkewValue;
+END
+
+//------------------------------------------------------------------------
+// 编译版本	GS2014.10.25
+// 版权所有	TradeBlazer Software 2003－2014
+// 更改声明	TradeBlazer Software保留对TradeBlazer平
+//			台每一版本的TradeBlazer公式修改和重写的权利
+//------------------------------------------------------------------------

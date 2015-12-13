@@ -1,0 +1,44 @@
+//------------------------------------------------------------------------
+// 简称: CCI
+// 名称: 商品通道指标
+// 类别: 公式应用
+// 类型: 内建应用
+//------------------------------------------------------------------------
+
+PARAMS
+	Numeric Length(14);
+	Numeric AvgLength(9);
+VARS
+	NumericSeries TmpValue;
+	Numeric Mean(0);
+	Numeric AvgDev(0);
+	Numeric Counter(0);
+	NumericSeries CCIValue(0);
+	Numeric CCIAvg;
+BEGIN
+	TmpValue = High + Low + Close;
+	Mean = AverageFC(TmpValue, Length);
+	AvgDev = 0;
+	for Counter = 0 to Length - 1 {
+		AvgDev = AvgDev + Abs(TmpValue[Counter] - Mean);
+	}
+	AvgDev = AvgDev / Length;
+
+	if (AvgDev == 0)
+		CCIValue = 0;
+	else
+		CCIValue = (TmpValue - Mean) / (0.015 * AvgDev);
+	CCIAvg = AverageFC(CCIValue, AvgLength);
+
+	PlotNumeric("CCI", CCIValue);
+	PlotNumeric("CCIAvg", CCIAvg);
+	PlotNumeric("OverSell", -100);
+	PlotNumeric("OverBuy", 100);
+END
+
+//------------------------------------------------------------------------
+// 编译版本	GS2010.12.08
+// 版权所有	TradeBlazer Software 2003－2010
+// 更改声明	TradeBlazer Software保留对TradeBlazer平
+//			台每一版本的TradeBlazer公式修改和重写的权利
+//------------------------------------------------------------------------

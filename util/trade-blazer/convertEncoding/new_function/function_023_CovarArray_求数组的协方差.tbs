@@ -1,0 +1,42 @@
+//------------------------------------------------------------------------
+// 简称: CovarArray
+// 名称: 求数组的协方差
+// 类别: 用户函数
+// 类型: 内建函数
+// 输出: 数值型
+//------------------------------------------------------------------------
+ 
+Params
+	NumericArrayRef arr1;
+	NumericArrayRef arr2;
+Vars  
+	Numeric arrSize1;
+	Numeric arrSize2;
+	Numeric Mean1;
+	Numeric Mean2;
+	Numeric SumValue(0);
+	Numeric i;
+Begin
+	arrSize1 = GetNumericArraySize(arr1);
+	arrSize2 = GetNumericArraySize(arr2);
+	If (arrSize1 <= 0 Or arrSize2 <= 0 Or arrSize1 <> arrSize2)
+	{
+		Return -1;
+	}Else 
+	{
+		Mean1 = AverageArray(arr1);
+		Mean2 = AverageArray(arr2);		
+		For i = 0 To arrSize1 - 1
+		{
+			SumValue = SumValue + (arr1[i] - Mean1) * (arr2[i] - Mean2);
+		}
+		Return SumValue / arrSize1 ;
+	}
+End 
+
+//------------------------------------------------------------------------
+// 编译版本	GS2014.10.25
+// 版权所有	TradeBlazer Software 2003－2014
+// 更改声明	TradeBlazer Software保留对TradeBlazer平
+//			台每一版本的TradeBlazer公式修改和重写的权利
+//------------------------------------------------------------------------

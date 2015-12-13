@@ -1,0 +1,31 @@
+//------------------------------------------------------------------------
+// 简称: VHF
+// 名称: 十字过滤线
+// 类别: 公式应用
+// 类型: 内建应用
+//------------------------------------------------------------------------
+
+PARAMS
+	Numeric Length(5);
+VARS
+	Numeric TmpValue(0);
+	Numeric VHFValue(0);
+	NumericSeries CloseChg;
+	Numeric SumCloseChg;
+BEGIN
+	if (CurrentBar > 0) {
+		TmpValue = Abs(HighestFC(Close, Length) - LowestFC(Close, Length));
+		CloseChg = Abs(Close - Close[1]);
+		SumCloseChg = SummationFC(CloseChg, Length);
+		if (SumCloseChg < > 0)
+			VHFValue = TmpValue / SumCloseChg;
+	}
+	PlotNumeric("VHF", VHFValue);
+END
+
+//------------------------------------------------------------------------
+// 编译版本	GS2010.12.08
+// 版权所有	TradeBlazer Software 2003－2010
+// 更改声明	TradeBlazer Software保留对TradeBlazer平
+//			台每一版本的TradeBlazer公式修改和重写的权利
+//------------------------------------------------------------------------

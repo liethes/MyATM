@@ -1,0 +1,100 @@
+//------------------------------------------------------------------------
+// 简称: CL_SpreadChannelBreakout_S
+// 名称: 基于商品价差的通道突破系统空 
+// 类别: 公式应用
+// 类型: 内建应用
+// 输出:
+//------------------------------------------------------------------------
+
+//----------------------------------------------------------------------//
+// 策略说明:
+//			 本策略是基于商品价差的通道突破系统
+//			 
+// 系统要素:
+//			 1. 交易标的为两个商品的价差，价差按照设定的头寸计算
+//			 2. 价差的周期高低点形成通道
+// 入场条件:
+//			 1. 当价差突破通道上轨时做多
+//			 2. 当价差突破通道下轨时做空
+// 出场条件: 
+//			 1. 以价差的N周期的高点止损
+//
+//		 注: 当前策略仅为做空系统, 如需做多, 请参见CL_SpreadChannelBreakout_L
+//----------------------------------------------------------------------//
+
+
+Params
+	Numeric Lots0(1);				// 商品A的头寸 
+	Numeric Lots1(1);				// 商品B的头寸 
+	Numeric Length(20);				// 通道的周期数
+	Numeric StopLen(10);			// 止损通道的周期数
+Vars
+	NumericSeries OO;				// 价差开盘价
+	NumericSeries HH;				// 价差最高价
+	NumericSeries LL;				// 价差最低价
+	NumericSeries CC;				// 价差收盘价
+	Numeric Factor0;				// A商品计算价差的系数
+	Numeric Factor1;				// B商品计算价差的系数
+	
+	NumericSeries UpperLine;		// 通道上轨
+	NumericSeries LowerLine;		// 通道下轨
+	
+	NumericSeries StopLine;			// 止损位
+
+Begin
+
+	// 集合竞价和小节休息过滤
+	If(!CallAuctionFilter()) Return;
+	
+	// 价差计算系数
+	Factor0 = Lots0*Data0.ContractUnit*Data0.BigPointValue;
+	Factor1 = Lots1*Data1.ContractUnit*Data1.BigPointValue;
+
+	// 计算价差并输出价差K线
+	CC = Data0.Close*Factor0 - Data1.Close*Factor1;
+	OO = Data0.Open*Factor0 - Data1.Open*Factor1;	
+	HH = Max(OO,CC);
+	LL = Min(OO,CC);
+	PlotNumeric("Open",OO);
+	PlotNumeric("High",HH);
+	PlotNumeric("Low",LL);
+	PlotNumeric("Close",CC);
+
+	// 计算价差的周期通道上下轨
+	UpperLine = Highest(HH[1],Length); 
+	LowerLine = Lowest(LL[1],Length);
+	PlotNumeric("UpperLine", UpperLine);
+	PlotNumeric("LowerLine", LowerLine);
+
+	// 开仓
+  	If(Data0.Marketposition == 0 And CC[1] <= LowerLine[1] And Data0.Vol > 0 And Data1.Vol > 0)
+	{
+		Data0.SellShort(Lots0, data0.Open);
+		Data1.Buy(Lots1, Data1.Open);
+	}
+
+	// 反向平仓
+	If(Data0.Marketposition == -1 And CC[1] >= UpperLine[1] And Data0.Vol > 0 And Data1.Vol > 0)
+	{
+		Data0.BuyToCover(0, Data0.Open);
+		Data1.Sell(0, Data1.Open);
+	}
+
+	// 止损
+	Stopline = Highest(HH[1], StopLen);
+	If(Data0.MarketPosition == -1 And Data0.BarsSinceEntry > 0 And Data0.Vol > 0 And Data1.Vol > 0)
+	{
+		If(CC[1] >= StopLine[1])
+		{
+			Data0.BuyToCover(0,Data0.Open);
+			Data1.Sell(0,Data1.Open);
+		}
+	}
+End
+
+//------------------------------------------------------------------------
+// 编译版本	GS2014.10.25
+// 版权所有	TradeBlazer Software 2003－2014
+// 更改声明	TradeBlazer Software保留对TradeBlazer平
+//			台每一版本的TradeBlazer公式修改和重写的权利
+//------------------------------------------------------------------------

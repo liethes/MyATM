@@ -1,0 +1,44 @@
+//------------------------------------------------------------------------
+// 简称: AverageD
+// 名称: 求N天以来的价格平均值
+// 类别: 用户函数
+// 类型: 内建函数
+// 输出: 数值型
+//------------------------------------------------------------------------
+
+PARAMS
+	Numeric DataType(1); // 1 - Close, 2 - Open, 3 - High, 4 - Low, 5 - Vol, 6 - OpenInt
+	Numeric Length(10);
+VARS
+	Numeric SumValue(0);
+	Numeric Value1;
+	Numeric i;
+BEGIN
+	for i = Length - 1 Downto 0 {
+		if (DataType == 1)
+			Value1 = CloseD(i);
+		else if (DataType == 2)
+			Value1 = OpenD(i);
+		else if (DataType == 3)
+			Value1 = HighD(i);
+		else if (DataType == 4)
+			Value1 = LowD(i);
+		else if (DataType == 5)
+			Value1 = VolD(i);
+		else if (DataType == 6)
+			Value1 = OpenIntD(i);
+
+		if (Value1 == InvalidNumeric)
+			RETURN InvalidNumeric;
+
+		SumValue = SumValue + Value1;
+	}
+	RETURN SumValue / Length;
+END
+
+//------------------------------------------------------------------------
+// 编译版本	GS2013.07.08
+// 版权所有	TradeBlazer Software 2003－2013
+// 更改声明	TradeBlazer Software保留对TradeBlazer平
+//			台每一版本的TradeBlazer公式修改和重写的权利
+//------------------------------------------------------------------------

@@ -1,0 +1,25 @@
+//------------------------------------------------------------------------
+// 简称: CORA
+// 名称: 相关分析
+// 类别: 公式应用
+// 类型: 内建应用
+//------------------------------------------------------------------------
+
+Params
+	Numeric Length(10);
+Vars  
+	Numeric CORValue; 
+Begin
+	CORValue = Correlation(Close, Data1.Close,Length);
+	PlotNumeric("CORA",CORValue);
+	PlotNumeric("零线",0);
+	PlotNumeric("1线",1);
+	PlotNumeric("-1线",-1);
+End
+
+//------------------------------------------------------------------------
+// 编译版本	GS2010.12.08
+// 版权所有	TradeBlazer Software 2003－2010
+// 更改声明	TradeBlazer Software保留对TradeBlazer平
+//			台每一版本的TradeBlazer公式修改和重写的权利
+//------------------------------------------------------------------------

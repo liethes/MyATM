@@ -1,0 +1,100 @@
+//------------------------------------------------------------------------
+// 简称: CL_Open_Close_Histogram_L
+// 名称: 基于开收盘价格间的相对关系变化进行判断 多
+// 类别: 公式应用
+// 类型: 内建应用
+// 输出:
+//------------------------------------------------------------------------
+//----------------------------------------------------------------------//
+// 策略说明:
+//			 本策略计算指数移动平均(10个开盘价和10个收盘价, 然后后者减去前者得到柱状图)，通过柱状图上穿零轴还是下穿零轴来判断上升和下降趋势
+//			 
+// 系统要素:
+//			 1. 10个开盘价的指数移动平均与10个收盘价的指数移动平均之差若上穿零轴定义为上升趋势，上升趋势定义满足后将上穿K线的最高价加上10周
+//				期的ATR的一半作为多头入场触发价，同时将上穿K线的最低价减去10周期的ATR的一半作为多头平仓触发价；
+//			 2. 10个开盘价的指数移动平均与10个收盘价的指数移动平均之差若下穿零轴定义为下降趋势，下降趋势定义满足后将下穿K线的最低价减去10周
+//				期的ATR的一半作为空头入场触发价，同时将下穿K线的最高价加上10周期的ATR的一半作为空头平仓触发价；
+// 入场条件:
+//			 1. 10个开盘价的指数移动平均大于10个收盘价的指数移动平均并且向上突破了多头触发价则进场做多；
+//			 2. 10个开盘价的指数移动平均小于10个收盘价的指数移动平均并且向下突破了空头触发价则进场做空；
+// 出场条件: 
+//			 1. 跌破多头平仓触发价或者转为下降趋势多头平仓；
+//			 2. 突破空头平仓触发价或者转为上升趋势空头平仓；
+//			 
+//
+//		 注: 当前策略仅为做多系统, 如需做空, 请参见CL_Open_Close_Histogram_S
+//----------------------------------------------------------------------//
+
+Params
+	Numeric OpenLen(10);      //用于计算开盘价指数移动平均的周期
+	Numeric CloseLen(10);	  //用于计算收盘价指数移动平均的周期
+
+Vars
+	NumericSeries Histogram(0);  //记录开盘价的指数移动平均与收盘价的指数移动平均之差
+	NumericSeries BuyPrice(0);   //多头触发价格
+	NumericSeries LongExitPrice(0); //多头平仓触发价格
+	BoolSeries con1;	//判断是否为上升趋势
+	BoolSeries con2;	//判断是否为下降趋势
+	NumericSeries ATR10(0);	 //ATR
+	
+Begin
+	
+	// 集合竞价和小节休息过滤
+	If(!CallAuctionFilter()) Return;
+	
+	//条件设置
+	Histogram = XAverage(Close,CloseLen) - XAverage(Open,OpenLen);
+	//PlotNumeric("Ma1",XAverage(Close,CloseLen));	
+	//PlotNumeric("Ma2",XAverage(Open,OpenLen));
+
+	con1=CrossOver(Histogram,0);
+	con2=CrossUnder(Histogram,0);
+	ATR10=Average(TrueRange,10);
+	
+	
+	//设置多头入场触发价与多头平仓触发价
+	If(con1)
+	{
+	   BuyPrice = High + ATR10*0.5;
+	   LongExitPrice = Low - ATR10*0.5;
+	}
+	
+	
+	//满足上升趋势且向上突破触发价则进场做多
+	If(Histogram[1]>0 And Vol > 0)     
+	{
+		if(High>=BuyPrice) Buy(0,Max(Open,BuyPrice));
+	}
+	
+	
+	//转为下降趋势多头平仓出场
+	If(MarketPosition==1 And BarsSinceEntry>0 And con2[1] And Vol > 0)     
+	{
+	     Sell(0,Open);
+	}
+	
+	
+	//向下突破多头平仓触发价格则多头平仓出场
+ 	If(MarketPosition==1 And BarsSinceEntry>0 And low<=LongExitPrice And Vol > 0)
+	{
+	    Sell(0,Min(Open,LongExitPrice));
+	}
+	
+	//Commentary("con1="+IIFString(con1,"True","False"));
+	//Commentary("con2="+IIFString(con2,"True","False"));
+	//Commentary("BuyPrice="+Text(BuyPrice));
+	//Commentary("LongExitPrice="+Text(LongExitPrice));
+	//Commentary("histogram="+Text(Histogram));
+	//Commentary("MP="+Text(MarketPosition));
+	
+	//在图表上显示多头进场触发价格与多头平仓触发价格
+	if(MarketPosition==0 and Histogram>0 and BuyPrice>0) 	PlotNumeric("BuyPrice",BuyPrice);	
+	if(MarketPosition==1) 	PlotNumeric("LongExitPrice",LongExitPrice);	
+End
+
+//------------------------------------------------------------------------
+// 编译版本	GS2014.10.25
+// 版权所有	TradeBlazer Software 2003－2014
+// 更改声明	TradeBlazer Software保留对TradeBlazer平
+//			台每一版本的TradeBlazer公式修改和重写的权利
+//------------------------------------------------------------------------

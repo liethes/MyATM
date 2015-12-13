@@ -1,0 +1,34 @@
+//------------------------------------------------------------------------
+// 简称: MACD
+// 名称: 平滑异同移动平均线
+// 类别: 公式应用
+// 类型: 内建应用
+//------------------------------------------------------------------------
+
+Params
+	Numeric FastLength(12);
+	Numeric SlowLength(26);
+	Numeric MACDLength(9);
+Vars
+	NumericSeries MACDValue; 
+	Numeric AvgMACD;
+	Numeric MACDDiff;
+Begin
+	MACDValue = XAverage( Close, FastLength ) - XAverage( Close, SlowLength ) ;	
+	AvgMACD = XAverage(MACDValue,MACDLength);
+	MACDDiff = MACDValue - AvgMACD;
+	PlotNumeric("MACD",MACDValue);
+	PlotNumeric("MACDAvg",AvgMACD);
+	If (MACDDiff >= 0)	
+		PlotNumeric("MACDDiff",MACDDiff,0,Red); 
+	Else
+		PlotNumeric("MACDDiff",MACDDiff,0,Green); 
+	PlotNumeric("零线",0); 	 
+End
+
+//------------------------------------------------------------------------
+// 编译版本	GS2010.12.08
+// 版权所有	TradeBlazer Software 2003－2010
+// 更改声明	TradeBlazer Software保留对TradeBlazer平
+//			台每一版本的TradeBlazer公式修改和重写的权利
+//------------------------------------------------------------------------

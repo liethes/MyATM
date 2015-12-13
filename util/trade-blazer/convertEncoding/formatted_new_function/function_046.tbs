@@ -1,0 +1,60 @@
+//------------------------------------------------------------------------
+// 简称: ImpliedVolatility
+// 名称: 获取期权的隐含波动率
+// 类别: 用户函数
+// 类型: 内建函数
+// 输出: 数值型
+//------------------------------------------------------------------------
+
+PARAMS
+	Numeric DaysLeft; //DaysLeft = TradingDayLeft();
+	Numeric StrikePr;
+	Numeric AssetPr;
+	Numeric Rate100;
+	Numeric MktVal;
+	Numeric PutCall; // OptionType 0 - Put, 1 - Call
+VARS
+	Numeric TestVolty(0);
+	Numeric BlkSchVal(0);
+	Numeric Counter(0);
+	Numeric Adjustment(0);
+	Numeric ImpVol;
+BEGIN
+	if (DaysLeft > 0 && StrikePr > 0 && AssetPr > 0) {
+		TestVolty = 100;
+		BlkSchVal = BlackScholes(DaysLeft, StrikePr, AssetPr, Rate100, TestVolty, PutCall);
+		while (BlkSchVal < MktVal && TestVolty <= 900) {
+			TestVolty = TestVolty + 100;
+			BlkSchVal = BlackScholes(DaysLeft, StrikePr, AssetPr, Rate100, TestVolty, PutCall);
+		}
+
+		if (BlkSchVal < MktVal) {
+			ImpVol = 999;
+		}
+		else {
+			Counter = 1;
+			Adjustment = 100;
+			while (Abs(BlkSchVal - MktVal) >= 0.005 And Counter < 11) {
+				Adjustment = Adjustment * 0.5;
+				if (BlkSchVal > MktVal)
+					TestVolty = TestVolty - Adjustment;
+				else if (BlkSchVal < MktVal)
+					TestVolty = TestVolty + Adjustment;
+				BlkSchVal = BlackScholes(DaysLeft, StrikePr, AssetPr, Rate100, TestVolty, PutCall);
+				Counter = Counter + 1;
+			}
+			ImpVol = TestVolty;
+		}
+	}
+	else {
+		ImpVol = 0;
+	}
+	RETURN ImpVol;
+END
+
+//------------------------------------------------------------------------
+// 编译版本	GS2014.10.25
+// 版权所有	TradeBlazer Software 2003－2014
+// 更改声明	TradeBlazer Software保留对TradeBlazer平
+//			台每一版本的TradeBlazer公式修改和重写的权利
+//------------------------------------------------------------------------

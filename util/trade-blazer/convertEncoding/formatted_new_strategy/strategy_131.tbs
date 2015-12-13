@@ -1,0 +1,26 @@
+//------------------------------------------------------------------------
+// 简称: VOLMA
+// 名称: 成交量移动平均
+// 类别: 公式应用
+// 类型: 内建应用
+//------------------------------------------------------------------------
+
+PARAMS
+	Numeric Length1(5);
+	Numeric Length2(22);
+	Numeric Length3(60);
+	Numeric Length4(250);
+BEGIN
+	PlotNumeric("Vol", Vol);
+	PlotNumeric("VolMA1", AverageFC(Vol, Length1));
+	PlotNumeric("VolMA2", AverageFC(Vol, Length2));
+	PlotNumeric("VolMA3", AverageFC(Vol, Length3));
+	PlotNumeric("VolMA4", AverageFC(Vol, Length4));
+END
+
+//------------------------------------------------------------------------
+// 编译版本	GS2010.12.08
+// 版权所有	TradeBlazer Software 2003－2010
+// 更改声明	TradeBlazer Software保留对TradeBlazer平
+//			台每一版本的TradeBlazer公式修改和重写的权利
+//------------------------------------------------------------------------

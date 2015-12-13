@@ -1,0 +1,83 @@
+//------------------------------------------------------------------------
+// 简称: CL_Swinger_S
+// 名称: 基于均线与动能的交易系统空 
+// 类别: 公式应用
+// 类型: 内建应用
+//------------------------------------------------------------------------
+
+//----------------------------------------------------------------------//
+// 策略说明:
+//			 本策略基于均线与均线间的动能变化建立的交易系统
+//			 
+// 系统要素:
+//			 1. 1根长期均线进行趋势判断
+//			 2. 2根较短均线值之差揭示的动能变化为交易提供基础
+// 入场条件:
+//			 1. 当价格高于长期均线且动能相对之前变强时做多
+//			 2. 当价格低于长期均线且动能相对之前变弱时做空
+// 出场条件: 
+//			 1. 当动能减弱时, 价格低于ExitStopN根K线低点多头平仓
+//			 2. 当动能增强时, 价格高于ExitStopN根K线高点空头平仓
+//
+//		 注: 当前策略仅为做空系统, 如需做多, 请参见CL_Swinger_L
+//----------------------------------------------------------------------//
+
+PARAMS
+	Numeric FastMALength(5); //动能计算中的快均线值
+	Numeric SlowMALength(20); //动能计算中的慢均线值
+	Numeric TrendMALength(50); //显示趋势的均线值
+	Numeric ExitStopN(3); //求高低点的bar数值
+
+VARS
+
+	NumericSeries TrendMA(0); //趋势线
+	NumericSeries PriceOsci(0); //均线的动能
+
+	NumericSeries ExitS; //出场价格
+
+	NumericSeries MP; //MarketPosition状态记录
+
+BEGIN
+
+// 集合竞价和小节休息过滤
+	if (!CallAuctionFilter()) RETURN;
+
+//系统设置
+//计算趋势线和均线动能
+
+	TrendMA = AverageFC(C, TrendMALength);
+	PriceOsci = PriceOscillator(C, FastMALength, SlowMALength);
+
+//PlotNumeric("TrendMA",TrendMA);
+//PlotNumeric("PriceOsci",PriceOsci);	
+
+//系统入场
+//当上根K线的收盘价格低于TrendMA线, 如果上根K线的动能相对于上上根为减弱且动能仍为正, 则在本根K线开盘价做空
+
+	if (MarketPosition < > -1 and TrendMA[1] < > 0) {
+		if (C[1] < TrendMA[1] and PriceOsci[1] >= 0 and PriceOsci[1] < PriceOsci[2] And Vol > 0) {
+			SellShort(0, Open);
+		}
+	}
+
+//系统出场
+//当均线动能增强时, 如果价格上穿过去ExitStopN根K线的高点后平仓
+	ExitS = HighestFC(H, ExitStopN);
+
+	if (MarketPosition == -1 and MP[1] == -1) {
+		if (PriceOsci[1] > PriceOsci[2] and High >= ExitS[1] And Vol > 0) {
+			BuytoCover(0, Max(Open, ExitS[1]));
+		}
+	}
+
+
+	MP = MarketPosition;
+
+END
+
+//------------------------------------------------------------------------
+// 编译版本	GS2014.10.25
+// 版权所有	TradeBlazer Software 2003－2014
+// 更改声明	TradeBlazer Software保留对TradeBlazer平
+//			台每一版本的TradeBlazer公式修改和重写的权利
+//------------------------------------------------------------------------

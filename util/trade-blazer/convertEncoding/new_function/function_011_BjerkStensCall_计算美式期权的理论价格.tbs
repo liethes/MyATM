@@ -1,0 +1,58 @@
+//------------------------------------------------------------------------
+// 简称: BjerkStensCall
+// 名称: 计算美式期权的理论价格
+// 类别: 用户函数
+// 类型: 内建函数
+// 输出: 数值型
+//------------------------------------------------------------------------
+
+Params
+	Numeric AssetPr;
+	Numeric StrikePr;
+	Numeric YearsLeft;
+	Numeric InterestRate;
+	Numeric Carry;
+	Numeric Volty;
+Vars
+	Numeric VoltySquare(0);
+	Numeric MyBeta(0);
+	Numeric B_Inf(0);
+	Numeric B_Zero(0);
+	Numeric ht(0);
+	Numeric TriggerPr(0);
+	Numeric Alpha(0);
+	Numeric reValue;
+Begin
+	If (Carry < InterestRate)
+	{
+		VoltySquare = Sqr(Volty);
+		MyBeta = 0.5 - Carry/VoltySquare + Sqrt(Sqr(Carry/VoltySquare - 0.5 ) + 2 * InterestRate/VoltySquare);
+		B_Inf = ( MyBeta /(MyBeta - 1 ) ) * StrikePr;
+		B_Zero = Max(StrikePr, ( InterestRate / ( InterestRate - Carry)) * StrikePr);
+		ht = -1 *( Carry * YearsLeft + 2 * Volty * Sqrt(YearsLeft)) * B_Zero/( B_Inf - B_Zero);
+		TriggerPr = B_Zero + ( B_Inf - B_Zero ) * ( 1 - Exp(ht));
+		Alpha = (TriggerPr - StrikePr) * Power(TriggerPr, -1*MyBeta);
+		
+		if (AssetPr >= TriggerPr)
+		{
+			reValue =  AssetPr - StrikePr;
+		}Else
+		{
+			reValue = Alpha * Power( AssetPr, MyBeta ) - 
+					Alpha * BjerkStensPhi(AssetPr, YearsLeft, MyBeta, TriggerPr, TriggerPr, InterestRate, Carry, Volty ) +
+					BjerkStensPhi( AssetPr, YearsLeft, 1, TriggerPr, TriggerPr, InterestRate, Carry, Volty ) - 
+					BjerkStensPhi( AssetPr, YearsLeft, 1, StrikePr, TriggerPr, InterestRate, Carry, Volty ) - 
+					StrikePr * BjerkStensPhi(AssetPr, YearsLeft, 0, TriggerPr, TriggerPr, InterestRate, Carry, Volty ) + 
+					StrikePr * BjerkStensPhi( AssetPr, YearsLeft, 0, StrikePr, TriggerPr, InterestRate, Carry, Volty );		
+		}	
+		Return reValue;
+	}
+	Return 0;
+End
+
+//------------------------------------------------------------------------
+// 编译版本	GS2014.10.25
+// 版权所有	TradeBlazer Software 2003－2014
+// 更改声明	TradeBlazer Software保留对TradeBlazer平
+//			台每一版本的TradeBlazer公式修改和重写的权利
+//------------------------------------------------------------------------

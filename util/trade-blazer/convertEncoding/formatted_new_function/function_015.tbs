@@ -1,0 +1,54 @@
+//------------------------------------------------------------------------
+// 简称: CallAuctionFilter
+// 名称: 集合竞价与小节过滤函数
+// 类别: 用户函数
+// 类型: 用户函数
+// 输出: 布尔型
+//------------------------------------------------------------------------
+
+BEGIN
+// 写成“Date >= CurrentDate”，是为了处理日线交易有夜盘的品种在夜间开盘的集合竞价
+	if (BarStatus == 2 And Date >= CurrentDate) {
+		if (ExchangeName == "上海证券交易所"
+			Or ExchangeName == "深圳证券交易所") {
+			if (Time == 0.0900 And CurrentTime > 0.092455 And CurrentTime < 0.093005) RETURN false;
+			if (Time == 0.0930 And CurrentTime < 0.093005) RETURN false;
+			if (Time == 0.1300 And CurrentTime < 0.130005) RETURN false;
+		}
+		else if (ExchangeName == "中国金融期货交易所") {
+			// 日线，周线，月线				
+			if ((BarType == 0 Or BarType == 4 Or BarType == 5) And CurrentTime > 0.091355 And CurrentTime < 0.091505) RETURN false;
+
+			if (Time == 0.0900 And CurrentTime > 0.091355 And CurrentTime < 0.091505) RETURN false;
+			if (Time == 0.0915 And CurrentTime < 0.091505) RETURN false;
+			if (Time == 0.1300 And CurrentTime < 0.130005) RETURN false;
+		}
+		else if (ExchangeName == "上海期货交易所"
+			Or ExchangeName == "郑州商品交易所"
+			Or ExchangeName == "大连商品交易所") {
+			// 日线，周线，月线
+			if ((BarType == 0 Or BarType == 4 Or BarType == 5) And CurrentTime > 0.205855 And CurrentTime < 0.210005) RETURN false;
+
+			// 注意：有夜盘的品种的日线工作区在最后一根日线上有信号，并且在0.085855之前打开，则会报信号消失，0.090005之后信号恢复
+			// 有夜盘的品种的日线工作区在最后一根日线上有信号，并且在0.085855到0.090005之间打开，则会在0.090005之后发单
+			// 所以，建议尽量早些打开工作区
+			if ((BarType == 0 Or BarType == 4 Or BarType == 5) And CurrentTime > 0.085855 And CurrentTime < 0.090005) RETURN false;
+
+			if (Time == 0.2100 And CurrentTime < 0.210005) RETURN false;
+			if (Time == 0.0900 And CurrentTime < 0.090005) RETURN false;
+			if (Time == 0.1030 And CurrentTime < 0.103005) RETURN false;
+
+			// 注意商品1小时K线下午开始时间是0.1300
+			if ((Time == 0.1300 Or Time == 0.1330) And CurrentTime < 0.133005) RETURN false;
+		}
+	}
+
+	RETURN true;
+END
+
+//------------------------------------------------------------------------
+// 编译版本	GS2010.12.08
+// 版权所有	TradeBlazer Software 2003－2010
+// 更改声明	TradeBlazer Software保留对TradeBlazer平
+//			台每一版本的TradeBlazer公式修改和重写的权利
+//------------------------------------------------------------------------

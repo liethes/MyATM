@@ -1,0 +1,91 @@
+// ------------------------------------------------------------------------
+//  简称: CL_NoHurrySystem_L
+//  名称: 基于平移通道的交易系统多
+//  类别: 公式应用
+//  类型: 内建应用 
+//  输出:
+// ------------------------------------------------------------------------
+
+// ----------------------------------------------------------------------// 
+//  策略说明:	
+// 			 本策略基于平移后的高低点通道判断入场条件，结合ATR止损
+
+//  系统要素:
+//  			1. 平移后的高低点通道
+// 				2. atr止损
+// 
+//  入场条件：
+//  			1.当高点上穿平移通道高点时,开多仓
+//  			2.当低点下穿平移通道低点时,开空仓
+// 	
+//  出场条件：
+//  			1.ATR跟踪止盈
+//  			2.通道止损
+// 
+//     注:当前策略仅为做多系统, 如需做空, 请参见CL_NoHurrySystem_S
+// ----------------------------------------------------------------------// 
+
+Params
+	Numeric ChanLength(20);   				 // 通道计算周期
+	Numeric ChanDelay(15);     				 // 通道平移周期
+	Numeric TrailingATRs(3);  				 // ATR跟踪止损倍数
+	Numeric ATRLength(10);     				 // ATR计算周期
+	
+Vars 
+	NumericSeries UpperChan(0);      	 	 // 通道上轨
+	NumericSeries  LowerChan(0);     	 	 // 通道下轨
+	NumericSeries PosHigh(0);        		 // 记录开仓后高点        
+	NumericSeries ATRVal(0);         		 // atr均值
+	bool con;                        		 // bool中间变量
+	Numeric minpoint;	             		 // 最小变动价位
+	NumericSeries stopline;		    		 // 止损线计算
+	 
+Begin
+	// 集合竞价和小节休息过滤
+	If(!CallAuctionFilter()) Return;
+	
+	// 指标计算
+	minpoint = Minmove*PriceScale;     	     // 最小变动价位
+	UpperChan = Highest(High,ChanLength); 	 // UpperChan=N周期高点，默认20
+	LowerChan = Lowest(Low,ChanLength);      // LowerChan=N周期低点，默认20
+	
+	// PlotNumeric("UpperChan",UpperChan[ChanDelay+1]);
+	// PlotNumeric("LowerChan",LowerChan[ChanDelay+1]);
+	
+	// 系统入场
+	// 价格向上突破ChanDelay周期前的UpperChan，开多仓
+	con = High >= UpperChan[ChanDelay+1] and High[1] < UpperChan[ChanDelay+1];
+	If(MarketPosition == 0)
+	{
+		If(con) 
+		{
+			Buy(0,max(Open,UpperChan[ChanDelay+1]));
+		}
+	}	
+
+	// 系统出场
+	// PosHigh记录开仓后高点 
+	If(BarsSinceEntry == 0 )
+		PosHigh = High;
+	Else if(High > PosHigh[1] ) 
+		PosHigh = High;	
+		
+	// ATR跟踪止损,通道止损
+	ATRVal = AvgTrueRange(ATRLength)*TrailingATRs;
+	If(MarketPosition == 1 and BarsSinceEntry > 0) 
+	{
+		stopline = Max(PosHigh[1] - ATRVal[1],LowerChan[ChanDelay+1] - minpoint);
+		If(Low <= stopline )
+		{
+			Sell(0,min(Open,stopline));
+		}
+	}
+
+End
+
+//------------------------------------------------------------------------
+// 编译版本	GS2014.10.25
+// 版权所有	TradeBlazer Software 2003－2014
+// 更改声明	TradeBlazer Software保留对TradeBlazer平
+//			台每一版本的TradeBlazer公式修改和重写的权利
+//------------------------------------------------------------------------

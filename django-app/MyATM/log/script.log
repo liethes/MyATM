@@ -1,0 +1,122 @@
+2015-11-25 07:52:48,622 [Thread-4:123145312813056] [django.request:170] [WARNING]- Not Found: /favicon.ico
+2015-11-25 08:00:31,941 [Thread-2:123145312813056] [django.request:256] [ERROR]- Internal Server Error: /admin/
+Traceback (most recent call last):
+  File "/Library/Frameworks/Python.framework/Versions/3.4/lib/python3.4/site-packages/django/apps/registry.py", line 148, in get_app_config
+    return self.app_configs[app_label]
+KeyError: '模拟运行'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Library/Frameworks/Python.framework/Versions/3.4/lib/python3.4/site-packages/django/core/handlers/base.py", line 132, in get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/Library/Frameworks/Python.framework/Versions/3.4/lib/python3.4/site-packages/django/contrib/admin/sites.py", line 254, in wrapper
+    return self.admin_view(view, cacheable)(*args, **kwargs)
+  File "/Library/Frameworks/Python.framework/Versions/3.4/lib/python3.4/site-packages/django/utils/decorators.py", line 110, in _wrapped_view
+    response = view_func(request, *args, **kwargs)
+  File "/Library/Frameworks/Python.framework/Versions/3.4/lib/python3.4/site-packages/django/views/decorators/cache.py", line 57, in _wrapped_view_func
+    response = view_func(request, *args, **kwargs)
+  File "/Library/Frameworks/Python.framework/Versions/3.4/lib/python3.4/site-packages/django/contrib/admin/sites.py", line 233, in inner
+    return view(request, *args, **kwargs)
+  File "/Library/Frameworks/Python.framework/Versions/3.4/lib/python3.4/site-packages/django/views/decorators/cache.py", line 57, in _wrapped_view_func
+    response = view_func(request, *args, **kwargs)
+  File "/Library/Frameworks/Python.framework/Versions/3.4/lib/python3.4/site-packages/django/contrib/admin/sites.py", line 433, in index
+    'name': apps.get_app_config(app_label).verbose_name,
+  File "/Library/Frameworks/Python.framework/Versions/3.4/lib/python3.4/site-packages/django/apps/registry.py", line 150, in get_app_config
+    raise LookupError("No installed app with label '%s'." % app_label)
+LookupError: No installed app with label '模拟运行'.
+2015-11-25 08:00:32,982 [Thread-3:123145318068224] [django.request:256] [ERROR]- Internal Server Error: /admin/
+Traceback (most recent call last):
+  File "/Library/Frameworks/Python.framework/Versions/3.4/lib/python3.4/site-packages/django/apps/registry.py", line 148, in get_app_config
+    return self.app_configs[app_label]
+KeyError: '模拟运行'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Library/Frameworks/Python.framework/Versions/3.4/lib/python3.4/site-packages/django/core/handlers/base.py", line 132, in get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/Library/Frameworks/Python.framework/Versions/3.4/lib/python3.4/site-packages/django/contrib/admin/sites.py", line 254, in wrapper
+    return self.admin_view(view, cacheable)(*args, **kwargs)
+  File "/Library/Frameworks/Python.framework/Versions/3.4/lib/python3.4/site-packages/django/utils/decorators.py", line 110, in _wrapped_view
+    response = view_func(request, *args, **kwargs)
+  File "/Library/Frameworks/Python.framework/Versions/3.4/lib/python3.4/site-packages/django/views/decorators/cache.py", line 57, in _wrapped_view_func
+    response = view_func(request, *args, **kwargs)
+  File "/Library/Frameworks/Python.framework/Versions/3.4/lib/python3.4/site-packages/django/contrib/admin/sites.py", line 233, in inner
+    return view(request, *args, **kwargs)
+  File "/Library/Frameworks/Python.framework/Versions/3.4/lib/python3.4/site-packages/django/views/decorators/cache.py", line 57, in _wrapped_view_func
+    response = view_func(request, *args, **kwargs)
+  File "/Library/Frameworks/Python.framework/Versions/3.4/lib/python3.4/site-packages/django/contrib/admin/sites.py", line 433, in index
+    'name': apps.get_app_config(app_label).verbose_name,
+  File "/Library/Frameworks/Python.framework/Versions/3.4/lib/python3.4/site-packages/django/apps/registry.py", line 150, in get_app_config
+    raise LookupError("No installed app with label '%s'." % app_label)
+LookupError: No installed app with label '模拟运行'.
+2015-11-27 05:25:58,060 [Thread-10:123145312813056] [django.request:256] [ERROR]- Internal Server Error: /admin/simrun/simrun/add/
+Traceback (most recent call last):
+  File "/Library/Frameworks/Python.framework/Versions/3.4/lib/python3.4/site-packages/django/core/handlers/base.py", line 132, in get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/Library/Frameworks/Python.framework/Versions/3.4/lib/python3.4/site-packages/django/contrib/admin/options.py", line 616, in wrapper
+    return self.admin_site.admin_view(view)(*args, **kwargs)
+  File "/Library/Frameworks/Python.framework/Versions/3.4/lib/python3.4/site-packages/django/utils/decorators.py", line 110, in _wrapped_view
+    response = view_func(request, *args, **kwargs)
+  File "/Library/Frameworks/Python.framework/Versions/3.4/lib/python3.4/site-packages/django/views/decorators/cache.py", line 57, in _wrapped_view_func
+    response = view_func(request, *args, **kwargs)
+  File "/Library/Frameworks/Python.framework/Versions/3.4/lib/python3.4/site-packages/django/contrib/admin/sites.py", line 233, in inner
+    return view(request, *args, **kwargs)
+  File "/Library/Frameworks/Python.framework/Versions/3.4/lib/python3.4/site-packages/django/contrib/admin/options.py", line 1516, in add_view
+    return self.changeform_view(request, None, form_url, extra_context)
+  File "/Library/Frameworks/Python.framework/Versions/3.4/lib/python3.4/site-packages/django/utils/decorators.py", line 34, in _wrapper
+    return bound_func(*args, **kwargs)
+  File "/Library/Frameworks/Python.framework/Versions/3.4/lib/python3.4/site-packages/django/utils/decorators.py", line 110, in _wrapped_view
+    response = view_func(request, *args, **kwargs)
+  File "/Library/Frameworks/Python.framework/Versions/3.4/lib/python3.4/site-packages/django/utils/decorators.py", line 30, in bound_func
+    return func.__get__(self, type(self))(*args2, **kwargs2)
+  File "/Library/Frameworks/Python.framework/Versions/3.4/lib/python3.4/contextlib.py", line 30, in inner
+    return func(*args, **kwds)
+  File "/Library/Frameworks/Python.framework/Versions/3.4/lib/python3.4/site-packages/django/contrib/admin/options.py", line 1470, in changeform_view
+    self.log_addition(request, new_object)
+  File "/Library/Frameworks/Python.framework/Versions/3.4/lib/python3.4/site-packages/django/contrib/admin/options.py", line 810, in log_addition
+    object_repr=force_text(object),
+  File "/Library/Frameworks/Python.framework/Versions/3.4/lib/python3.4/site-packages/django/utils/encoding.py", line 90, in force_text
+    s = six.text_type(s)
+  File "/Users/TANG/dev/MyATM/django-app/MyATM/simrun/models.py", line 39, in __str__
+    return self.strategyName + ':' + self.symbol + '.' + self.period
+AttributeError: 'SimRun' object has no attribute 'strategyName'
+2015-11-27 05:27:10,949 [Thread-19:123145312813056] [django.request:256] [ERROR]- Internal Server Error: /admin/simrun/simrun/add/
+Traceback (most recent call last):
+  File "/Library/Frameworks/Python.framework/Versions/3.4/lib/python3.4/site-packages/django/core/handlers/base.py", line 132, in get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/Library/Frameworks/Python.framework/Versions/3.4/lib/python3.4/site-packages/django/contrib/admin/options.py", line 616, in wrapper
+    return self.admin_site.admin_view(view)(*args, **kwargs)
+  File "/Library/Frameworks/Python.framework/Versions/3.4/lib/python3.4/site-packages/django/utils/decorators.py", line 110, in _wrapped_view
+    response = view_func(request, *args, **kwargs)
+  File "/Library/Frameworks/Python.framework/Versions/3.4/lib/python3.4/site-packages/django/views/decorators/cache.py", line 57, in _wrapped_view_func
+    response = view_func(request, *args, **kwargs)
+  File "/Library/Frameworks/Python.framework/Versions/3.4/lib/python3.4/site-packages/django/contrib/admin/sites.py", line 233, in inner
+    return view(request, *args, **kwargs)
+  File "/Library/Frameworks/Python.framework/Versions/3.4/lib/python3.4/site-packages/django/contrib/admin/options.py", line 1516, in add_view
+    return self.changeform_view(request, None, form_url, extra_context)
+  File "/Library/Frameworks/Python.framework/Versions/3.4/lib/python3.4/site-packages/django/utils/decorators.py", line 34, in _wrapper
+    return bound_func(*args, **kwargs)
+  File "/Library/Frameworks/Python.framework/Versions/3.4/lib/python3.4/site-packages/django/utils/decorators.py", line 110, in _wrapped_view
+    response = view_func(request, *args, **kwargs)
+  File "/Library/Frameworks/Python.framework/Versions/3.4/lib/python3.4/site-packages/django/utils/decorators.py", line 30, in bound_func
+    return func.__get__(self, type(self))(*args2, **kwargs2)
+  File "/Library/Frameworks/Python.framework/Versions/3.4/lib/python3.4/contextlib.py", line 30, in inner
+    return func(*args, **kwds)
+  File "/Library/Frameworks/Python.framework/Versions/3.4/lib/python3.4/site-packages/django/contrib/admin/options.py", line 1470, in changeform_view
+    self.log_addition(request, new_object)
+  File "/Library/Frameworks/Python.framework/Versions/3.4/lib/python3.4/site-packages/django/contrib/admin/options.py", line 810, in log_addition
+    object_repr=force_text(object),
+  File "/Library/Frameworks/Python.framework/Versions/3.4/lib/python3.4/site-packages/django/utils/encoding.py", line 90, in force_text
+    s = six.text_type(s)
+  File "/Users/TANG/dev/MyATM/django-app/MyATM/simrun/models.py", line 39, in __str__
+    return self.strategyName + ':' + self.symbol + '.' + self.period
+AttributeError: 'SimRun' object has no attribute 'strategyName'
+2015-12-08 02:56:42,675 [Thread-2:123145312813056] [django.request:170] [WARNING]- Not Found: /
+2015-12-08 02:56:42,827 [Thread-3:123145318068224] [django.request:170] [WARNING]- Not Found: /favicon.ico
+2015-12-13 05:14:43,624 [Thread-4:123145323323392] [django.request:170] [WARNING]- Not Found: /favicon.ico
+2015-12-13 05:14:44,077 [Thread-10:123145312813056] [django.request:170] [WARNING]- Not Found: /favicon.ico
+2015-12-13 05:14:44,300 [Thread-11:123145318068224] [django.request:170] [WARNING]- Not Found: /
+2015-12-13 05:14:44,601 [Thread-12:123145312813056] [django.request:170] [WARNING]- Not Found: /gantt
+2015-12-13 06:01:08,585 [Thread-29:123145312813056] [django.request:170] [WARNING]- Not Found: /

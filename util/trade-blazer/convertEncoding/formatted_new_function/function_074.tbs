@@ -1,0 +1,32 @@
+//------------------------------------------------------------------------
+// 简称: NormalCumDensityArray
+// 名称: 求数组的正态分布累计概率密度
+// 类别: 用户函数
+// 类型: 内建函数
+// 输出: 数值型
+//------------------------------------------------------------------------
+
+PARAMS
+	NumericArrayRef arr;
+VARS
+	Numeric Var0(0);
+	Numeric Var1(0);
+BEGIN
+	Var0 = AverageArray(arr);
+	Var1 = StandardDevArray(arr, 2);
+
+	if (Var1 > 0) {
+		RETURN NormalSCDensity((arr[0] - Var0) / Var1);
+
+	}
+	else {
+		RETURN - 1;
+	}
+END
+
+//------------------------------------------------------------------------
+// 编译版本	GS2014.10.25
+// 版权所有	TradeBlazer Software 2003－2014
+// 更改声明	TradeBlazer Software保留对TradeBlazer平
+//			台每一版本的TradeBlazer公式修改和重写的权利
+//------------------------------------------------------------------------

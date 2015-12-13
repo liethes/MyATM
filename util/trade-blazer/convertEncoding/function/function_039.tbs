@@ -1,0 +1,38 @@
+//------------------------------------------------------------------------
+// 简称: HarmonicMeanArray
+// 名称: 求数组的调和平均数
+// 类别: 用户函数
+// 类型: 内建函数
+// 输出: 数值型
+//------------------------------------------------------------------------
+ 
+Params
+	NumericArrayRef arr;
+Vars
+	Numeric arrSize;
+	Numeric SumValue(0);
+	Numeric HarMeanValue;
+	Numeric i;
+Begin
+	arrSize = GetNumericArraySize(arr);
+	If (LowestArray(arr) > 0 )
+	{
+		For i = 0 To arrSize - 1
+		{
+			SumValue = SumValue + 1 / arr[i];
+		}
+	
+		HarMeanValue = arrSize / SumValue;
+	}else
+	{
+		HarMeanValue = -1;
+	}
+	Return HarMeanValue;
+End 
+
+//------------------------------------------------------------------------
+// 编译版本	GS2014.10.25
+// 版权所有	TradeBlazer Software 2003－2014
+// 更改声明	TradeBlazer Software保留对TradeBlazer平
+//			台每一版本的TradeBlazer公式修改和重写的权利
+//------------------------------------------------------------------------

@@ -1,0 +1,75 @@
+//------------------------------------------------------------------------
+// 简称: Pivot
+// 名称: 求转折
+// 类别: 用户函数
+// 类型: 内建函数
+// 输出: 布尔型
+//------------------------------------------------------------------------
+
+PARAMS
+	NumericSeries Price(1);
+	Numeric Length(10);
+	Numeric LeftStrength(1);
+	Numeric RightStrength(1);
+	Numeric Instance(1);
+	Numeric HiLo(1);
+	NumericRef PivotPrice;
+	NumericRef PivotBar;
+VARS
+	Numeric CandidatePrice(0);
+	Numeric LengthCntr(0);
+	Numeric StrengthCntr(0);
+	Numeric InstanceCntr(0);
+	Bool PivotTest(false);
+	Bool InstanceTest(false);
+BEGIN
+	InstanceCntr = 0;
+	InstanceTest = false;
+	LengthCntr = RightStrength;
+	while (LengthCntr < Length && (!InstanceTest)) {
+		CandidatePrice = Price[LengthCntr];
+		PivotTest = true;
+		StrengthCntr = LengthCntr + 1;
+
+		while (PivotTest && StrengthCntr - LengthCntr <= LeftStrength) {
+			if ((HiLo == 1 And CandidatePrice < Price[StrengthCntr]) or(HiLo == -1 And CandidatePrice > Price[StrengthCntr]))
+				PivotTest = false;
+			else
+				StrengthCntr = StrengthCntr + 1;
+		}
+
+		StrengthCntr = LengthCntr - 1;
+		while (PivotTest && (LengthCntr - StrengthCntr) <= RightStrength) {
+			if ((HiLo == 1 And CandidatePrice <= Price[StrengthCntr]) or(HiLo == -1 And CandidatePrice >= Price[StrengthCntr]))
+				PivotTest = false;
+			else
+				StrengthCntr = StrengthCntr - 1;
+		}
+
+		if (PivotTest)
+			InstanceCntr = InstanceCntr + 1;
+
+		if (InstanceCntr == Instance)
+			InstanceTest = true;
+		else
+			LengthCntr = LengthCntr + 1;
+	}
+
+	if (InstanceTest) {
+		PivotPrice = CandidatePrice;
+		PivotBar = LengthCntr;
+		RETURN true;
+	}
+	else {
+		PivotPrice = -1;
+		PivotBar = -1;
+		RETURN false;
+	}
+END
+
+//------------------------------------------------------------------------
+// 编译版本	GS2010.12.08
+// 版权所有	TradeBlazer Software 2003－2010
+// 更改声明	TradeBlazer Software保留对TradeBlazer平
+//			台每一版本的TradeBlazer公式修改和重写的权利
+//------------------------------------------------------------------------

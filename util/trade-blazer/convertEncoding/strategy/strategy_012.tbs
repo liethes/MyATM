@@ -1,0 +1,92 @@
+// ------------------------------------------------------------------------
+//  简称: CL_AverageChannelRangeLeader_L
+//  名称: 基于平移的高低点均值通道与K线中值突破的系统多 
+//  类别: 公式应用
+//  类型: 内建应用
+//  输出:
+// ------------------------------------------------------------------------
+
+
+// ----------------------------------------------------------------------// 
+//  策略说明:
+//  			基于平移的高点和低点均线通道与K线中值突破进行判断
+
+//  系统要素:
+//  			1. Range Leader是个当前K线的中点在之前K线的最高点上, 且当前K线的振幅大于之前K线的振幅的K线
+//  			2. 计算高点和低点的移动平均线
+
+//  入场条件:
+//  			1、上根K线为RangeLead，并且上一根收盘价大于N周期前高点的MA，当前无多仓，则开多仓
+//  			2、上根K线为RangeLead，并且上一根收盘价小于N周期前低点的MA，当前无空仓，则开空仓
+// 
+//  出场条件:
+//  			1. 开仓后，5个K线内用中轨止损，5个K线后用外轨止损
+// 
+//     注:当前策略仅为做多系统, 如需做空, 请参见CL_AverageChannelRangeLeader_S
+// 
+// ----------------------------------------------------------------------// 
+
+Params
+	Numeric AvgLen(20); 							// 高低点均线计算周期
+	Numeric AbsDisp(5); 							// 高低点均线前移周期
+	Numeric ExitBar(5); 							// 止损周期参数，该周期以前中轨止损，以后外轨止损
+Vars
+	NumericSeries UpperAvg(0);   					// 通道上轨
+	NumericSeries LowerAvg(0);   					// 通道下轨
+	NumericSeries ExitAvg(0);    					// 通道中轨
+	BoolSeries RangeLeadB(False);  					// 是否RangeLead
+	NumericSeries MedianPrice;     					// K线中价
+	Numeric minpoint;              					// 最小变动价位
+	NumericSeries range;	       					// 振幅
+Begin
+	// 集合竞价和小节休息过滤
+	If(!CallAuctionFilter()) Return;
+	
+	// 指标计算
+	minpoint = Minmove*PriceScale; 				    // 最小变动价位
+	range = High - Low;
+	UpperAvg = Average(High[AbsDisp], AvgLen);      // 计算N周期前高点的MA，N=参数AbsDisp
+	LowerAvg = Average(Low[AbsDisp], AvgLen);       // 计算N周期前低点的MA，N=参数AbsDisp
+	MedianPrice = (High + Low)*0.5;                 // 计算K线中点
+	ExitAvg = Average(MedianPrice[AbsDisp], AvgLen);   		  // 计算N周期前K线中点的MA，N=参数AbsDisp
+	 // PlotNumeric("lineu",UpperAvg);	
+	 // PlotNumeric("lineM",ExitAvg);
+	 // PlotNumeric("lingd",LowerAvg);
+	RangeLeadB = MedianPrice > High[1] and Range > Range[1];  // 当K线中点大于前一根K线高点并且振幅〉上一根振幅时，RangeLeadB为真
+
+	// 系统入场
+	If(MarketPosition == 0)
+	{
+		If(RangeLeadB[1] and Close[1] > UpperAvg[1]) 		  // 上根K线RangeLeadB为真，并且上一根收盘价大于N周期前高点的MA，当前无多仓，则开多仓
+		{
+			Buy(0,Open);
+		}
+	}
+	
+	// 系统出场
+	If(MarketPosition == 1 and BarsSinceEntry > 0)  	      // 开仓后N根K线内用中轨止损，N根K线后用上轨止损，N=参数ExitBar
+	{
+		If(BarsSinceEntry <= ExitBar )  
+			{
+				If(Low <= ExitAvg) 
+				{
+					Sell(0,Min(Open,ExitAvg));
+				}
+			}
+		Else If(BarsSinceEntry > ExitBar)
+			{
+				If(Low <= UpperAvg - minpoint) 
+				{
+					Sell(0,Min(Open,UpperAvg - minpoint));
+				}
+			}
+	}
+
+End
+
+//------------------------------------------------------------------------
+// 编译版本	GS2014.10.25
+// 版权所有	TradeBlazer Software 2003－2014
+// 更改声明	TradeBlazer Software保留对TradeBlazer平
+//			台每一版本的TradeBlazer公式修改和重写的权利
+//------------------------------------------------------------------------

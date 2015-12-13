@@ -1,0 +1,147 @@
+//------------------------------------------------------------------------
+// 简称: CL_In_The_Zone_L
+// 名称: 基于k线建立箱体基于突破进行系统交易多
+// 类别: 公式应用
+// 类型: 内建应用
+//------------------------------------------------------------------------
+
+//----------------------------------------------------------------------//
+// 策略说明:
+//			 本策略基于k线形成的区域设置进出场价格, 通过价格的上下突破来进行交易或取消做单
+//			 
+// 系统要素:
+//			 k线区域按时间顺序从左向右共由4根k线组成, 最左边的k线标号为3
+//			 1. 如果1号k线收盘价高于3号k线最高点, 开始设置做多交易区域, 上轨为3号K线高点, 下轨为标号为1起CancelFlagN根K线的低点
+//				如果标号为0的K线收盘价在上下轨之间, 则做多区域设置成功, 如果收盘价低于下轨则区域设置取消
+//			 2. 如果1号k线收盘价低于3号k线最低点, 开始设置做空交易区域, 下轨为3号K线低点, 上轨为标号为1起CancelFlagN根K线的高点
+//				如果标号为0的K线收盘价在上下轨之间, 则做空区域设置成功, 如果收盘价高于上轨则区域设置取消
+// 入场条件:
+//			 1. 做多区域设置成功时, 当前k线高于标号为0的K线高点时入场做多
+//			 2. 做空区域设置成功时, 当前k线低于标号为0的K线低点时入场做空
+// 出场条件: 
+//			 1. 基于ATR的保护性止损
+//			 2. 基于ATR的盈亏平衡止损
+//			 3. 基于ATR的盈利止盈
+//
+//		 注: 当前策略仅为做多系统, 如需做空, 请参见CL_In_The_Zone_S
+//----------------------------------------------------------------------//
+
+PARAMS
+	Numeric ATRLength(10); //ATR的值
+	Numeric CancelFlagN(5); //用于计算取消区域成功设置标志的上下轨的N值
+	Numeric ProtectStopATRMulti(0.5); //保护性止损的ATR乘数
+	Numeric breakEvenStopATRMulti(3); //盈亏平衡止损的ATR乘数
+	Numeric ProfitTargetATRMulti(5); //盈利止盈的ATR乘数
+
+VARS
+
+	NumericSeries ATR(0); //ATR
+
+	NumericSeries UpLine(0); //区域设置上轨
+	NumericSeries DownLine(0); //区域设置下轨
+
+	NumericSeries DownLineTemp;
+
+	NumericSeries HighAfterEntry; //持仓后的高点记录
+
+	NumericSeries EntryPriceL(0); //开仓价格线
+	BoolSeries EntryFlag(false); //入场标志
+
+	NumericSeries ProtectStopL; //基于ATR的保护性止损
+	NumericSeries ProfitTargetStopL; //基于ATR的盈利止盈
+	Numeric breakEvenStopL; //基于ATR的盈亏平衡止损
+	Numeric ExitLineL; //平仓价格线
+
+	NumericSeries MP; //MarketPosition的状态记录
+
+BEGIN
+
+// 集合竞价和小节休息过滤
+	if (!CallAuctionFilter()) RETURN;
+
+//系统设置
+
+	ATR = AvgtrueRange(ATRLength);
+	DownLineTemp = LowestFC(Low, CancelFlagN);
+
+//k线区域按时间顺序从左向右共由4根k线组成, 最左边的k线标号为3, 当前K线标号为0
+//如果1号k线收盘价高于3号k线最高点, 开始设置做多交易区域, 上轨为3号K线高点, 下轨为从标号为1起CancelFlagN根K线的低点
+//如果标号为0的K线收盘价在上下轨之间, 则做多区域设置成功, 做多触发价为标号为0的K线高点, 如果之后k线收盘价低于下轨则区域设置取消
+	if (MarketPosition < > 1) {
+		if (EntryFlag[1] == false) {
+			if (Close[1] >= High[3]) {
+				UpLine = High[3];
+				DownLine = DownLineTemp[1];
+				if (C[0] <= UpLine and C[0] >= DownLine) {
+					EntryFlag = true;
+					EntryPriceL = High[0];
+				}
+			}
+		}
+		//如果未开仓前, 有k线收盘低于DownLine, 则做多区域设置取消 
+		else if (EntryFlag[1] == true) {
+			if (C[0] < DownLine) EntryFlag = false;
+		}
+	}
+//PlotNumeric("UpLine",UpLine);
+//PlotNumeric("DownLine",DownLine);
+//PlotBool("EntryFlag",EntryFlag);
+//PlotNumeric("EntryPriceL",EntryPriceL);
+
+//系统入场
+//做多区域设置成功时, 当前k线高于标号为0的K线高点时入场做多
+	if (MarketPosition < > 1 and CurrentBar >= ATRLength) {
+		if (EntryFlag[1] == true and High >= EntryPriceL[1] And Vol > 0) {
+			Buy(0, Max(Open, EntryPriceL[1]));
+			EntryFlag = false;
+			//基于ATR的保护性止损
+			ProtectStopL = Low[1] - ProtectStopATRMulti * ATR[1];
+			//基于ATR的盈利止盈
+			ProfitTargetStopL = High[1] + ProfitTargetATRMulti * ATR[1];
+		}
+	}
+
+//系统出场
+
+	if (BarsSinceEntry == 0)
+		HighAfterEntry = High;
+	else
+		HighAfterEntry = Max(HighAfterEntry[1], High);
+
+//基于ATR的盈亏平衡止损
+	breakEvenStopL = LastEntryPrice;
+
+	if (MarketPosition == 1 and mp[1] == 1 And Vol > 0) {
+		//出场线选择
+		if (HighAfterEntry[1] >= breakEvenStopL + breakEvenStopATRMulti * ATR[1]) {
+			ExitLineL = breakEvenStopL;
+		}
+		else {
+			ExitLineL = ProtectStopL[1];
+		}
+
+		//出场
+		//基于ATR的盈利止盈
+		if (Open >= ProfitTargetStopL[1]) {
+			Sell(0, Open);
+		}
+		//基于ATR的保护性止损或盈亏平衡止损
+		else if (L <= ExitLineL) {
+			Sell(0, Min(Open, ExitLineL));
+		}
+	}
+//PlotNumeric("ProtectStopL",ProtectStopL);
+//PlotNumeric("ProfitTargetStopL",ProfitTargetStopL);
+//PlotNumeric("breakEvenStopL",breakEvenStopL);
+//PlotNumeric("ExitLineL",ExitLineL);
+
+	MP = MarketPosition;
+
+END
+
+//------------------------------------------------------------------------
+// 编译版本	GS2014.10.25
+// 版权所有	TradeBlazer Software 2003－2014
+// 更改声明	TradeBlazer Software保留对TradeBlazer平
+//			台每一版本的TradeBlazer公式修改和重写的权利
+//------------------------------------------------------------------------

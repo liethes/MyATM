@@ -1,0 +1,33 @@
+//------------------------------------------------------------------------
+// 简称: BlackModel
+// 名称: 获取期货期权的理论价格
+// 类别: 用户函数
+// 类型: 内建函数
+// 输出: 数值型
+//------------------------------------------------------------------------
+
+PARAMS
+	Numeric DaysLeft;
+	Numeric StrikePr;
+	Numeric AssetPr;
+	Numeric Rate100;
+	Numeric Volty100;
+	Numeric PutCall; // OptionType 0 - Put, 1 - Call
+VARS
+	Numeric oOptPrice(0);
+	Numeric oDelta(0);
+	Numeric oGamma(0);
+	Numeric oVega(0);
+	Numeric oTheta(0);
+	Numeric oRho(0);
+BEGIN
+	OptionsComplex(3, DaysLeft, StrikePr, AssetPr, Rate100, 0, 0, Volty100, PutCall, 0, oOptPrice, oDelta, oGamma, oVega, oTheta, oRho);
+	RETURN oOptPrice;
+END
+
+//------------------------------------------------------------------------
+// 编译版本	GS2014.10.25
+// 版权所有	TradeBlazer Software 2003－2014
+// 更改声明	TradeBlazer Software保留对TradeBlazer平
+//			台每一版本的TradeBlazer公式修改和重写的权利
+//------------------------------------------------------------------------

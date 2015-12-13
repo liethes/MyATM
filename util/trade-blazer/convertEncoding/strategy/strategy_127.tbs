@@ -1,0 +1,39 @@
+//------------------------------------------------------------------------
+// 简称: UI
+// 名称: 溃疡指数
+// 类别: 公式应用
+// 类型: 内建应用
+//------------------------------------------------------------------------
+
+Params
+	Numeric Length( 14 ) ;
+Vars
+	Numeric SumSqr( 0 );
+	Numeric nClose( 0 ) ;
+	Numeric i;
+	Numeric UIValue;
+Begin
+	SumSqr = 0 ;
+	nClose = Close[ Length - 1 ] ;
+	for i = Length - 2 downto 0 
+	{
+		If (nClose > Close[i] and nClose <> 0)
+		{
+			SumSqr = SumSqr + ( Round( ( ( nClose - Close[i] ) / nClose ) * 100, 2 ) )^2;
+		}Else
+		{
+			nClose = Close[i] ;
+		}
+	}
+	
+	UIValue = ( SumSqr / Length )^0.5 ;
+	PlotNumeric("UI",UIValue);
+End
+
+
+//------------------------------------------------------------------------
+// 编译版本	GS2010.12.08
+// 版权所有	TradeBlazer Software 2003－2010
+// 更改声明	TradeBlazer Software保留对TradeBlazer平
+//			台每一版本的TradeBlazer公式修改和重写的权利
+//------------------------------------------------------------------------

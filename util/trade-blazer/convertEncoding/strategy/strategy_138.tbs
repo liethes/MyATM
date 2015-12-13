@@ -1,0 +1,35 @@
+//------------------------------------------------------------------------
+// 简称: WVAD
+// 名称: 威廉变异离散量
+// 类别: 公式应用
+// 类型: 内建应用
+//------------------------------------------------------------------------
+
+Params
+	Numeric Length(24);
+	Numeric SmoothLength(6);
+Vars
+	NumericSeries VADValue;
+	NumericSeries WVADValue;
+	Numeric SmoothWVADValue;
+Begin
+	If( High > Low)
+	{
+		VADValue = (Close - Open) / (High - Low) * Vol;
+	}Else
+	{
+		VADValue = 0;
+	}
+	WVADValue = SummationFC(VADValue, Length)/1000;
+	SmoothWVADValue = AverageFC(WVADValue,SmoothLength);
+	PlotNumeric("WVAD",WVADValue);
+	PlotNumeric("WVAD Avg",SmoothWVADValue);
+	PlotNumeric("零线",0);
+End
+
+//------------------------------------------------------------------------
+// 编译版本	GS2010.12.08
+// 版权所有	TradeBlazer Software 2003－2010
+// 更改声明	TradeBlazer Software保留对TradeBlazer平
+//			台每一版本的TradeBlazer公式修改和重写的权利
+//------------------------------------------------------------------------

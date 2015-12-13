@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "testD3.js",
+  "sourceRoot": "",
+  "sources": [
+    "testD3.coffee"
+  ],
+  "names": [],
+  "mappings": ""
+}

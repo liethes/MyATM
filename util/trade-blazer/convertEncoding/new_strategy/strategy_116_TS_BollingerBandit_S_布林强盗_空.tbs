@@ -1,0 +1,82 @@
+//------------------------------------------------------------------------
+// 简称: TS_BollingerBandit_S
+// 名称: 布林强盗_空
+// 类别: 公式应用
+// 类型: 内建应用
+// 输出:
+//------------------------------------------------------------------------
+
+/* 
+策略说明:
+		基于布林通道的突破系统
+系统要素:
+		1、基于收盘价计算而来的布林通道
+		2、基于收盘价计算而来的进场过滤器
+		3、自适应出场均线
+入场条件:
+		1、满足过滤条件，并且价格上破布林通道上轨，开多单
+		2、满足过滤条件，并且价格下破布林通道下轨，开空单
+出场条件:
+		1、持有多单时，自适应出场均线低于布林通道上轨，并且价格下破自适应出场均线，平多单
+		2、持有空单时，自适应出场均线高于布林通道下轨，并且价格上破自适应出场均线，平空单
+注    意:
+		此公式仅做空
+*/
+Params
+	Numeric bollingerLengths(50);	// 布林通道参数
+	Numeric Offset(1.25);			// 布林通道参数
+	Numeric rocCalcLength(30);		// 过滤器参数
+	Numeric liqLength(50);			// 自适应出场均线参数
+	Numeric Lots(0);				// 交易手数				
+Vars
+	NumericSeries MidLine(0);		// 布林通道中轨
+	Numeric Band(0);
+	NumericSeries dnBand(0);		// 布林通道下轨
+	
+	NumericSeries rocCalc(0);		// 过滤器
+	NumericSeries liqDays(50);		// 自适应出场均线参数
+	NumericSeries liqPoint(0);		// 自适应的出场均线
+Begin
+	// 集合竞价和小节休息过滤
+	If(!CallAuctionFilter()) Return;
+	
+	// 布林通道中轨
+	MidLine = AverageFC(Close,bollingerLengths);
+	Band = StandardDev(Close,bollingerLengths,2); 
+	// 布林通道下轨
+	dnBand = MidLine - Offset*Band; 
+
+	// 画线
+	PlotNumeric("MidLine",MidLine);
+	PlotNumeric("dnBand",dnBand);
+	
+	// 进场过滤器
+	rocCalc = Close - Close[rocCalcLength - 1];
+	
+	// 满足过滤条件，并且价格突破布林通道下轨，开空单
+	If(MarketPosition != -1 And rocCalc[1] < 0 And Low <= dnBand[1]) SellShort(Lots,Min(Open,dnBand[1]));
+	
+	// 自适应出场均线
+	If(MarketPosition == 0)
+	{
+		liqDays = liqLength;
+	}Else
+	{
+		liqDays = liqDays - 1;
+		liqDays = Max(liqDays,10);
+	}
+	liqPoint = Average(Close,liqDays);
+	
+	// 画线
+	PlotNumeric("liqPoint",liqPoint);
+
+	// 持有空单时，自适应出场均线高于布林通道下轨，并且价格上破自适应出场均线，平空单
+	If(MarketPosition == -1 And BarsSinceEntry >= 1 And liqPoint[1] > dnBand[1] And High >= liqPoint[1]) BuyToCover(0,Max(Open,liqPoint[1]));
+End	
+
+//------------------------------------------------------------------------
+// 编译版本	GS2014.10.25
+// 版权所有	TradeBlazer Software 2003－2014
+// 更改声明	TradeBlazer Software保留对TradeBlazer平
+//			台每一版本的TradeBlazer公式修改和重写的权利
+//------------------------------------------------------------------------

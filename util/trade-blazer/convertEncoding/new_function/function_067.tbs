@@ -1,0 +1,37 @@
+//------------------------------------------------------------------------
+// 简称: MedianArray
+// 名称: 求数组的中位数
+// 类别: 用户函数
+// 类型: 内建函数
+// 输出: 数值型
+//------------------------------------------------------------------------
+  
+Params
+	NumericArrayRef arr;
+Vars
+	Numeric arrSize;
+	Numeric MediaValue1;
+	Numeric MediaValue2;
+	Numeric HalfSize;
+	Numeric TmpIndex;
+Begin
+	arrSize = GetNumericArraySize(arr);
+	If ( arrSize%2 == 0)
+	{
+		HalfSize = arrSize/2;		
+		MediaValue1 = NthExtremesArray(arr,HalfSize, True,TmpIndex);
+		MediaValue2 = NthExtremesArray(arr,HalfSize+1, True,TmpIndex);
+		Return (MediaValue1 + MediaValue2)/2;
+	}Else
+	{
+		MediaValue1 = NthExtremesArray(arr,(arrSize+1)/2, True,TmpIndex);
+		Return MediaValue1;
+	}
+End
+
+//------------------------------------------------------------------------
+// 编译版本	GS2014.10.25
+// 版权所有	TradeBlazer Software 2003－2014
+// 更改声明	TradeBlazer Software保留对TradeBlazer平
+//			台每一版本的TradeBlazer公式修改和重写的权利
+//------------------------------------------------------------------------

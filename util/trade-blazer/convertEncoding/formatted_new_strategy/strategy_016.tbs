@@ -1,0 +1,118 @@
+//------------------------------------------------------------------------
+// 简称: CL_DoubleYourFun_L
+// 名称: 基于置换均线的二次穿越突破系统多 
+// 类别: 公式应用
+// 类型: 内建应用
+// 输出:
+//------------------------------------------------------------------------
+
+//----------------------------------------------------------------------//
+// 策略说明:
+//			 本策略是基于置换均线的二次穿越突破系统
+//			 
+// 系统要素:
+//			 1. 将移动平均K线向后平移一定BAR数即为置换均线
+//			 2. 相隔一定BAR数的收盘价二次穿越置换均线
+//			 3. 二次穿越完成时那根BAR的高点（或低点）作为突破进场价
+//			 4. 完成二次穿越的一定BAR数内突破
+// 入场条件:
+//			 1. 有效期内价格向上突破设定进场价做多
+//			 2. 有效期内价格向下突破设定进场价做空
+// 出场条件: 
+//			 1. 价格反向穿越均线后止损
+//			 2. 基于N根K线的高低点的跟踪止损
+//
+//		 注: 当前策略仅为做多系统, 如需做空, 请参见CL_DoubleYourFun_S
+//----------------------------------------------------------------------//
+
+
+PARAMS
+	Numeric AvgLength(5); // 均线周期
+	Numeric AvgDisplace(5); // 置换均线向后平移Bar数
+	Numeric ValidBars1(5); // 开仓先决条件之一（收盘价上穿DMA均线）条件值保持有效的BAR数
+	Numeric ValidBars2(5); // 开仓先决条件之二（上穿后再下穿）条件值保持有效的BAR数
+	Numeric ValidBars3(5); // 开仓先决条件（上穿再下穿再上穿）条件值保持有效的BAR数
+	Numeric TrailStopBars(5); // 多少根BAR的最低价作为跟踪止损价
+
+VARS
+	NumericSeries MA; // 均线
+	NumericSeries DMA; // 置换均线
+	BoolSeries ConCrossOver; // 当前BAR是否上穿DMA
+	BoolSeries ConCrossUnder; // 当前BAR是否下穿DMA
+	Numeric BarsLastCrsUnd; // 最近一次下穿离现在的BAR数
+	Numeric BarsFstCrsOvr; // 最近倒数第二次上穿离现在的BAR数
+	Numeric BarsSecCrsOvr; // 最近的一次上穿离现在的BAR数
+	BoolSeries EntryFlag(false); // 开仓标志
+	NumericSeries EntryPoint; // 突破开仓的价格
+	NumericSeries EntryCount; // 满足开仓先决条件的BAR计数
+	Numeric ReversalPrice; // 趋势反向的平仓价格
+	Numeric TrailStopPrice; // 跟踪止损的平仓价格
+
+BEGIN
+
+// 集合竞价和小节休息过滤
+	if (!CallAuctionFilter()) RETURN;
+
+// 计算置换均线
+	MA = Average(Close, AvgLength);
+	DMA = MA[AvgDisplace];
+	PlotNumeric("DMA", DMA);
+
+// 判断收盘价是否穿越置换均线
+	ConCrossOver = CrossOver(Close, DMA);
+	ConCrossUnder = CrossUnder(Close, DMA);
+
+// 计算最近的一次下穿发生的BAR离当前BAR的根数
+	BarsLastCrsUnd = NthCon(ConCrossUnder == true, 1);
+
+// 计算最近的两次上穿发生的BAR离当前BAR的根数
+	BarsFstCrsOvr = NthCon(ConCrossOver == true, 2);
+	BarsSecCrsOvr = NthCon(ConCrossOver == true, 1);
+
+// 设置开仓标志
+	if (ConCrossOver And BarsLastCrsUnd - BarsSecCrsOvr <= ValidBars2 And BarsFstCrsOvr - BarsLastCrsUnd <= ValidBars1) {
+		EntryFlag = true;
+		EntryPoint = High + MinMove * PriceScale;
+		EntryCount = 0;
+	}
+	Commentary("EntryFlag = " + iifstring(EntryFlag, "true", "false"));
+	Commentary("EntryPoint = " + Text(EntryPoint));
+	Commentary("EntryCount = " + Text(EntryCount));
+
+
+// 开仓
+	if (MarketPosition == 0 And EntryCount <= ValidBars3) {
+		if (EntryFlag And High >= EntryPoint And Vol > 0) {
+			Buy(0, Max(Open, EntryPoint));
+		}
+		else {
+			EntryCount = EntryCount + 1;
+		}
+	}
+
+// 开仓或者开仓先决条件已过有效BAR数，修改开仓标志
+	if (MarketPosition == 1 Or EntryCount > ValidBars3) {
+		EntryFlag = false;
+	}
+
+// 止损价格计算
+	ReversalPrice = DMA[1] - MinMove * PriceScale;
+	TrailStopPrice = Lowest(Low[1], TrailStopBars);
+	Commentary("ReversalPrice = " + Text(ReversalPrice));
+	Commentary("TrailStopPrice = " + Text(TrailStopPrice));
+
+// 平仓
+	if (MarketPosition == 1 And BarsSinceEntry > 0 And Vol > 0) {
+		if (Low <= Max(ReversalPrice, TrailStopPrice)) {
+			Sell(0, Min(Open, Max(ReversalPrice, TrailStopPrice)));
+		}
+	}
+
+END
+
+//------------------------------------------------------------------------
+// 编译版本	GS2014.10.25
+// 版权所有	TradeBlazer Software 2003－2014
+// 更改声明	TradeBlazer Software保留对TradeBlazer平
+//			台每一版本的TradeBlazer公式修改和重写的权利
+//------------------------------------------------------------------------

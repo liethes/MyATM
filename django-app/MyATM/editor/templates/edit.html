@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>EDIT: {{scriptName}}</title>
+</head>
+<body>
+<div><span class="titleSpan">EDITOR</span></div>
+<h1>{{scriptName}}</h1>
+
+<!--控制按钮-->
+<div style="height: 30px;">
+	<div class="pull-right">
+		<button class="btn btn-primary btn-sm" id="btnSave">SAVE</button>
+		<button class="btn btn-warning btn-sm" id="btnSync">SYNC</button>
+		<button class="btn btn-success btn-sm" id="btnRunSim">RUN</button>
+		<div class="btn-group btn-group-sm">
+			<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="width:8em;">
+				MORE <span class="caret"></span>
+			</button>
+			<ul class="dropdown-menu" style="min-width:0;">
+				<li><a href="#">RENAME</a></li>
+				<li><a href="#" style="color:red;">DELETE</a></li>
+			</ul>
+		</div>
+	</div>
+</div>
+
+<!--编辑器-->
+<div id="theContainer">
+	<table>
+		<tr>
+			<td>
+				<div id="theToc">TOC</div>
+			</td>
+			<td>
+				<div id="theEditor"></div>
+			</td>
+		</tr>
+	</table>
+</div>
+
+<!--外部库: ACE Editor-->
+<script src="/static/ace/src-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
+<script src="/static/ace/src-noconflict/ext-language_tools.js" type="text/javascript" charset="utf-8"></script>
+
+<!--外部库: bootstrap-->
+<link rel="stylesheet" href="/static/vendor/bootstrap.min.css">
+<script src="/static/vendor/jquery.min.js"></script>
+<script src="/static/vendor/bootstrap.min.js"></script>
+
+<!--我的代码-->
+<script src="/static/common/common.js" type="text/javascript" charset="utf-8"></script>
+<script src="/static/editor/edit.js" type="text/javascript" charset="utf-8"></script>
+<link rel="stylesheet" href="/static/editor/style.css">
+</body>
+</html>

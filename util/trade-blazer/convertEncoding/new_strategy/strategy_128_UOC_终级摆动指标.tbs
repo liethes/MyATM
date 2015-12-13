@@ -1,0 +1,54 @@
+//------------------------------------------------------------------------
+// 简称: UOC
+// 名称: 终级摆动指标
+// 类别: 公式应用
+// 类型: 内建应用
+//------------------------------------------------------------------------
+
+Params
+	Numeric FastLength( 7 );
+	Numeric MidLength( 14 ); 
+	Numeric SlowLength( 28 ) ;
+Vars
+	Numeric Factor1( 0 );  
+	Numeric Factor2( 0 ) ;
+	Numeric Value1;
+	Numeric Value2;
+	Numeric Value3;
+	Numeric Value4;
+	Numeric Value5; 
+	Numeric Value6;
+	Numeric Value7;
+	Numeric Value8;
+	Numeric Value9;
+	Numeric UOCValue;
+Begin
+	Value1 = SummationFC( TrueRange, FastLength ) ;
+	Value2 = SummationFC( TrueRange, MidLength ) ;
+	Value3 = SummationFC( TrueRange, SlowLength ) ;
+	Value4 = SummationFC( Close - TrueLow, FastLength ) ;
+	Value5 = SummationFC( Close - TrueLow, MidLength ) ;
+	Value6 = SummationFC( Close - TrueLow, SlowLength ) ;
+	
+	If( Value1 == 0 Or Value2 == 0 Or  Value3 == 0 )
+	{
+		UOCValue = 0;
+	}Else
+	{
+		Factor1 = SlowLength / FastLength ;
+		Factor2 = SlowLength / MidLength ;
+		Value7 = ( Value4 / Value1 ) * ( Factor1 ) ;
+		Value8 = ( Value5 / Value2 ) * ( Factor2 ) ;
+		Value9 = ( Value6 / Value3 ) ;
+		UOCValue = ( Value7 + Value8 + Value9 ) / ( Factor1 + Factor2 + 1 ) ;
+	}
+	
+	PlotNumeric("UOC",UOCValue);
+End
+
+//------------------------------------------------------------------------
+// 编译版本	GS2010.12.08
+// 版权所有	TradeBlazer Software 2003－2010
+// 更改声明	TradeBlazer Software保留对TradeBlazer平
+//			台每一版本的TradeBlazer公式修改和重写的权利
+//------------------------------------------------------------------------

@@ -1,0 +1,93 @@
+// ------------------------------------------------------------------------
+//  简称: CL_OBVRevisited_S
+//  名称: 基于用波动加权后的OBV的交易系统空
+//  类别: 公式应用
+//  类型: 内建应用
+//  输出:
+// ------------------------------------------------------------------------
+
+// ----------------------------------------------------------------------// 
+//  策略说明:	
+// 			 本策略基于用波动加权后的OBV进行判断入场条件，结合高低点突破入场
+// 
+//  系统要素:
+//  			1. 计算波动加权WOBV,根据WOBV预期均值关系，设定触发条件单
+// 
+//  入场条件：
+//  			1.当WOBV上穿它的MA时,在当根K线高点建立做多触发单
+//  			2.当WOBV下穿它的MA时,在当根K线低点建立做空触发单
+// 	
+//  出场条件：
+//  			1.当WOBV上穿它的MA时,次根K线开盘平空仓
+//  			2.当WOBV下穿它的MA时,次根K线开盘平多仓
+// 
+//     注:建议仅用于指数映射交易, 当前策略仅为做空系统, 如需做多, 请参见CL_OBVRevisited_L
+// ----------------------------------------------------------------------// 
+
+PARAMS
+	Numeric AvgLength(25); // 计算WOBV的ma周期值
+
+VARS
+	NumericSeries WOBV(0); // WOBV指标变量
+	NumericSeries SSMA(0); // WOBV指标均值变量
+	boolSeries SellSetup(false); // 开空标识
+	NumericSeries SEPrice(0); // 空头触发线
+	bool con; // bool变量
+	bool con2; // bool变量
+	boolSeries con3; // boolSeries变量	
+	Numeric minpoint; // 最小变动价位
+
+BEGIN
+// 集合竞价和小节休息过滤
+	if (!CallAuctionFilter()) RETURN;
+
+	minpoint = Minmove * PriceScale; // 计算最小变动价位
+
+// WOBV指标计算
+	if (High - Low < > 0) {
+		WOBV = WOBV + (((Close - Open) / (High - Low)) * Vol); // 计算波动加权后的OBV，WOBV
+	}
+	SSMA = Average(WOBV, AvgLength); // 计算WOBV的MA      
+
+// 多空触发条件计算
+	con = CrossOver(WOBV, SSMA);
+	if (con) {
+		SellSetup = false;
+	}
+
+	con2 = CrossUnder(WOBV, SSMA);
+	if (con2) {
+		SellSetup = true;
+		SEPrice = Low;
+	}
+
+// PlotNumeric("WOBV",WOBV);
+// PlotNumeric("SSMA",SSMA);
+
+// 做空标识初始化
+	if (MarketPosition == -1)
+		SellSetup = false;
+
+// 系统入场
+	if (MarketPosition == 0) {
+		if (SellSetup[1] and Low <= SEPrice[1] - minpoint) {
+			SellShort(0, min(Open, SEPrice[1] - minpoint));
+		}
+	}
+
+// 系统出场
+	con3 = CrossOver(WOBV, SSMA);
+	if (MarketPosition == -1 and BarsSinceEntry > 0) {
+		if (con3[1]) {
+			Buytocover(0, Open);
+		}
+	}
+
+END
+
+//------------------------------------------------------------------------
+// 编译版本	GS2014.10.25
+// 版权所有	TradeBlazer Software 2003－2014
+// 更改声明	TradeBlazer Software保留对TradeBlazer平
+//			台每一版本的TradeBlazer公式修改和重写的权利
+//------------------------------------------------------------------------

@@ -1,0 +1,26 @@
+//------------------------------------------------------------------------
+// 简称: NthHigherBar
+// 名称: 求第N高出现的Bar
+// 类别: 用户函数
+// 类型: 内建函数
+// 输出: 数值型
+//------------------------------------------------------------------------
+
+Params
+	NumericSeries Price(1);
+	Numeric Length(10);
+	Numeric N(3);
+Vars
+	Numeric NthHigherValue;
+	Numeric NthExtremesBar;
+Begin
+	NthHigherValue = NthExtremes(Price, Length, N, True, NthExtremesBar);	
+	Return NthExtremesBar;
+End
+
+//------------------------------------------------------------------------
+// 编译版本	GS2010.12.08
+// 版权所有	TradeBlazer Software 2003－2010
+// 更改声明	TradeBlazer Software保留对TradeBlazer平
+//			台每一版本的TradeBlazer公式修改和重写的权利
+//------------------------------------------------------------------------

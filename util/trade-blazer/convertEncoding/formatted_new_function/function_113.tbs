@@ -1,0 +1,57 @@
+//------------------------------------------------------------------------
+// 简称: trueDate
+// 名称: 返回指定Bar的真正交易日期
+// 类别: 用户函数
+// 类型: 内建函数
+// 输出: 数值型
+//------------------------------------------------------------------------
+
+PARAMS
+	Numeric Length(1);
+VARS
+	Numeric newDate;
+	Numeric DayOffset;
+	Numeric dow;
+BEGIN
+	if (BarType == 0 || BarType == 4 || BarType == 5) //日线，周线，月线
+	{
+		newDate = Date[Length];
+	}
+	else {
+		//18点以后算下一个交易日
+		DayOffset = 0;
+		dow = Weekday[Length];
+		if (Hour[Length] >= 18) {
+			if (dow == Friday) // 周五晚上
+			{
+				DayOffset = 3;
+			}
+			else if (dow == Saturday) //周六晚上
+			{
+				DayOffset = 2;
+			}
+			else {
+				DayOffset = 1;
+			}
+		}
+		else {
+			if (dow == Saturday) // 周六
+			{
+				DayOffset = 2;
+			}
+			else if (dow == Sunday) //周日
+			{
+				DayOffset = 1;
+			}
+		}
+		newDate = DateAdd(Date[Length], DayOffset);
+	}
+	RETURN newDate;
+END
+
+//------------------------------------------------------------------------
+// 编译版本	GS2013.07.08
+// 版权所有	TradeBlazer Software 2003－2013
+// 更改声明	TradeBlazer Software保留对TradeBlazer平
+//			台每一版本的TradeBlazer公式修改和重写的权利
+//------------------------------------------------------------------------

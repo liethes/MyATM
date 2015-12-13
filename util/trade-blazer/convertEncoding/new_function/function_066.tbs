@@ -1,0 +1,36 @@
+//------------------------------------------------------------------------
+// 简称: Median
+// 名称: 求中位数
+// 类别: 用户函数
+// 类型: 内建函数
+// 输出: 数值型
+//------------------------------------------------------------------------
+
+Params
+	NumericSeries Price(1); 
+	Numeric Length(10);
+Vars
+	Numeric MediaValue1;
+	Numeric MediaValue2;
+	Numeric HalfLength;
+	Numeric TmpBar;
+Begin
+	If ( Length%2 == 0)
+	{
+		HalfLength = Length/2;		
+		MediaValue1 = NthExtremes(Price, Length,HalfLength, True,TmpBar);
+		MediaValue2 = NthExtremes(Price, Length,HalfLength+1, True,TmpBar);
+		Return (MediaValue1 + MediaValue2)/2;
+	}Else
+	{
+		MediaValue1 = NthExtremes(Price, Length,(Length+1)/2, True,TmpBar);
+		Return MediaValue1;
+	}
+End
+
+//------------------------------------------------------------------------
+// 编译版本	GS2010.12.08
+// 版权所有	TradeBlazer Software 2003－2010
+// 更改声明	TradeBlazer Software保留对TradeBlazer平
+//			台每一版本的TradeBlazer公式修改和重写的权利
+//------------------------------------------------------------------------

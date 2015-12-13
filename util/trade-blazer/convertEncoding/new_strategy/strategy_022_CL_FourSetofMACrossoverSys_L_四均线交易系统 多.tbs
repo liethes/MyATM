@@ -1,0 +1,82 @@
+//------------------------------------------------------------------------
+// 简称: CL_FourSetofMACrossoverSys_L
+// 名称: 四均线交易系统 多
+// 类别: 公式应用
+// 类型: 内建应用
+// 输出:
+// 策略说明:
+//				基于4均线系统进行判断交易
+//
+// 系统要素:
+//				(5和20周期均线),(3和10周期均线)构成的两组不同周期的均线组合
+//
+// 入场条件:
+//				当2组均线均成多头排列时且当前价高于上根BAR最高价入场
+//
+// 出场条件:				
+//				1 小周期多头均线组合成空头排列
+//         		2 两组空头均线分别空头排列且低于上根BAR最低价出场
+//
+//------------------------------------------------------------------//
+Params
+	Numeric LEFast(5); 	//多头入场短均线周期参数
+	Numeric LESlow(20);	//多头入场长均线周期参数
+	Numeric LXFast(3); 	//多头出场短均线周期参数
+	Numeric LXSlow(10);	//多头出场长均线周期参数
+	Numeric SEFast(5); 	//空头入场短均线周期参数
+	Numeric SESlow(20);	//空头入场长均线周期参数
+	Numeric SXFast(3); 	//空头出场短均线周期参数
+	Numeric SXSlow(10);	//空头出场长均线周期参数
+Vars
+	NumericSeries MALEFast;//多头入场短均线
+	NumericSeries MALESlow;//多头入场长均线
+	NumericSeries MALXFast;//多头出场短均线
+	NumericSeries MALXSlow;//多头出场长均线
+	NumericSeries MASEFast;//空头入场短均线
+	NumericSeries MASESlow;//空头入场长均线
+	NumericSeries MASXFast;//空头出场短均线
+	NumericSeries MASXSlow;//空头出场长均线
+Begin
+
+	// 集合竞价和小节休息过滤
+	If(!CallAuctionFilter()) Return;
+	
+	MALEFast=Average(Close,LEFast);//多头入场短均线
+	MALESlow=Average(Close,LESlow);//多头入场长均线
+	MALXFast=Average(Close,LXFast);//多头出场短均线
+	MALXSlow=Average(Close,LXSlow);//多头出场长均线
+	MASEFast=Average(Close,SEFast);//空头入场短均线
+	MASESlow=Average(Close,SESlow);//空头入场长均线
+	MASXFast=Average(Close,SXFast);//空头出场短均线
+	MASXSlow=Average(Close,SXSlow);//空头出场长均线
+
+	//系统入场
+	If(Marketposition <> 1 and Currentbar >= 100)  //两组均线均成多头排列时且当前价高于上根BAR最高价入场
+	{
+	   If(MALEFast[1] > MALESlow[1] and MALXFast[1] > MALXSlow[1] and High >= High[1] And Vol > 0)
+	   {
+			Buy(0,Max(Open,High[1]));
+	   }
+	 }
+	 
+	//系统出场
+	If(marketposition == 1 and BarsSinceEntry > 0 And Vol > 0)
+	{
+	    If(MALXFast[1] < MALXSlow[1] )                          //小周期多头均线组合成空头排列出场
+		{
+			Sell(0,Open);
+		}
+	    Else If( MASEFast[1] < MASESlow[1] and MASXFast[1] < MASXSlow[1] and Low <= Low[1])  //两组均线分别空头排列且低于上根BAR最低价出场
+		{
+			Sell(0,Min(Open,Low[1]));
+		}
+	}
+	   
+End	
+
+//------------------------------------------------------------------------
+// 编译版本	GS2014.10.25
+// 版权所有	TradeBlazer Software 2003－2014
+// 更改声明	TradeBlazer Software保留对TradeBlazer平
+//			台每一版本的TradeBlazer公式修改和重写的权利
+//------------------------------------------------------------------------

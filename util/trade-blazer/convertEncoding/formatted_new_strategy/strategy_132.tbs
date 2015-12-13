@@ -1,0 +1,31 @@
+//------------------------------------------------------------------------
+// 简称: VOLO
+// 名称: 成交量摆动指标
+// 类别: 公式应用
+// 类型: 内建应用
+//------------------------------------------------------------------------
+
+PARAMS
+	Numeric FastLength(5);
+	Numeric SlowLength(10);
+VARS
+	Numeric AvgVol1;
+	Numeric AvgVol2;
+	Numeric VOLOValue;
+BEGIN
+	AvgVol1 = AverageFC(Vol, FastLength);
+	AvgVol2 = AverageFC(Vol, SlowLength);
+	if (AvgVol2 < > 0)
+		VOLOValue = (AvgVol1 - AvgVol2) / AvgVol2 * 100;
+	else
+		VOLOValue = 0;
+	PlotNumeric("VOLO", VOLOValue);
+	PlotNumeric("零线", 0);
+END
+
+//------------------------------------------------------------------------
+// 编译版本	GS2010.12.08
+// 版权所有	TradeBlazer Software 2003－2010
+// 更改声明	TradeBlazer Software保留对TradeBlazer平
+//			台每一版本的TradeBlazer公式修改和重写的权利
+//------------------------------------------------------------------------

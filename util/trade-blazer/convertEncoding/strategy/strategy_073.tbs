@@ -1,0 +1,37 @@
+//------------------------------------------------------------------------
+// 简称: EMV
+// 名称: 简易波动指标
+// 类别: 公式应用
+// 类型: 内建应用
+//------------------------------------------------------------------------
+
+Params
+	Numeric Length(14);
+Vars
+	NumericSeries EMVValue;
+	Numeric MovMid(0);			
+	Numeric Ratio;			
+Begin
+	If(CurrentBar==0)
+	{
+		EMVValue = 0;
+	}Else
+	{
+		MovMid = (High+Low)/2-(High[1]+Low[1])/2;
+		Ratio = (Vol/10000)/(High-Low);
+		If(Ratio >0 )
+			EMVValue = MovMid/Ratio;
+		Else
+			EMVValue = 0;
+	}
+	PlotNumeric("EMV",EMVValue);
+	PlotNumeric("EMV Average",AverageFC(EMVValue,Length));
+	PlotNumeric("Ref",0);
+End
+
+//------------------------------------------------------------------------
+// 编译版本	GS2010.12.08
+// 版权所有	TradeBlazer Software 2003－2010
+// 更改声明	TradeBlazer Software保留对TradeBlazer平
+//			台每一版本的TradeBlazer公式修改和重写的权利
+//------------------------------------------------------------------------

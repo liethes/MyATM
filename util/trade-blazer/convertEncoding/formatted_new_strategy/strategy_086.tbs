@@ -1,0 +1,46 @@
+//------------------------------------------------------------------------
+// 简称: MI
+// 名称: 质量指标
+// 类别: 公式应用
+// 类型: 内建应用
+//------------------------------------------------------------------------
+
+PARAMS
+	Numeric Length(25);
+	Numeric SmoothLength(9);
+VARS
+	NumericSeries SmoothRange(0);
+	Numeric DbSmoothRange(0);
+	NumericSeries MyRatio(0);
+	Numeric BarstoGo(0);
+	NumericSeries MIValue;
+BEGIN
+	SmoothRange = XAverage(High - Low, SmoothLength);
+	DbSmoothRange = XAverage(SmoothRange, SmoothLength);
+
+	if (DbSmoothRange > 0) {
+		MyRatio = SmoothRange / DbSmoothRange;
+	}
+	else {
+		MyRatio = 0;
+	}
+
+	BarstoGo = Length - CurrentBar;
+	if (BarstoGo >= 0) {
+		MIValue = Cum(MyRatio) + BarstoGo;
+	}
+	else {
+		MIValue = MIValue[1] + MyRatio - MyRatio[Length];
+	}
+
+	PlotNumeric("MI", MIValue);
+	PlotNumeric("Ref1", 27);
+	PlotNumeric("Ref2", 26.5);
+END
+
+//------------------------------------------------------------------------
+// 编译版本	GS2010.12.08
+// 版权所有	TradeBlazer Software 2003－2010
+// 更改声明	TradeBlazer Software保留对TradeBlazer平
+//			台每一版本的TradeBlazer公式修改和重写的权利
+//------------------------------------------------------------------------

@@ -1,0 +1,51 @@
+//------------------------------------------------------------------------
+// 简称: CMO
+// 名称: 纯动力振荡指标
+// 类别: 公式应用
+// 类型: 内建应用
+//------------------------------------------------------------------------
+
+PARAMS
+	Numeric Length(20);
+VARS
+	Numeric CMOValue;
+	NumericSeries CloseUp;
+	NumericSeries CloseDown;
+	Numeric SumCloseUp;
+	Numeric SumCloseDown;
+BEGIN
+	if (CurrentBar == 0) {
+		CMOValue = 0;
+	}
+	else {
+		if (Close > Close[1]) {
+			CloseUp = Close - Close[1];
+			CloseDown = 0;
+		}
+
+		if (Close < Close[1]) {
+			CloseUp = 0;
+			CloseDown = Close[1] - Close;
+		}
+
+		if (Close == Close[1]) {
+			CloseUp = 0;
+			CloseDown = 0;
+		}
+
+		SumCloseUp = SummationFC(CloseUp, Length);
+		SumCloseDown = SummationFC(CloseDown, Length);
+		if (SumCloseUp + SumCloseDown < > 0)
+			CMOValue = (SumCloseUp - SumCloseDown) / (SumCloseUp + SumCloseDown) * 100;
+	}
+	PlotNumeric("CMO", CMOValue);
+	PlotNumeric("Ref1", 50);
+	PlotNumeric("Ref2", -50);
+END
+
+//------------------------------------------------------------------------
+// 编译版本	GS2010.12.08
+// 版权所有	TradeBlazer Software 2003－2010
+// 更改声明	TradeBlazer Software保留对TradeBlazer平
+//			台每一版本的TradeBlazer公式修改和重写的权利
+//------------------------------------------------------------------------

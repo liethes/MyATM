@@ -1,0 +1,76 @@
+//------------------------------------------------------------------------
+// 简称: CL_JailBreakSys_S
+// 名称: 基于价格区间突破的交易系统 
+// 类别: 公式应用
+// 类型: 内建应用
+// 输出:
+// 策略说明:		基于通道突破的判断
+// 系统要素:
+//				1. 计算50根k线最低价的区间
+//				2. 计算30根k线最高价的区间
+//				
+// 入场条件:
+//			    1.价格低于50根K线最低价的区间入场
+// 出场条件:
+//				1. 当前价格高于30根K线最高价的区间出场
+//				2. 当前价格高于入场价一定ATR波动率幅度出场
+//
+//----------------------------------------------------------------------//
+
+Params
+	Numeric Length1(50); 								//长周期区间参数
+	Numeric Length2(30);								//短周期区间参数
+	Numeric IPS(4);										//保护止损波动率参数
+	Numeric AtrVal(10);									//波动率参数
+Vars 
+	NumericSeries ProtectStopS;
+	NumericSeries ATR;
+	NumericSeries Upperband;
+	NumericSeries Lowerband; 
+	NumericSeries Exitlong;
+	NumericSeries Exitshort;
+	Numeric L2;
+	Numeric L1;
+	Numeric Minpoint;
+Begin
+
+	// 集合竞价和小节休息过滤
+	If(!CallAuctionFilter()) Return;
+	
+	Minpoint = Minmove*PriceScale;
+    ATR = AvgTrueRange(AtrVal);							 //定义ATR
+	L1 = Max(Length1,Length2);					         //出场周期选择较大的区间参数
+	L2 = Min(Length1,Length2);							 //出场周期选择较小的区间参数
+	Upperband = Highest(High, L1);				    	 //长周期最高价区间
+	Lowerband = lowest(Low,L1);			  	    		 //长周期最低价区间
+	Exitlong = Lowest(Low,L2);					    	 //短周期最低价区间
+	Exitshort = Highest(High,L2);				    	 //短周期最高价区间
+	
+	//系统入场	
+	If(Marketposition ==0 and Low <= Lowerband[1] - Minpoint And Vol > 0)			 //价格低于长周期最低价区间入场做空
+	{
+	    Sellshort(0, Min(Open , Lowerband[1] - Minpoint));
+		ProtectStopS = Entryprice + IPS*ATR[1];
+	}
+	 
+	//系统入场
+	If(MarketPosition == -1 and BarsSinceEntry>0 And Vol > 0)
+	{
+	    If(High >= ProtectStopS[1] and ProtectStopS[1] <= Exitshort[1] )//价格高于入场价以上一定ATR幅度止损
+		{
+			 BuyToCover(0, Max(Open , ProtectStopS[1]));   
+		}
+		Else if ( High >= Exitshort[1] + Minpoint)
+		{
+			 BuyToCover(0, Max(Open , Exitshort[1] + Minpoint));  //价格高于短周期最高价区间出场
+		}
+	}
+	
+End
+
+//------------------------------------------------------------------------
+// 编译版本	GS2014.10.25
+// 版权所有	TradeBlazer Software 2003－2014
+// 更改声明	TradeBlazer Software保留对TradeBlazer平
+//			台每一版本的TradeBlazer公式修改和重写的权利
+//------------------------------------------------------------------------

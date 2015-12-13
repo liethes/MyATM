@@ -1,0 +1,42 @@
+//------------------------------------------------------------------------
+// 简称: SpreadK
+// 名称: 价差/比值K线
+// 类别: 公式应用
+// 类型: 内建应用
+//------------------------------------------------------------------------
+
+Params	
+	Numeric D0(1);			// Data0计算价差时的比例		
+	Numeric D1(1);			// Data1计算价差时的比例		
+	Numeric SW(1);			// 0为价差、1为比值	
+	Numeric Length(60);		// 计算均线的参数  		
+	Numeric Factor(10000);	// 放大系数
+Vars
+	Numeric	OpenPrice;
+	Numeric	ClosePrice;	
+Begin
+	If(Data1.Close == InvalidNumeric) Return;
+	
+	If(SW == 0)
+	{
+		OpenPrice = Data0.Open*D0 - Data1.Open*D1;	
+		ClosePrice = Data0.Close*D0 - Data1.Close*D1;		
+	}Else If(SW == 1)
+	{
+		OpenPrice = Data0.Open/Data1.Open*Factor;
+		ClosePrice = Data0.Close/Data1.Close*Factor;		
+	}	
+	
+	PlotNumeric("Open",OpenPrice);
+	PlotNumeric("High",Max(ClosePrice,OpenPrice));
+	PlotNumeric("Low",Min(ClosePrice,OpenPrice));
+	PlotNumeric("Close",ClosePrice);	
+	PlotNumeric("MA",AverageFC(ClosePrice,Length));	
+End
+
+//------------------------------------------------------------------------
+// 编译版本	GS2010.12.08
+// 版权所有	TradeBlazer Software 2003－2010
+// 更改声明	TradeBlazer Software保留对TradeBlazer平
+//			台每一版本的TradeBlazer公式修改和重写的权利
+//------------------------------------------------------------------------

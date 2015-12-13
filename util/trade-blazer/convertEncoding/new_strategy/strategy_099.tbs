@@ -1,0 +1,34 @@
+//------------------------------------------------------------------------
+// 简称: PVI
+// 名称: 正量指标
+// 类别: 公式应用
+// 类型: 内建应用
+//------------------------------------------------------------------------
+
+Vars
+	NumericSeries PVIValue;
+Begin
+	If(CurrentBar == 0)
+	{
+		PVIValue = 100;
+	}Else
+	{
+		If(Vol > Vol[1])
+		{
+			PVIValue = PVIValue[1]+(Close-Close[1])/Close[1]*PVIValue[1];
+			
+		}Else
+		{
+			PVIValue = PVIValue[1];
+		}
+	}
+	PlotNumeric("PVI",PVIValue);
+	PlotNumeric("PVI250",AverageFC(PVIValue,250));
+End
+
+//------------------------------------------------------------------------
+// 编译版本	GS2010.12.08
+// 版权所有	TradeBlazer Software 2003－2010
+// 更改声明	TradeBlazer Software保留对TradeBlazer平
+//			台每一版本的TradeBlazer公式修改和重写的权利
+//------------------------------------------------------------------------

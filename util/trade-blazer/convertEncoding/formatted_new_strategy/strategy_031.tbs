@@ -1,0 +1,105 @@
+// ------------------------------------------------------------------------
+//  简称: CL_KeltnerChannel_S
+//  名称: 基于凯特纳通道的交易系统空
+//  类别: 公式应用
+//  类型: 内建应用 
+//  输出:
+// ------------------------------------------------------------------------
+
+// ----------------------------------------------------------------------// 
+//  策略说明:
+//  			基于凯特纳通道的交易系统
+// 
+//  系统要素:
+//  			1. 计算关键价格的凯特纳通道
+// 				2. 价格突破凯特纳通道后，设定入场触发单
+// 
+//  入场条件:
+//  			1、价格突破凯特纳通道后，在当根K线高点之上N倍通道幅度，设定多头触发单，此开仓点将挂单X根k线
+//  			2、价格突破凯特纳通道后，在当根K线低点之下N倍通道幅度，设定空头触发单，此开仓点将挂单X根k线
+// 
+//  出场条件:
+//  			1. 价格下穿轨道中轨时平仓
+// 				2. 价格小于N周期低点平仓
+// 
+//     注：当前策略仅为做空系统, 如需做多, 请参见CL_KeltnerChannel_L
+// ----------------------------------------------------------------------// 
+
+
+PARAMS
+	Numeric length(10); // 均线参数
+	Numeric Constt(1.2); // 通道倍数
+	Numeric ChanPcnt(0.5); // 入场参数
+	Numeric sellN(5); // 入场触发条件有效K线周期
+	Numeric stopN(4); // 低点止损参数
+
+VARS
+	NumericSeries Price(0); // 关键价格
+	NumericSeries KCU(0); // 通道上轨
+	NumericSeries KCL(0); // 通道下轨
+	NumericSeries ChanRng(0); // 通道宽度
+	NumericSeries AvgVal(0); // 通道中轨
+	NumericSeries AvgRange(0); // 真实波动均值(atr)
+	NumericSeries Setbar(0);
+	NumericSeries CountS(0); // 触发单周期变量        
+	NumericSeries ll; // 空头触发单价位
+	NumericSeries Sstopline; // 止损线
+	bool con; // bool变量
+	BoolSeries con2; // boolSeries变量
+
+BEGIN
+
+// 集合竞价和小节休息过滤
+	if (!CallAuctionFilter()) RETURN;
+
+// 指标计算
+	Price = Close; // 关键价格，可以换成中位价等
+	AvgVal = Average(Price, Length); // 计算均线 默认10周期
+	AvgRange = Average(trueRange, Length); // 计算真实波动均值(atr) 默认10周期
+	KCU = AvgVal + AvgRange * Constt; // 计算通道上轨=均线+1.2倍的10周期真实波动值
+	KCL = AvgVal - AvgRange * Constt; // 计算通道下轨=均线-1.2倍的10周期真实波动值
+	ChanRng = (KCU - KCL) / 2; // 通道宽度/2    
+	CountS = CountS + 1; // 每经过1根K线CountL+1，用于判断信号取消的变量，下穿下轨后，默认参数：开仓点仅挂单5根k线
+
+	con = CrossUnder(price, KCL); // bool变量con，当价格下穿下轨时为真	
+	if (con) {
+		SetBar = Low;
+		countS = 0;
+		ll = SetBar - (ChanRng * Chanpcnt);
+	} // 当con为真时，计算开仓线ll，CountS重置为0
+
+// PlotNumeric("KCU",KCU);
+// PlotNumeric("KCL",KCL);	
+// if(MarketPosition == 0)	PlotNumeric("ll",ll);
+
+// 系统入场
+// 当价格下穿下轨，并且在sellN根K线内<ll时，卖出开仓
+	if (MarketPosition == 0) {
+		if (Price[1] < KCL[1] and CountS <= sellN and Low <= ll) {
+			SellShort(0, Min(Open, ll));
+		}
+	}
+
+// 系统出场
+	con2 = CrossOver(Close, AvgVal); // bool变量con，当价格上穿轨道中轨时为真
+	Sstopline = Highest(High[1], stopN);
+	if (MarketPosition == -1 and BarsSinceEntry > 0) {
+		// 价格上穿轨道中轨时平仓
+		if (con2[1]) {
+			BuytoCover(0, Open);
+		}
+
+		// 或者价格大于N周期高点平仓 默认4		
+		if (High >= Sstopline) {
+			BuytoCover(0, max(Sstopline, Open));
+		}
+	}
+
+END
+
+//------------------------------------------------------------------------
+// 编译版本	GS2014.10.25
+// 版权所有	TradeBlazer Software 2003－2014
+// 更改声明	TradeBlazer Software保留对TradeBlazer平
+//			台每一版本的TradeBlazer公式修改和重写的权利
+//------------------------------------------------------------------------

@@ -1,0 +1,17 @@
+h1 {
+	margin: 0;
+}
+
+.chart {
+	border: solid 1px #333;
+}
+
+.chart rect {
+	fill: steelblue;
+}
+
+.chart text {
+	fill: white;
+	font: 10px sans-serif;
+	text-anchor: end;
+}

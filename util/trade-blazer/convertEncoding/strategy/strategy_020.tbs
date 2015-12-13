@@ -1,0 +1,127 @@
+//------------------------------------------------------------------------
+// 简称: CL_FirstPullBackSys_L
+// 名称: 基于MACD判断的交易系统
+// 类别: 公式应用
+// 类型: 内建应用
+// 输出:
+// 策略说明:
+//			基于MACD在价格回撤时进行判断的交易系统
+//			 
+// 系统要素:
+//			 1. 用MACD慢线在零轴上判断趋势
+//			 2. 在多头趋势中以收盘价和波动率构成入场出场通道
+// 入场条件:
+//			 1. 价格高于MACD慢线上穿零轴的当前价格和波动率组成的通道上轨
+//			 
+// 出场条件: 
+//			 1. macd慢线在零轴下
+//			 2. 价格低于MACD慢线上穿零轴的当前价格和波动率组成的通道下轨
+//           3. 价格低于多头趋势形成时的最低价格出场
+//		 注: 
+//----------------------------------------------------------------------//
+Params
+	Numeric FastMA(4);     //macd短周期值
+	Numeric SlowMA(10);    //macd长周期值
+	Numeric AvgMA(16);     //MACD慢线周期值
+	Numeric ATRLen(10);    //atr周期值
+	Numeric EATRPcnt(1);   //入场通道波动率过滤数值
+	Numeric XATRPcnt(1);   //出场通道波动率过滤数值
+Vars
+	NumericSeries MACDLine(0); 
+	NumericSeries SignalLine(0); 
+	NumericSeries ZeroLine(0); 
+	NumericSeries AATR(0); 
+	BoolSeries UpTrend(False); 
+	BoolSeries DnTrend(False);
+	BoolSeries BuySetup(False);  
+	NumericSeries CTrendLow(0); 
+	BoolSeries SignalFlag(False);
+	Bool Con1;
+	Bool Con2;
+	Numeric Minpoint;
+	NumericSeries Upperband; //买入触发价
+	NumericSeries Exitband;  //出场触发价
+Begin
+
+	// 集合竞价和小节休息过滤
+	If(!CallAuctionFilter()) Return;
+	
+	Minpoint = Minmove * PriceScale;
+	MACDLine = XAverage( Close, FastMA ) - XAverage( Close, SlowMA ) ;	//计算macd快线
+	SignalLine = XAverage( MACDLine, AvgMA );                           //计算macd慢线
+	AATR = AvgTrueRange(ATRLen);                                        //计算atr波动率
+	ZeroLine = 0;                                                       //零轴
+
+	Con1 = CrossOver(SignalLine,ZeroLine);                                //慢线上穿零轴
+	
+	If (Con1 == True)															//当慢线上穿零轴时候,定义为多头趋势
+	{
+		UpTrend = True;
+		SignalFlag = False;
+		DnTrend = False;
+	}
+
+	Con2 = CrossUnder(SignalLine,ZeroLine);                               //慢线下穿零轴
+	
+	If(Con2 == True)														    //当慢线下穿零轴时候,定义为空头趋势
+	{
+		UpTrend = False;
+		BuySetup = False;
+		SignalFlag = False;
+		DnTrend = True;
+	}
+                     
+	If(UpTrend == True)													//多头趋势时记录当前最低价以及设置入场条件
+	{
+		If (SignalFlag == False )
+		{
+			BuySetup = True;
+			CTrendLow = Low;
+		}
+
+		If (MACDLine < SignalLine And Low < CTrendLow[1] )              //MACD均线空头排列时候,且当前价格更低时更新最低价
+			CTrendLow = Low;
+	}
+
+    If (BuySetup[1] == True and BuySetup[2] == False) 						   	// 满足入场条件设定入场价格以及出场价格
+	{	
+		Upperband = Close[1] + (EATRPcnt * AATR[1]) ;                
+		Exitband = Close[1] - (XATRPcnt * AATR[1]) ;
+	}
+	
+	//系统入场
+	If (BuySetup[1] == True and MarketPosition == 0)                           //做多
+	{
+     	If(High >= Upperband)
+		{
+			Buy(0,Max(Open,Upperband));
+			BuySetup = False;                                          //持有多单时不再满足入场条件
+			SignalFlag = True;
+		}
+	}
+
+	//系统出场
+	If(MarketPosition==1 and BarsSinceEntry > 0 )                        
+	{		
+		If(DnTrend[1] == True)                                         //多头趋势不在时,多头出场
+		{
+			Sell(0,Open);													  
+		}
+		Else if(Low <= CTrendLow[1] - Minpoint and  CTrendLow[1] - Minpoint >= Exitband)    	//持有多单后低于入场最低价格出场
+	    {
+			Sell(0,min(Open,CTrendLow[1] - Minpoint));						  
+		}
+		Else if(Low<= Exitband) 										    	 //持有多单后低于出场价格出场
+	    {
+			Sell(0,min(Open,Exitband));
+		}
+	}
+	
+End
+
+//------------------------------------------------------------------------
+// 编译版本	GS2014.10.25
+// 版权所有	TradeBlazer Software 2003－2014
+// 更改声明	TradeBlazer Software保留对TradeBlazer平
+//			台每一版本的TradeBlazer公式修改和重写的权利
+//------------------------------------------------------------------------

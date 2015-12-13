@@ -1,0 +1,159 @@
+//------------------------------------------------------------------------
+// 简称: CL_MovingAverageCrossOver_L
+// 名称: 基于均线交叉的通道突破系统多 
+// 类别: 公式应用
+// 类型: 内建应用
+// 输出:
+//------------------------------------------------------------------------
+
+//----------------------------------------------------------------------//
+// 策略说明:
+//			 本策略是基于均线交叉与通道突破相结合的交易系统
+//			 
+// 系统要素:
+//			 1. 以快速均线与慢速均线的交叉初步判断趋势
+//			 2. 均线交叉后以最近几根K线的高低点加上一定幅度设定为突破通道
+//			 3. 均线交叉后一定K线根数内突破通道则趋势有效，否则等待下次趋势
+// 入场条件:
+//			 1. 当价格向上突破通道时做多
+//			 2. 当价格向下突破通道时做空
+// 出场条件: 
+//			 1. 趋势反转突破时平仓
+//			 2. 基于周期高低点的跟踪止损
+// 再入场条件:
+//			 1. 未发生趋势反转
+//			 2. 跟踪止损后一定K线根数内突破止损时N根K线的高低点时再进场
+//
+//		 注: 当前策略仅为做多系统, 如需做空, 请参见CL_MovingAverageCrossOver_S
+//----------------------------------------------------------------------//
+ 
+Params
+	Numeric FastLen(9);				// 快速均线周期数
+	Numeric SlowLen(18);			// 慢速均线周期数
+	Numeric ChLen(12);				// 通道突破的周期数
+	Numeric ExtraPercentage(300);	// 通道突破的幅度(万分比)，如：300 = 3%
+	Numeric TrailBar(8);			// 多少根BAR的最低价作为跟踪止损价
+	Numeric InitialLots(0);			// 初始进场头寸
+	Numeric ReBars(15);				// 再进场必须在出场后多少根BAR内
+	Numeric ReEntryChLen(10);		// 再进场通道突破的周期数
+	Numeric ReEntryLots(0);			// 再进场头寸
+	
+Vars
+	NumericSeries FastMA;			// 快速均线
+	NumericSeries SlowMA;			// 慢速均线
+	Bool ConCrossOver;				// 是否金叉（快速均线上穿慢速均线）
+	Bool ConCrossUnder;				// 是否死叉（快速均线下穿慢速均线）
+	Numeric HH;						// 最近N根BAR的高点
+	Numeric LL;						// 最近N根BAR的低点
+	NumericSeries LEntryPrice;		// 开多的突破价
+	NumericSeries SEntryPrice;		// 开空的突破价
+	NumericSeries LCount;			// 均线金叉后记录BAR序号
+	NumericSeries SCount;			// 均线死叉后记录BAR序号
+	NumericSeries TrailStopPrice;	// 跟踪止损的止损价
+	NumericSeries ReEntryPrice;		// 再进场突破开仓的价格
+	NumericSeries ReEntryCount;		// 跟踪止损后记录BAR序号
+
+Begin
+
+	// 集合竞价和小节休息过滤
+	If(!CallAuctionFilter()) Return;
+	
+	// 计算均线
+	FastMA = Average(Close, FastLen);
+	SlowMA = Average(Close, SlowLen);
+	PlotNumeric("FastMA",FastMA);
+	PlotNumeric("SlowMA",SlowMA);
+
+	// 判断均线是否金叉
+	ConCrossOver = CrossOver(FastMA,SlowMA);
+	
+	// 金叉发生时记录最近Chlen根Bar的高点加上ExtraPercentage%作为开多突破价
+	HH = Highest(High,ChLen);
+	If(ConCrossOver And CurrentBar >= ChLen-1)
+	{
+		LEntryPrice = HH * (1 + ExtraPercentage * 0.0001);
+
+		// 记录BAR序号以控制只在金叉后Chlen根BAR内进场否则放弃本次交易
+		LCount = CurrentBar;
+	}
+	
+	// 开仓
+	If(MarketPosition == 0 And CurrentBar > LCount And CurrentBar <= LCount + Chlen And High >= LEntryPrice And Vol > 0)
+	{
+		Buy(InitialLots, Max(Open,LEntryPrice));
+		Commentary("初次多");
+		
+		// 修改LCount值以保证每次金叉后只初始进场一次
+		LCount = -999;
+	}
+
+	// 判断趋势是否反转
+	ConCrossUnder = CrossUnder(FastMA,SlowMA);
+
+	// 死叉发生时记录最近Chlen根Bar的低点减去ExtraPercentage%%作为开空突破价
+	// 因多空策略分开，做多策略只考虑平仓，空头开仓由做空策略处理
+	LL = Lowest(Low,ChLen);
+	If(ConCrossUnder And CurrentBar >= ChLen-1)
+	{
+		SEntryPrice = LL * (1 - ExtraPercentage * 0.0001);
+
+		// 记录BAR序号以控制只在死叉后Chlen根BAR内突破有效
+		SCount = CurrentBar;
+	}
+	
+	// 反向突破
+	If(CurrentBar > SCount And CurrentBar <= SCount + Chlen And Low <= SEntryPrice And Vol > 0)
+	{
+		// 有持仓则平仓
+		If(MarketPosition == 1)
+		{
+			Sell(0, Min(Open,SEntryPrice));
+			Commentary("多单反向出场");
+		}
+		
+		// 反向后原趋势结束
+		LCount = -999;
+		ReEntryCount = -999;
+	}
+
+	// 跟踪止损出场
+	// 计算止损位
+	TrailStopPrice = Lowest(Low[1],TrailBar);
+	Commentary("TrailStopPrice = "+Text(TrailStopPrice));
+
+	// 计算最近ReEntryChLen根BAR的高点
+	HH = Highest(High,ReEntryChLen);
+
+	// 触发止损
+	If(MarketPosition == 1 And BarsSinceEntry > 0 And Vol > 0)
+	{
+		If(Low <= TrailStopPrice)
+		{
+			Sell(0, Min(Open, TrailStopPrice) );
+			Commentary("多单跟踪止损出场");
+
+			// 跟踪止损后记录BAR序号准备再进场
+			ReEntryCount = CurrentBar;
+			// 以ReEntryChLen周期高点作为再进场突破价
+			ReEntryPrice = HH;
+		}
+	}
+	
+	// 出场后在ReBAR根BAR内，价格突破再进场突破价进场
+	If(MarketPosition == 0 And BarsSinceExit > 0 And CurrentBar <= ReEntryCount + ReBars And Vol > 0)
+	{
+		If(High >= ReEntryPrice)
+		{
+			Buy(ReEntryLots, Max(Open,ReEntryPrice));
+			Commentary("再次多");
+		}
+	}
+	
+End
+
+//------------------------------------------------------------------------
+// 编译版本	GS2014.10.25
+// 版权所有	TradeBlazer Software 2003－2014
+// 更改声明	TradeBlazer Software保留对TradeBlazer平
+//			台每一版本的TradeBlazer公式修改和重写的权利
+//------------------------------------------------------------------------

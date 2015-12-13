@@ -1,0 +1,201 @@
+//------------------------------------------------------------------------
+// 简称: CL_ADXandMAChannelSys_S
+// 名称: 基于ADX及EMA的交易系统空
+// 类别: 公式应用
+// 类型: 内建应用
+// 输出:
+// 策略说明:基于ADX及EMA进行判断
+// 系统要素:
+//				11. 计算30根k线最高价和最低价的EMA价差
+//				2. 计算12根k线的ADX
+// 入场条件:
+//			    满足上根K线的收盘价收于EMA30之下,且ADX向上的条件,在EntryBarBAR根内该条件成立
+//				当前价小于等于SellSetup,做空,当条件满足超过EntryBarBAR后,取消入场
+// 出场条件:
+//				当前价格上穿30根K线最低价的EMA		
+//
+//------------------------------------------------------------------------
+
+Params
+	Numeric DMI_N(14);	//DMI的N值
+    Numeric DMI_M(30);	//ADX均线周期 ,DMI的M值
+	Numeric AvgLen(30); //最高最低价的EMA周期数
+	Numeric EntryBar(2);//保持BuySetup触发BAR数
+Vars
+//DMI最终输出
+	NumericSeries oDMIPlus;
+	NumericSeries oDMIMinus;
+	NumericSeries oDMI;
+	NumericSeries oADX;
+	NumericSeries oADXR;
+	NumericSeries oVolty;
+//DMI过程计算
+	NumericSeries sDMI;
+	NumericSeries sADX;
+	NumericSeries cumm;
+	NumericSeries sVolty;
+	Numeric PlusDM;
+	Numeric MinusDM;
+	Numeric UpperMove;
+	Numeric LowerMove;
+	Numeric SumPlusDM(0);
+	Numeric SumMinusDM(0);
+	Numeric SumTR(0);
+	NumericSeries AvgPlusDM;
+	NumericSeries AvgMinusDM;
+	Numeric SF;                        // smoothing factor
+	Numeric Divisor;
+	Numeric i;
+	NumericSeries TRValue;
+//--------------------
+	NumericSeries UpperMA(0); //计算30根K线最高价的EMA
+	NumericSeries LowerMA(0); //计算30根K线最低价的EMA
+	NumericSeries ADXValue(0); //计算ADX均线 
+	NumericSeries ChanSpread(0); //通过EMA计算出通道宽度
+	Bool SellSetup(False);
+	NumericSeries SellTarget(0); 
+	NumericSeries MROSS(0);
+	Numeric Minpoint;
+	
+Begin
+
+	// 集合竞价和小节休息过滤
+	If(!CallAuctionFilter()) Return;
+	
+	Minpoint=Minmove*PriceScale;
+	//DMI指标计算, 最终将输出ADX指标
+	//--------------------------DMI计算开始-----------------------------------//
+	SF = 1/DMI_N;
+	TRValue = TrueRange; 
+	If(CurrentBar == DMI_N)
+	{
+			For i = 0 To DMI_N - 1
+			{
+					PlusDM = 0 ;
+					MinusDM = 0 ;
+					UpperMove = High[i] - High[ i + 1 ] ;
+					LowerMove = Low[ i + 1 ] - Low[i] ;
+					If (UpperMove > LowerMove and UpperMove > 0 )
+					{
+							PlusDM = UpperMove;
+					}Else if (LowerMove > UpperMove and LowerMove > 0)
+					{
+							MinusDM = LowerMove ;
+					}
+					SumPlusDM = SumPlusDM + PlusDM ;
+					SumMinusDM = SumMinusDM + MinusDM ;
+					SumTR = SumTR + TRValue[i] ;
+			}
+			AvgPlusDM = SumPlusDM / DMI_N ;
+			AvgMinusDM = SumMinusDM / DMI_N ;
+			sVolty = SumTR / DMI_N ;
+	}Else if(CurrentBar > DMI_N)
+	{
+			PlusDM = 0 ;
+			MinusDM = 0 ; 
+			UpperMove = High - High[1] ;
+			LowerMove = Low[1] -Low ;
+			If (UpperMove > LowerMove and UpperMove > 0 )
+			{
+					PlusDM = UpperMove;
+			}Else if (LowerMove > UpperMove and LowerMove > 0 )
+			{
+					MinusDM = LowerMove ;
+			}
+			AvgPlusDM = AvgPlusDM[1] + SF * ( PlusDM - AvgPlusDM[1] ) ;
+			AvgMinusDM = AvgMinusDM[1] + SF * ( MinusDM - AvgMinusDM[1] ) ;
+			sVolty = sVolty[1] + SF * ( TRValue  - sVolty[1] ) ;
+	}Else
+	{ 
+			oDMIPlus = InvalidNumeric;
+			oDMIMinus = InvalidNumeric;
+			oDMI = InvalidNumeric;
+			oADX = InvalidNumeric;
+			oADXR = InvalidNumeric;
+			oVolty = InvalidNumeric;
+	}
+	
+	If (sVolty > 0)
+	{
+			oDMIPlus = 100 * AvgPlusDM / sVolty ;
+			oDMIMinus = 100 * AvgMinusDM / sVolty ;
+	}Else
+	{
+			oDMIPlus = 0 ;
+			oDMIMinus = 0 ;
+	}
+
+	Divisor = oDMIPlus + oDMIMinus ;
+	if (Divisor > 0)
+	{
+			sDMI = 100 * Abs( oDMIPlus - oDMIMinus ) / Divisor;
+	}else
+	{
+			sDMI = 0 ;
+	}
+	cumm=Cum( sDMI );
+	If(CurrentBar > 0)
+	{
+			If (CurrentBar <= DMI_N)
+			{
+					sADX = Cumm / CurrentBar ;
+					oADXR = ( sADX + sADX[ CurrentBar - 1 ] ) * 0.5 ;
+			}Else  
+			{
+					sADX = sADX[1] + SF * ( sDMI - sADX[1] ) ;
+					oADXR = ( sADX + sADX[ DMI_M - 1 ] ) * 0.5 ;
+			}
+	}
+	oVolty = sVolty;
+	oDMI = sDMI;
+	oADX = sADX;
+	
+	//PlotNumeric("oADX",oADX);
+	
+	//--------------------------DMI计算结束-----------------------------------//
+	ADXValue = oADX;     //计算ADX均线
+	UpperMA = XAverage(High, AvgLen);						//计算30根K线最高价的EMA
+	LowerMA = XAverage(Low, AvgLen); 						//计算30根K线最低价的EMA
+	ChanSpread = (UpperMA - LowerMA) / 2;					//通过EMA计算出噪音通道宽度
+
+	
+	SellSetup = Close < LowerMA and ADXValue > ADXValue[1]; //当ADX向上且当前价下于30根K线最低价的EMA满足卖出准备条件
+	
+	If (SellSetup)
+	{  
+		SellTarget = Close - ChanSpread;        		 	//满足卖出准备条件时,用前bar价格计算出空头触发价
+	}
+	
+	MROSS = NthCon(SellSetup, 1);    						//上次满足卖出准备条件距离当前BAR的数目
+	
+	If(MROSS > EntryBar)
+	{
+		MROSS = 0;                          		  		//距离上次卖出准备条件超过ENTRYBAR的数目后,重置
+    }
+	
+	//系统入场
+	If( MROSS[1] <>0 and MarketPosition == 0  and CurrentBar > 100)						//满足卖出准备条件后ENTRYBAR数目内,且小于等于空头触发价,空单入场 
+	{
+		If(Low <= SellTarget[1] And Vol > 0)
+		{
+			Sellshort(0,Min(Open,SellTarget[1]));
+		}
+	}
+	
+	//系统出场
+	If(MarketPosition==-1 and  BarsSinceEntry >0 And Vol > 0)			//当持有空单且当前价格上破30根K线最低价的EMA,多单出场
+	{
+	    If(High >= LowerMA[1] + minpoint )
+		{
+			BuyToCover(0,max(Open,LowerMA[1] + minpoint));
+		}
+    }
+
+End 
+
+//------------------------------------------------------------------------
+// 编译版本	GS2014.10.25
+// 版权所有	TradeBlazer Software 2003－2014
+// 更改声明	TradeBlazer Software保留对TradeBlazer平
+//			台每一版本的TradeBlazer公式修改和重写的权利
+//------------------------------------------------------------------------

@@ -1,0 +1,25 @@
+//------------------------------------------------------------------------
+// 简称: EMA
+// 名称: 指数移动平均线
+// 类别: 公式应用
+// 类型: 内建应用
+//------------------------------------------------------------------------
+
+PARAMS
+	Numeric Length1(5);
+	Numeric Length2(22);
+	Numeric Length3(60);
+	Numeric Length4(250);
+BEGIN
+	PlotNumeric("EMA1", XAverage(Close, Length1));
+	PlotNumeric("EMA2", XAverage(Close, Length2));
+	PlotNumeric("EMA3", XAverage(Close, Length3));
+	PlotNumeric("EMA4", XAverage(Close, Length4));
+END
+
+//------------------------------------------------------------------------
+// 编译版本	GS2010.12.08
+// 版权所有	TradeBlazer Software 2003－2010
+// 更改声明	TradeBlazer Software保留对TradeBlazer平
+//			台每一版本的TradeBlazer公式修改和重写的权利
+//------------------------------------------------------------------------

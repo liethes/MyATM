@@ -1,0 +1,110 @@
+//------------------------------------------------------------------------
+// 简称: TS_GhostTrader_L
+// 名称: 幽灵交易者_多
+// 类别: 公式应用
+// 类型: 内建应用
+// 输出:
+//------------------------------------------------------------------------
+/* 
+策略说明:
+		模拟交易产生一次亏损后才启动真实下单交易。
+系统要素:
+		1、两条指数平均线
+		2、RSI指标
+		3、唐奇安通道
+入场条件:
+		1、模拟交易产生一次亏损、短期均线在长期均线之上、RSI低于超买值、创新高，则开多单
+		2、模拟交易产生一次亏损、短期均线在长期均线之下、RSI高于超卖值、创新低，则开空单
+出场条件:
+		1、持有多单时小于唐奇安通道下轨，平多单
+		2、持有空单时大于唐奇安通道上轨，平空单
+注    意:
+		此公式仅做多
+*/
+Params
+	Numeric FastLength(9);				// 短期指数平均线参数
+	Numeric SlowLength(19);				// 长期指数平均线参数
+	
+	Numeric Length(9);					// RSI参数
+	Numeric OverSold(30);				// 超卖
+	Numeric OverBought(70);				// 超买
+	
+	Numeric Lots(0);					// 交易手数
+Vars
+	NumericSeries AvgValue1;			// 短期指数平均线 
+	NumericSeries AvgValue2;			// 长期指数平均线
+	
+	NumericSeries NetChgAvg(0);
+	NumericSeries TotChgAvg(0);
+	Numeric SF(0);
+	Numeric Change(0);	
+	Numeric ChgRatio(0);
+	NumericSeries RSIValue;				// RSI
+	
+	NumericSeries ExitHiBand(0);		// 唐奇安通道上轨
+	NumericSeries ExitLoBand(0);		// 唐奇安通道下轨
+	
+	NumericSeries myEntryPrice(0);		// 进场价格
+	NumericSeries myExitPrice(0);		// 出场价格
+	NumericSeries myProfit(0);			// 利润
+	NumericSeries myPosition(0);		// 多空标志
+Begin
+	// 集合竞价和小节休息过滤
+	If(!CallAuctionFilter()) Return;
+	
+	// 短期指数平均线
+	AvgValue1 = Xaverage(Close,FastLength);
+	// 长期指数平均线参数
+	AvgValue2 = Xaverage(Close,SlowLength);
+	
+	// 计算RSI
+	If(CurrentBar <= Length - 1)
+	{
+		NetChgAvg = (Close - Close[Length])/Length;
+		TotChgAvg = Average(Abs(Close - Close[1]),Length);
+	}Else
+	{
+		SF = 1/Length;
+		Change = Close - Close[1];
+		NetChgAvg = NetChgAvg[1] + SF*(Change - NetChgAvg[1]);
+		TotChgAvg = TotChgAvg[1] + SF*(Abs(Change) - TotChgAvg[1]);	
+	}
+	
+	If(TotChgAvg <> 0)
+	{
+		ChgRatio = NetChgAvg/TotChgAvg;
+	}Else
+	{
+		ChgRatio = 0;
+	}	
+	RSIValue = 50*(ChgRatio + 1);
+	
+	// 唐奇安通道上轨
+	ExitHiBand = Highest(High,20);
+	// 唐奇安通道下轨
+	ExitLoBand = Lowest(Low,20);
+	
+	// 持有多单时下破唐奇安通道下轨，平多单
+	If(myPosition == 1 And myPosition[1] == 1 and Low <= ExitLoBand[1])
+	{
+		myExitPrice = Min(Open,ExitLoBand[1]);
+		Sell(0,myExitPrice);
+		myProfit = myExitPrice - MyEntryPrice;
+        myPosition = 0;
+	}
+	
+	// 模拟交易产生一次亏损、短期均线在长期均线之上、RSI低于超买值、创新高，则开多单
+	If(myPosition == 0 And myPosition[1] == 0 And AvgValue1[1] > AvgValue2[1] And RSIValue[1] < OverBought and High >= High[1])
+	{
+		myEntryPrice = Max(Open,High[1]);
+		myPosition = 1;
+		If(myProfit < 0) Buy(Lots,myEntryPrice);
+	}
+End
+
+//------------------------------------------------------------------------
+// 编译版本	GS2014.10.25
+// 版权所有	TradeBlazer Software 2003－2014
+// 更改声明	TradeBlazer Software保留对TradeBlazer平
+//			台每一版本的TradeBlazer公式修改和重写的权利
+//------------------------------------------------------------------------

@@ -1,0 +1,57 @@
+//------------------------------------------------------------------------
+// 简称: SI
+// 名称: 摆动指标
+// 类别: 公式应用
+// 类型: 内建应用
+//------------------------------------------------------------------------
+
+VARS
+	Numeric K(0);
+	Numeric R(0);
+	Numeric H0C1(0);
+	Numeric L0C1(0);
+	Numeric H0L0(0);
+	Numeric C1O1(0);
+	Numeric SIValue;
+BEGIN
+	H0C1 = Abs(High - Close[1]);
+	L0C1 = Abs(Low - Close[1]);
+	H0L0 = High - Low;
+	C1O1 = Abs(Close[1] - Open[1]);
+
+	if (H0C1 >= L0C1) {
+		K = H0C1;
+		if (H0C1 >= H0L0) {
+			R = H0C1 - 0.5 * L0C1 + 0.25 * C1O1;
+		}
+		else {
+			R = H0L0 + 0.25 * C1O1;
+		}
+	}
+	else {
+		K = L0C1;
+		if (L0C1 >= H0L0) {
+			R = L0C1 - 0.5 * H0C1 + 0.25 * C1O1;
+		}
+		else {
+			R = H0L0 + 0.25 * C1O1;
+		}
+	}
+
+	if (R < > 0) {
+		SIValue = 50 * (((Close - Close[1]) + 0.50 * (Close - Open) + 0.25 * (Close[1] - Open[1])) / R) * K / 1000;
+	}
+	else {
+		SIValue = 0;
+	}
+
+	PlotNumeric("SI", SIValue);
+	PlotNumeric("零线", 0);
+END
+
+//------------------------------------------------------------------------
+// 编译版本	GS2010.12.08
+// 版权所有	TradeBlazer Software 2003－2010
+// 更改声明	TradeBlazer Software保留对TradeBlazer平
+//			台每一版本的TradeBlazer公式修改和重写的权利
+//------------------------------------------------------------------------

@@ -1,0 +1,143 @@
+//------------------------------------------------------------------------
+// 简称: CL_Moving_Average_Sup_and_Res_S
+// 名称: 基于均线的阻力线支撑线系统空 
+// 类别: 公式应用
+// 类型: 内建应用
+//------------------------------------------------------------------------
+
+//----------------------------------------------------------------------//
+// 策略说明:
+//			 本策略基于价格与均线建立了一套可变的支撑线阻力线系统, 通过价格与支撑线阻力线的关系进行交易
+//			 
+// 系统要素:
+//			 均线与价格组成的支撑线阻力线系统
+//			 1. 当价格死叉均线时, 上根k线的低点为支撑线初始化, 当价格金叉均线时, 上根k线的高点为阻力线初始化
+//			 2. 当价格低于均线时不断更新支撑线, 当价格高于均线时不断更新阻力线
+//			 3. 当价格金叉均线又死叉均线时记录上根阻力线作为做多的价格线, 当价格死叉均线又金叉均线时记录上根支撑线作为做空的价格线
+// 入场条件:
+//			 1. 当价格高于做多的价格线时做多
+//			 2. 当价格低于做空的价格线时做空
+// 出场条件: 
+//			 1. 基于ATR的保护性止损
+//			 2. 基于ATR的跟踪止损
+//
+//		 注: 当前策略仅为做空系统, 如需做多, 请参见CL_Moving_Average_Sup_and_Res_L
+//----------------------------------------------------------------------//
+
+PARAMS
+	Numeric MALength(10); //均线值
+	Numeric ATRLength(10); //ATR的值
+	Numeric ProtectStopATRMulti(0.5); //保护性止损的ATR乘数
+	Numeric TrailStopATRMulti(2.5); //跟踪止损的ATR乘数
+
+VARS
+	NumericSeries MA(0); //均线
+	NumericSeries ATR(0); //ATR
+
+	NumericSeries SupportLine(-9999999); //支撑线
+	NumericSeries ResistanceLine(9999999); //阻力线
+
+	BoolSeries CrossFlagforL(false); //收盘价与均线交叉的状态记录L
+	BoolSeries CrossFlagforS(false); //收盘价与均线交叉的状态记录S
+
+	BoolSeries SupportFlag(false); //支撑线为真的标志
+	BoolSeries ResistanceFlag(false); //阻力线为真的标志
+
+	NumericSeries EntryPriceS(0); //开仓入场价
+
+	NumericSeries LowAfterEntry; //持仓期间最低点的记录	
+
+	NumericSeries ProtectStopS; //基于ATR的保护性止损
+	Numeric TrailStopS; //基于ATR的跟踪止损
+
+	NumericSeries MP; //MarketPosition状态记录
+BEGIN
+
+// 集合竞价和小节休息过滤
+	if (!CallAuctionFilter()) RETURN;
+
+//系统设置
+//均线与ATR计算
+	MA = AverageFC(C, MALength);
+	ATR = AvgtrueRange(ATRLength);
+
+//计算入场线
+// 1. 当价格死叉均线时, 上根k线的低点为支撑线初始化, 当价格金叉均线时, 上根k线的高点为阻力线初始化
+// 2. 当价格低于均线时不断更新支撑线, 当价格高于均线时不断更新阻力线
+// 3. 当价格死叉均线又金叉均线时记录上根支撑线作为做空的价格线
+	CrossFlagforL = CrossUnder(C, MA);
+	CrossFlagforS = CrossOver(C, MA);
+
+	if (CrossFlagforL == true) {
+		if (ResistanceFlag[1] == true) {
+			ResistanceFlag = false;
+		}
+		SupportFlag = true;
+		SupportLine = Low;
+	}
+
+	if (CrossFlagforS == true) {
+		if (SupportFlag[1] == true) {
+			EntryPriceS = SupportLine[1];
+			SupportFlag = false;
+		}
+		ResistanceFlag = true;
+		ResistanceLine = High;
+	}
+//PlotNumeric("MA",MA);
+//PlotNumeric("EntryPriceS",EntryPriceS);
+//PlotBool("CrossFlagforS",CrossFlagforS);
+//更新支撑与阻力线
+	if (C > MA) {
+		if (High > ResistanceLine[1]) ResistanceLine = High;
+	}
+	else if (C < MA) {
+		if (Low < SupportLine[1]) SupportLine = Low;
+	}
+//PlotNumeric("ResistanceLine",ResistanceLine);
+//PlotNumeric("SupportLine",SupportLine);
+
+//系统入场
+//当上根K线的收盘价格死叉空头入场价格线后, 在本根K线开盘价做空
+	if (MarketPosition < > -1 and EntryPriceS[1] < > 0 and EntryPriceS[2] < > 0) {
+		if (Close[2] > EntryPriceS[2] and Close[1] <= EntryPriceS[1] And Vol > 0) {
+			SellShort(0, Open);
+			//基于ATR的保护性止损
+			ProtectStopS = High[1] + ProtectStopATRMulti * ATR[1];
+		}
+	}
+
+//系统出场
+
+	if (BarsSinceEntry == 0)
+		LowAfterEntry = Low;
+	else
+		LowAfterEntry = Min(LowAfterEntry[1], Low);
+
+//基于ATR的跟踪止损
+	TrailStopS = LowAfterEntry[1] + TrailStopATRMulti * ATR[1];
+
+	if (MarketPosition == -1 and mp[1] == -1 And Vol > 0) {
+		//基于ATR的保护性止损
+		if (H >= ProtectStopS[1] and ProtectStopS[1] <= TrailStopS) {
+			BuytoCover(0, Max(Open, ProtectStopS[1]));
+		}
+		//基于ATR的跟踪止损
+		else if (H >= TrailStopS) {
+			BuytoCover(0, Max(Open, TrailStopS));
+		}
+	}
+//PlotNumeric("ProtectStopS",ProtectStopS);
+//PlotNumeric("TrailStopS",TrailStopS);
+
+
+	MP = MarketPosition;
+
+END
+
+//------------------------------------------------------------------------
+// 编译版本	GS2014.10.25
+// 版权所有	TradeBlazer Software 2003－2014
+// 更改声明	TradeBlazer Software保留对TradeBlazer平
+//			台每一版本的TradeBlazer公式修改和重写的权利
+//------------------------------------------------------------------------

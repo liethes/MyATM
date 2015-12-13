@@ -1,0 +1,76 @@
+//------------------------------------------------------------------------
+// 简称: CL_VolumeWeightedMomentumSys_S
+// 名称: 成交量加权动量交易系统 空
+// 类别: 公式应用
+// 类型: 内建应用
+// 输出:
+// 策略说明:
+//			基于动量系统, 通过交易量加权进行判断
+//			 
+// 系统要素:
+//			 1. 用UWM下穿零轴判断空头趋势
+// 入场条件:
+//			 1. 价格低于UWM下穿零轴时价格通道,在SetupLen的BAR数目内,做空
+//			 
+// 出场条件: 
+//			 1. 多头势空单出场
+//		 注: 
+//----------------------------------------------------------------------//
+Params 
+	Numeric MomLen(5); 												//UWM参数
+	Numeric AvgLen(20); 											//UWM参数
+	Numeric ATRLen(5); 												//ATR参数
+	Numeric ATRPcnt(0.5); 											//入场价格波动率参数
+	Numeric SetupLen(5);											//条件持续有效K线数
+Vars
+	NumericSeries VWM(0); 
+	NumericSeries AATR(0);  
+	NumericSeries SEPrice(0);  
+	BoolSeries BullSetup(False); 
+	BoolSeries BearSetup(False); 
+	NumericSeries SSetup(0);
+
+Begin
+
+	// 集合竞价和小节休息过滤
+	If(!CallAuctionFilter()) Return;
+	
+	VWM = XAverage(Vol * Momentum(Close, MomLen), AvgLen);			//定义UWM
+	AATR = AvgTrueRange(ATRLen);									//ATR
+	BullSetup = CrossOver(VWM,0);									//UWM上穿零轴定义多头势
+	BearSetup = CrossUnder(VWM,0);									//UWM下穿零轴定义空头势
+
+	If (BearSetup ) 												//空头势开始计数并记录当前价格
+	{
+		SSetup = 0;
+		SEPrice = Close;
+	}
+	Else	SSetup = SSetup[1] + 1;										//每过一根BAR计数	
+
+	//系统入场
+	If (CurrentBar > AvgLen and MarketPosition == 0 ) //当空头势满足并且在SetupLen的BAR数目内,当价格达到入场价格后,做空
+	{
+		If( Low <=SEPrice[1] - (ATRPcnt * AATR[1]) and SSetup[1] <= SetupLen and SSetup >= 1 And Vol > 0) 
+		{
+			SellShort(0, Min(Open,SEPrice[1] - (ATRPcnt * AATR[1]))) ;
+		}
+	}
+
+	//系统出场
+	If (MarketPosition == -1 and  BarsSinceEntry > 0 And Vol > 0)  //多头势平掉空单
+	{
+		If( BullSetup[1] == True )
+		{
+			Buytocover(0,Open);
+		}
+	}
+
+
+End
+
+//------------------------------------------------------------------------
+// 编译版本	GS2014.10.25
+// 版权所有	TradeBlazer Software 2003－2014
+// 更改声明	TradeBlazer Software保留对TradeBlazer平
+//			台每一版本的TradeBlazer公式修改和重写的权利
+//------------------------------------------------------------------------

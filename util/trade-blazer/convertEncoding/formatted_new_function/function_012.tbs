@@ -1,0 +1,40 @@
+//------------------------------------------------------------------------
+// 简称: BjerkStensPhi
+// 名称: 计算美式期权的理论价格
+// 类别: 用户函数
+// 类型: 内建函数
+// 输出: 数值型
+//------------------------------------------------------------------------
+
+PARAMS
+	Numeric AssetPr;
+	Numeric YearsLeft;
+	Numeric MyGamma;
+	Numeric MyH;
+	Numeric TriggerPr;
+	Numeric InterestRate;
+	Numeric Carry;
+	Numeric Volty;
+VARS
+	Numeric VoltySquare(0);
+	Numeric YearsLeftRoot(0);
+	Numeric Lambda(0);
+	Numeric MyD1(0);
+	Numeric Kappa(0);
+	Numeric MyD2(0);
+BEGIN
+	VoltySquare = Sqr(Volty);
+	YearsLeftRoot = Sqrt(YearsLeft);
+	Lambda = (-1 * InterestRate + MyGamma * Carry + .5 * MyGamma * (MyGamma - 1) * VoltySquare) * YearsLeft;
+	MyD1 = -1 * (Ln(AssetPr / MyH) + (Carry + (MyGamma - 0.5) * VoltySquare) * YearsLeft) / (Volty * YearsLeftRoot);
+	Kappa = 2 * Carry / VoltySquare + 2 * MyGamma - 1;
+	MyD2 = MyD1 - 2 * Ln(TriggerPr / AssetPr) / (Volty * YearsLeftRoot);
+	RETURN Exp(Lambda) * Power(AssetPr, MyGamma) * (NormalSCDensity(MyD1) - Power(TriggerPr / AssetPr, Kappa) * NormalSCDensity(MyD2));
+END
+
+//------------------------------------------------------------------------
+// 编译版本	GS2014.10.25
+// 版权所有	TradeBlazer Software 2003－2014
+// 更改声明	TradeBlazer Software保留对TradeBlazer平
+//			台每一版本的TradeBlazer公式修改和重写的权利
+//------------------------------------------------------------------------

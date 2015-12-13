@@ -1,0 +1,62 @@
+//------------------------------------------------------------------------
+// 简称: CL_Reference_Deviation_System_S
+// 名称: 基于价格与均线的相关差进行判断 空
+// 类别: 公式应用
+// 类型: 内建应用
+// 输出:
+//------------------------------------------------------------------------
+
+//------------------------------------------------------------------------
+// 策略说明:
+//			1.系统将当前价格和MA之差定义为DRD
+//			2.计算RDV: N天DRD的加和除以DRD绝对值的加和
+//			 
+// 入场条件:
+//			1.设置ETLong为入市阈值，如果RDV>ETLong,则入场做多
+//			2.设置ETShort为入市阈值，如果RDV<ETShort,则入场做空
+// 出场条件: 
+//			1.如果RDV下穿0, 多头平仓
+//			2.如果RDV上穿0, 空头平仓
+//
+//		 注: 当前策略仅为做空系统, 如需做多, 请参见CL_Reference_Deviation_System_L
+//----------------------------------------------------------------------//
+Params
+	Numeric ETShort(-5); 	//设置做空参数
+	Numeric RMALen(15);
+Vars
+	NumericSeries RDV(0); 	//NDV和TDV的比值（全在均值之上100，全之下-100，围绕均线趋近0）
+	NumericSeries TDV(0); 	//收盘价与15周期均值的差值绝对值的合计
+	NumericSeries NDV(0); 	//收盘价与15周期均值的差值的合计
+	NumericSeries RMA(0); 	//15周期均值
+	NumericSeries DRD(0); 	//收盘价与15周期均值的差值 
+
+Begin
+
+	// 集合竞价和小节休息过滤
+	If(!CallAuctionFilter()) Return;
+	
+	//初始设置
+	RMA = Average(Close, RMALen); 
+	DRD = Close - RMA;                 
+	NDV = Summation(DRD, RMALen); 
+	TDV = Summation(Abs(DRD), RMALen); 
+	If(TDV > 0)
+	RDV = 100 * NDV/TDV; 
+	
+	
+	//空头开仓
+	If(MarketPosition==0 And RDV[1] < ETShort And Vol > 0)
+	SellShort(0,Open);
+	
+	//空头平仓
+	If (MarketPosition==-1 And RDV[1] > 0 And Vol > 0)
+	BuyToCover(0,Open);
+
+End
+
+//------------------------------------------------------------------------
+// 编译版本	GS2014.10.25
+// 版权所有	TradeBlazer Software 2003－2014
+// 更改声明	TradeBlazer Software保留对TradeBlazer平
+//			台每一版本的TradeBlazer公式修改和重写的权利
+//------------------------------------------------------------------------

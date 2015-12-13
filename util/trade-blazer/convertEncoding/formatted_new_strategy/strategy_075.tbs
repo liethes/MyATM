@@ -1,0 +1,42 @@
+//------------------------------------------------------------------------
+// 简称: KD
+// 名称: 随机指数
+// 类别: 公式应用
+// 类型: 内建应用
+//------------------------------------------------------------------------
+
+PARAMS
+	Numeric Length(14);
+	Numeric SlowLength(3);
+	Numeric SmoothLength(3);
+VARS
+	NumericSeries HighestValue;
+	NumericSeries LowestValue;
+	NumericSeries KValue;
+	Numeric SumHLValue;
+	Numeric SumCLValue;
+	Numeric DValue;
+BEGIN
+	HighestValue = HighestFC(High, Length);
+	LowestValue = LowestFC(Low, Length);
+	SumHLValue = SummationFC(HighestValue - LowestValue, SlowLength);
+	SumCLValue = SummationFC(Close - LowestValue, SlowLength);
+	if (SumHLValue < > 0) {
+		KValue = SumCLValue / SumHLValue * 100;
+	}
+	else {
+		KValue = 0;
+	}
+	DValue = AverageFC(KValue, SmoothLength);
+	PlotNumeric("K", KValue);
+	PlotNumeric("D", DValue);
+	PlotNumeric("Ref1", 20);
+	PlotNumeric("Ref2", 80);
+END
+
+//------------------------------------------------------------------------
+// 编译版本	GS2010.12.08
+// 版权所有	TradeBlazer Software 2003－2010
+// 更改声明	TradeBlazer Software保留对TradeBlazer平
+//			台每一版本的TradeBlazer公式修改和重写的权利
+//------------------------------------------------------------------------

@@ -1,0 +1,100 @@
+// ------------------------------------------------------------------------
+//  简称: CL_OBVRevisited_L
+//  名称: 基于用波动加权后的OBV的交易系统多
+//  类别: 公式应用
+//  类型: 内建应用
+//  输出:
+// ------------------------------------------------------------------------
+
+// ----------------------------------------------------------------------// 
+//  策略说明:	
+// 			 本策略基于用波动加权后的OBV进行判断入场条件，结合高低点突破入场
+// 
+//  系统要素:
+//  			1. 计算波动加权WOBV,根据WOBV预期均值关系，设定触发条件单
+// 
+//  入场条件：
+//  			1.当WOBV上穿它的MA时,在当根K线高点建立做多触发单
+//  			2.当WOBV下穿它的MA时,在当根K线低点建立做空触发单
+// 	
+//  出场条件：
+//  			1.当WOBV上穿它的MA时,次根K线开盘平空仓
+//  			2.当WOBV下穿它的MA时,次根K线开盘平多仓
+// 
+//     注:建议仅用于指数映射交易, 当前策略仅为做多系统, 如需做空, 请参见CL_OBVRevisited_S
+// ----------------------------------------------------------------------// 
+
+Params
+	Numeric AvgLength(25);  	  // 计算WOBV的ma周期值
+
+Vars
+	NumericSeries WOBV(0);     	  // WOBV指标变量
+	NumericSeries SSMA(0);  	  // WOBV指标均值变量
+	boolSeries BuySetup(False);   // 开多标识
+	NumericSeries LEPrice(0);     // 多头触发线
+	bool con;                     // bool变量
+	bool con2;                    // bool变量
+	boolSeries con3;              // boolSeries变量	
+	Numeric minpoint;		      // 最小变动价位
+	
+Begin
+	// 集合竞价和小节休息过滤
+	If(!CallAuctionFilter()) Return;
+	
+	minpoint = Minmove*PriceScale;                          // 计算最小变动价位
+
+	// WOBV指标计算
+	If(High - Low <> 0)
+	{
+		WOBV = WOBV + (((Close - Open)/(High - Low))*Vol);  // 计算波动加权后的OBV，WOBV
+	}
+	SSMA = Average(WOBV,AvgLength);                         // 计算WOBV的MA             
+
+	// 多空触发条件计算
+	con = CrossOver(WOBV,SSMA);
+	If(con) 
+	{
+		BuySetup = True;
+		LEPrice = High;
+	}
+	
+	con2 = CrossUnder(WOBV,SSMA);
+	If(con2) 
+	{
+		BuySetup = False; 	
+	}
+
+	// PlotNumeric("WOBV",WOBV);
+	// PlotNumeric("SSMA",SSMA);	
+	
+	// 做多标识初始化
+	If(MarketPosition == 1)
+	BuySetup = False;
+	
+	// 系统入场
+	If(MarketPosition == 0)
+	{
+		If(BuySetup[1] and High >= LEPrice[1] + minpoint) 
+		{
+			Buy(0,max(Open,LEPrice[1] + minpoint));
+		}
+	}
+
+	// 系统出场	
+	con3 = CrossUnder(WOBV,SSMA);
+	If(MarketPosition == 1 and BarsSinceEntry > 0)
+	{
+		If (con3[1]) 
+		{
+			Sell(0,Open);
+		}
+	}
+	
+End
+
+//------------------------------------------------------------------------
+// 编译版本	GS2014.10.25
+// 版权所有	TradeBlazer Software 2003－2014
+// 更改声明	TradeBlazer Software保留对TradeBlazer平
+//			台每一版本的TradeBlazer公式修改和重写的权利
+//------------------------------------------------------------------------

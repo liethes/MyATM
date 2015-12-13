@@ -1,0 +1,26 @@
+//------------------------------------------------------------------------
+// 简称: ENV
+// 名称: 包络线
+// 类别: 公式应用
+// 类型: 内建应用
+//------------------------------------------------------------------------
+
+PARAMS
+	Numeric Length(14);
+	Numeric Offset(0.06);
+VARS
+	NumericSeries UpLine;
+	Numeric DnLine;
+BEGIN
+	UpLine = AverageFC(Close, Length) * (1 + Offset);
+	DnLine = AverageFC(Close, Length) * (1 - Offset);
+	PlotNumeric("上轨", UpLine);
+	PlotNumeric("下轨", DnLine);
+END
+
+//------------------------------------------------------------------------
+// 编译版本	GS2010.12.08
+// 版权所有	TradeBlazer Software 2003－2010
+// 更改声明	TradeBlazer Software保留对TradeBlazer平
+//			台每一版本的TradeBlazer公式修改和重写的权利
+//------------------------------------------------------------------------

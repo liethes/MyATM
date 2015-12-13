@@ -1,0 +1,31 @@
+//------------------------------------------------------------------------
+// 简称: BOLL
+// 名称: 布林通道
+// 类别: 公式应用
+// 类型: 内建应用
+//------------------------------------------------------------------------
+
+Params
+	Numeric Length(20);			
+	Numeric Offset(2);			    
+Vars
+	Numeric UpLine;		//上轨
+	Numeric DownLine;		//下轨 
+	NumericSeries MidLine;	//中间线
+	Numeric Band;
+Begin
+	MidLine = AverageFC(Close,Length);
+	Band = StandardDev(Close,Length,2); 
+	UpLine = MidLine + Offset * Band;
+	DownLine = MidLine - Offset * Band; 
+	PlotNumeric("UpLine",UpLine);
+	PlotNumeric("DownLine",DownLine);
+	PlotNumeric("MidLine",MidLine);
+End
+
+//------------------------------------------------------------------------
+// 编译版本	GS2010.12.08
+// 版权所有	TradeBlazer Software 2003－2010
+// 更改声明	TradeBlazer Software保留对TradeBlazer平
+//			台每一版本的TradeBlazer公式修改和重写的权利
+//------------------------------------------------------------------------

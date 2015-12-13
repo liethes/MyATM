@@ -1,0 +1,25 @@
+//------------------------------------------------------------------------
+// 简称: MA
+// 名称: 移动平均线
+// 类别: 公式应用
+// 类型: 内建应用
+//------------------------------------------------------------------------
+
+Params
+	Numeric Length1(5);
+	Numeric Length2(10);
+	Numeric Length3(20); 
+	Numeric Length4(30);
+Begin
+	PlotNumeric("MA1",AverageFC(Close,Length1));
+	PlotNumeric("MA2",AverageFC(Close,Length2));
+	PlotNumeric("MA3",AverageFC(Close,Length3));
+	PlotNumeric("MA4",AverageFC(Close,Length4));
+End
+
+//------------------------------------------------------------------------
+// 编译版本	GS2010.12.08
+// 版权所有	TradeBlazer Software 2003－2010
+// 更改声明	TradeBlazer Software保留对TradeBlazer平
+//			台每一版本的TradeBlazer公式修改和重写的权利
+//------------------------------------------------------------------------

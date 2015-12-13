@@ -1,0 +1,92 @@
+//------------------------------------------------------------------------
+// 简称: CL_RedRover_S
+// 名称: 基于K线加权均值的支撑阻力线突破系统空 
+// 类别: 公式应用
+// 类型: 内建应用
+// 输出:
+//------------------------------------------------------------------------
+
+//----------------------------------------------------------------------//
+// 策略说明:
+//			 本策略是基于K线加权均值的支撑阻力线突破系统
+//			 
+// 系统要素:
+//			 1. K线的加权均值 = (最高价+最低价+2*收盘价)/4
+//			 2. 支撑线 = K线加权均值 - ( 最高价 - K线加权均值)
+//			 3. 阻力线 = K线加权均值 + ( K线加权均值 - 最低价)
+// 入场条件:
+//			 1. 当价格向上突破阻力线做多
+//			 2. 当价格向下突破支撑线做空
+// 出场条件: 
+//			 1. 趋势反转即反向突破时出场
+//			 2. 基于ATR的一定倍数的止盈
+//
+//		 注: 当前策略仅为做空系统, 如需做多, 请参见CL_RedRover_L
+//----------------------------------------------------------------------//
+
+
+Params
+	Numeric ATRs(3);				// 几倍ATR止盈
+	Numeric ATRLength(10);			// ATR周期
+	
+Vars
+	NumericSeries WAvgPrice;		// K线加权均值
+	NumericSeries Resistance;		// 阻力线
+	NumericSeries Support;			// 支撑线
+	Numeric ATRVal;					// ATR(平均真实波幅)
+	NumericSeries myExitPrice;		// 开仓BAR根据当时的ATR计算出的止盈价
+	
+Begin
+
+	// 集合竞价和小节休息过滤
+	If(!CallAuctionFilter()) Return;
+
+	// 计算当前K线的加权均值、阻力线和支撑线
+	WAvgPrice = (High + Low + (Close * 2)) / 4;
+	Resistance = (WAvgPrice * 2) - Low;
+	Support = (WAvgPrice * 2) - High;
+
+	// 输出指标
+	PlotNumeric("Resistance",Resistance[1]);
+	PlotNumeric("Support",Support[1]);
+
+	// 计算ATR
+    ATRVal = AvgTrueRange(ATRLength);	
+
+	// 开仓
+	If(MarketPosition == 0 And Low <= Support[1] - MinMove * PriceScale And Vol > 0)
+	{
+		SellShort(0, Min(Open,Support[1] - MinMove * PriceScale));
+	}
+	
+	// 开仓时根据开仓BAR的ATR计算止盈价
+	If(MarketPosition == -1 And BarsSinceEntry == 0)
+	{
+		myExitPrice = EntryPrice - ATRVal * ATRs;
+	}
+		
+	// 平仓
+	If(MarketPosition == -1 And BarsSinceEntry > 0 And Vol > 0)
+	{
+		// 止盈出场
+		If(Low <= myExitPrice)
+		{
+			BuyToCover(0, Min(Open,myExitPrice));
+			Commentary("止盈出场");
+		}
+		// 反向突破止损出场
+		Else If(High >= Resistance[1] + MinMove * PriceScale)
+		{
+			BuyToCover(0, Max(Open,Resistance[1] + MinMove * PriceScale));
+			Commentary("反转出场");
+		}
+	}
+
+End
+
+//------------------------------------------------------------------------
+// 编译版本	GS2014.10.25
+// 版权所有	TradeBlazer Software 2003－2014
+// 更改声明	TradeBlazer Software保留对TradeBlazer平
+//			台每一版本的TradeBlazer公式修改和重写的权利
+//------------------------------------------------------------------------

@@ -1,0 +1,37 @@
+//------------------------------------------------------------------------
+// 简称: NormalSCDensity
+// 名称: 求指定数据的正态分布累计概率密度
+// 类别: 用户函数
+// 类型: 内建函数
+// 输出: 数值型
+//------------------------------------------------------------------------
+
+Params
+	Numeric PriceValue;
+Vars
+	Numeric Var0(0);
+	Numeric Var1(0);
+	Numeric Var2(0);
+	Numeric Var3(2.506628275);
+	Numeric Var4(0.2316419);
+	Numeric Var5(0.319381530);
+	Numeric Var6(0.356563782);
+	Numeric Var7(1.781477937);
+	Numeric Var8(1.821255978);
+	Numeric Var9(1.330274429);
+Begin
+	Var0 = 1/(1 + Var4*Abs(PriceValue));
+	Var1 = Exp(-1*Sqr(PriceValue)*0.5)/Var3;
+	Var2 = 1 - Var1*(((((Var9*Var0 - Var8)*Var0 + Var7)*Var0 - Var6)*Var0 + Var5)*Var0);
+	If(PriceValue < 0)
+		Var2 = 1 - Var2;
+
+	Return Var2;
+End
+
+//------------------------------------------------------------------------
+// 编译版本	GS2014.10.25
+// 版权所有	TradeBlazer Software 2003－2014
+// 更改声明	TradeBlazer Software保留对TradeBlazer平
+//			台每一版本的TradeBlazer公式修改和重写的权利
+//------------------------------------------------------------------------

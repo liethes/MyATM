@@ -1,0 +1,45 @@
+//------------------------------------------------------------------------
+// 简称: ASI
+// 名称: 振动升降指标
+// 类别: 公式应用
+// 类型: 内建应用
+//------------------------------------------------------------------------
+
+Vars
+	Numeric TmpValue1;
+	Numeric TmpValue2;
+	Numeric TmpValue3;
+	Numeric TmpValue4;
+	Numeric TmpValue5;
+	Numeric TmpValue6;
+	NumericSeries SIValue(0);
+Begin
+	TmpValue1 = Abs(High - Close[1]);
+	TmpValue2 = Abs(Low - Close[1]);
+	TmpValue3 = Abs(High - Low);
+	TmpValue4 = Abs(Close[1] - Open[1]);
+	If (TmpValue1 > TmpValue2 && TmpValue1 > TmpValue3)
+	{
+		TmpValue5 = TmpValue1 - TmpValue2 * 0.5 + TmpValue4 * 0.25;
+	}Else
+	{
+		If ( TmpValue2 > TmpValue3 && TmpValue2 > TmpValue1)
+		{
+			TmpValue5 = TmpValue2 - TmpValue1 * 0.5 + TmpValue4 * 0.25;
+		}Else
+		{
+			TmpValue5 = TmpValue3 + TmpValue4 * 0.25;
+		}
+	}
+	TmpValue6 = (Close -Close[1]) + 0.25*(Close[1] - Open[1]) + 0.5 * (Close - Open);
+	If(TmpValue5 <> 0)
+		SIValue = 50 * TmpValue6/TmpValue5 * IIF(TmpValue1 > TmpValue2, TmpValue1, TmpValue2);
+	PlotNumeric("ASI",Cum(SIValue));	
+End
+
+//------------------------------------------------------------------------
+// 编译版本	GS2010.12.08
+// 版权所有	TradeBlazer Software 2003－2010
+// 更改声明	TradeBlazer Software保留对TradeBlazer平
+//			台每一版本的TradeBlazer公式修改和重写的权利
+//------------------------------------------------------------------------

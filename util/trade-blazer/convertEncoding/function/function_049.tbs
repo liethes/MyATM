@@ -1,0 +1,45 @@
+//------------------------------------------------------------------------
+// 简称: KurtosisArray
+// 名称: 求数组的峰度系数
+// 类别: 用户函数
+// 类型: 内建函数
+// 输出: 数值型
+//------------------------------------------------------------------------
+
+Params
+	NumericArrayRef arr;
+Vars
+	Numeric arrSize;
+	Numeric KurtValue(0);
+	Numeric P1(0);
+	Numeric P2(0);
+	Numeric P3(0);
+	Numeric Mean;
+	Numeric SDev;
+	Numeric i;
+Begin
+	arrSize = GetNumericArraySize(arr);
+	If (arrSize > 3)
+	{
+		Mean = AverageArray(arr) ;
+		SDev = StandardDevArray(arr, 2) ;
+		If (SDev > 0)
+		{
+			For  i = 0 to arrSize - 1
+			{
+				P2 = P2 + Power( ( arr[i] - Mean ) / SDev, 4 ) ;
+			}
+			P1 = arrSize * ( arrSize + 1 ) / ( ( arrSize - 1 ) * ( arrSize - 2 ) * ( arrSize - 3 ) ) ;
+			P3 = 3 * Sqr( arrSize - 1 ) / ( ( arrSize - 2 ) * ( arrSize - 3 ) ) ;
+			KurtValue = P1 * P2 - P3 ;
+		}
+	}
+	Return KurtValue;
+End
+
+//------------------------------------------------------------------------
+// 编译版本	GS2014.10.25
+// 版权所有	TradeBlazer Software 2003－2014
+// 更改声明	TradeBlazer Software保留对TradeBlazer平
+//			台每一版本的TradeBlazer公式修改和重写的权利
+//------------------------------------------------------------------------

@@ -1,0 +1,141 @@
+//------------------------------------------------------------------------
+// 简称: NthExtremesArray
+// 名称: 求数组的N极值
+// 类别: 用户函数
+// 类型: 内建函数
+// 输出: 数值型
+//------------------------------------------------------------------------
+ 
+Params
+	NumericArrayRef arr;
+	Numeric N(5);
+	Bool bMax(True);
+	NumericRef NthExtremeIndex;
+Vars
+	Numeric arrSize;
+	Numeric nMaxIndex;
+	Numeric NthMaxValue;
+	Numeric nMinIndex;
+	Numeric NthMinValue;
+	Numeric TmpValue;
+	Numeric NthReturnValue;
+	Numeric nBetterCnt;
+	Numeric nEqualCnt;
+	Numeric nEqualIndex;
+	Numeric i;
+	Numeric j;
+	Numeric k;
+Begin
+	arrSize = GetNumericArraySize(arr);
+	If (arrSize > 0 And N > 0 And N <= arrSize)
+	{
+		NthMaxValue = ExtremesArray(arr, True, nMaxIndex);
+		NthMinValue = ExtremesArray(arr, False, nMinIndex);
+		
+		If(bMax)
+		{
+			For i = 2 To N
+			{
+				TmpValue = NthMinValue - 1;
+				nBetterCnt = 0;
+				nEqualCnt = 0;
+				For j = 0 To arrSize - 1
+				{
+					If ( arr[j] > NthMaxValue)
+					{
+						nBetterCnt = nBetterCnt + 1;
+					}Else If ( arr[j] < NthMaxValue)
+					{
+						If (arr[j] > TmpValue)
+						{
+							TmpValue = arr[j] ;
+							nMaxIndex = j;
+						}
+					}Else
+					{
+						nEqualCnt = nEqualCnt + 1;
+					}
+				}
+					
+				If (nBetterCnt + nEqualCnt >= i)
+				{
+					nEqualIndex = 0;
+					For  k = 0 To  arrSize - 1
+					{
+						If (arr[k] == NthMaxValue)
+						{
+							nEqualIndex = nEqualIndex + 1;
+							If (nEqualIndex == (i - nBetterCnt))
+							{
+								nMaxIndex = k;
+							}
+						}
+					}
+				}else
+				{
+					NthMaxValue = TmpValue;
+				}				
+			}
+			NthExtremeIndex = nMaxIndex;
+			NthReturnValue = NthMaxValue;
+		}Else
+		{
+			For i = 2 To N
+			{
+				TmpValue = NthMaxValue + 1;
+				nBetterCnt = 0;
+				nEqualCnt = 0;
+				For j = 0 To arrSize - 1
+				{
+					If ( arr[j] < NthMinValue)
+					{
+						nBetterCnt = nBetterCnt + 1;
+					}Else If ( arr[j] > NthMinValue)
+					{
+						If (arr[j] < TmpValue)
+						{
+							TmpValue = arr[j] ;
+							nMinIndex = j;
+						}
+					}Else
+					{
+						nEqualCnt = nEqualCnt + 1;
+					}
+				}
+					
+				If (nBetterCnt + nEqualCnt >= i)
+				{
+					nEqualIndex = 0;
+					For  k = 0 To  arrSize - 1
+					{
+						If (arr[k] == NthMinValue)
+						{
+							nEqualIndex = nEqualIndex + 1;
+							If (nEqualIndex == (i - nBetterCnt))
+							{
+								nMinIndex = k;
+							}
+						}
+					}
+				}Else
+				{
+					NthMinValue = TmpValue;
+				}				
+			}
+			NthExtremeIndex = nMinIndex;
+			NthReturnValue = NthMinValue;
+		}
+	}Else
+	{
+		NthReturnValue = -1;
+		NthExtremeIndex = -1;
+	}
+	Return NthReturnValue;
+End
+
+//------------------------------------------------------------------------
+// 编译版本	GS2014.10.25
+// 版权所有	TradeBlazer Software 2003－2014
+// 更改声明	TradeBlazer Software保留对TradeBlazer平
+//			台每一版本的TradeBlazer公式修改和重写的权利
+//------------------------------------------------------------------------

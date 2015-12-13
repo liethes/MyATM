@@ -1,0 +1,65 @@
+//------------------------------------------------------------------------
+// 简称: WAD
+// 名称: 威廉离散量
+// 类别: 公式应用
+// 类型: 内建应用
+//------------------------------------------------------------------------
+
+Vars
+	Numeric TRH;
+	Numeric TRL;
+	NumericSeries WADValue;
+	NumericSeries ShowWAD;
+Begin
+	If(CurrentBar==0)
+	{
+		WADValue=0;
+		ShowWAD=InvalidNumeric;
+	}Else
+	{
+		If(Close[1] > High)
+		{
+			TRH = Close[1];
+		}Else
+		{
+			TRH = High;
+		}
+		
+		If(Close[1]<Low)
+		{
+			TRL = Close[1];
+		}Else
+		{
+			TRL = Low;
+		}
+		
+		If(Close > Close[1])
+		{
+			WADValue = Close - TRL;
+		}
+		If(Close < Close[1])
+		{
+			WADValue = Close-TRH;
+		}
+		If(Close == Close[1])
+		{
+			WADValue = 0;
+		}
+		
+		If(CurrentBar==1)
+		{
+			ShowWAD=WADValue;
+		}Else
+		{
+			ShowWAD=WADValue+ShowWAD[1];
+		}
+	}
+	PlotNumeric("WAD",ShowWAD);
+End
+
+//------------------------------------------------------------------------
+// 编译版本	GS2010.12.08
+// 版权所有	TradeBlazer Software 2003－2010
+// 更改声明	TradeBlazer Software保留对TradeBlazer平
+//			台每一版本的TradeBlazer公式修改和重写的权利
+//------------------------------------------------------------------------

@@ -1,0 +1,77 @@
+//------------------------------------------------------------------------
+// 简称: ZigZag
+// 名称: 之字转向
+// 类别: 公式应用
+// 类型: 内建应用
+//------------------------------------------------------------------------
+
+PARAMS
+	Numeric RetracePct(2);
+VARS
+	NumericSeries SwingPrice;
+	Numeric SwingHighPrice;
+	Numeric SwingLowPrice;
+	NumericSeries PreBar(0);
+	NumericSeries UpDn(0);
+	Bool SaveSwing(false);
+	Bool NewTL(false);
+	Bool UpdateTL(false);
+begin
+	if (CurrentBar == 0)
+		SwingPrice = Close;
+
+	SwingHighPrice = SwingHigh(1, Close, 1, 2);
+	SwingLowPrice = SwingLow(1, Close, 1, 2);
+	if (SwingHighPrice < > -1) {
+		if (UpDn <= 0 && SwingHighPrice >= SwingPrice * (1 + RetracePct * 0.01)) {
+			UpDn = 1;
+			NewTL = true;
+			SaveSwing = true;
+		}
+		else if (UpDn == 1 && SwingHighPrice >= SwingPrice) {
+			UpdateTL = true;
+			SaveSwing = true;
+		}
+
+		if (SaveSwing) {
+			SwingPrice = SwingHighPrice;
+			PreBar = CurrentBar;
+		}
+	}
+	else if (SwingLowPrice < > -1) {
+		if (UpDn >= 0 && SwingLowPrice <= SwingPrice * (1 - RetracePct * 0.01)) {
+			UpDn = -1;
+			NewTL = true;
+			SaveSwing = true;
+		}
+		else if (UpDn == -1 && SwingLowPrice <= SwingPrice) {
+			UpdateTL = true;
+			SaveSwing = true;
+		}
+
+		if (SaveSwing) {
+			SwingPrice = SwingLowPrice;
+			PreBar = CurrentBar;
+		}
+	}
+
+	if (NewTL) {
+		PlotNumeric("ZigZag", SwingPrice, 0, -1, 1);
+	}
+	else if (UpdateTL) {
+		if (UpDn == UpDn[1]) {
+			Unplot("ZigZag", PreBar - PreBar[1] + 1);
+			PlotNumeric("ZigZag", SwingPrice, 0, -1, 1);
+		}
+		else {
+			PlotNumeric("ZigZag", SwingPrice, 0, -1, 1);
+		}
+	}
+END
+
+//------------------------------------------------------------------------
+// 编译版本	GS2010.12.08
+// 版权所有	TradeBlazer Software 2003－2010
+// 更改声明	TradeBlazer Software保留对TradeBlazer平
+//			台每一版本的TradeBlazer公式修改和重写的权利
+//------------------------------------------------------------------------

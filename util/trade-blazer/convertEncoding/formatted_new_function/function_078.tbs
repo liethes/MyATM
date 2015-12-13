@@ -1,0 +1,40 @@
+//------------------------------------------------------------------------
+// 简称: NthCon
+// 名称: 第N个满足条件的Bar距当前的Bar数目
+// 类别: 用户函数
+// 类型: 内建函数
+// 输出: 数值型
+//------------------------------------------------------------------------
+
+PARAMS
+	Bool Con(false);
+	Numeric N(1);
+VARS
+	NumericSeries PreConIndex;
+	NumericSeries BarNums;
+	Numeric i(0);
+	Numeric ReBars(0);
+BEGIN
+	if (Con) {
+		BarNums = 0;
+		PreConIndex = BarNums[1] + 1;
+	}
+	else {
+		BarNums = BarNums + 1;
+		PreConIndex = BarNums;
+	}
+
+	ReBars = BarNums;
+	for i = 2 to N {
+		ReBars = ReBars + PreConIndex[ReBars];
+	}
+
+	RETURN ReBars;
+END
+
+//------------------------------------------------------------------------
+// 编译版本	GS2010.12.08
+// 版权所有	TradeBlazer Software 2003－2010
+// 更改声明	TradeBlazer Software保留对TradeBlazer平
+//			台每一版本的TradeBlazer公式修改和重写的权利
+//------------------------------------------------------------------------

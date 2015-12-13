@@ -1,0 +1,56 @@
+//------------------------------------------------------------------------
+// 简称: OpenIntD
+// 名称: 求N天前的持仓量
+// 类别: 用户函数
+// 类型: 内建函数
+// 输出: 数值型
+//------------------------------------------------------------------------
+
+Params
+	Numeric daysAgo(2);
+Vars
+	NumericSeries barCnt;
+	NumericSeries dayOpenInt;
+	Numeric i;
+	Numeric j;
+	Numeric nIndex(0);
+	Numeric CBIndex;
+Begin
+	CBIndex = CurrentBar;
+	If(CBIndex == 0 || TrueDate(0)!=TrueDate(1))
+	{
+		barCnt = 1;
+	}Else
+	{
+		barCnt = barCnt + 1;
+	}
+	dayOpenInt = OpenInt;
+		
+	If(daysAgo == 0)
+	{
+		return dayOpenInt;
+	}Else
+	{
+		For i = 1 To daysAgo
+		{
+			If( i == 1)
+			{	
+				j = 0;
+			}Else
+			{
+				j = j + BarCnt[j];				
+			}
+			If (j > CBIndex ) 
+				Return InvalidNumeric;
+			nIndex = nIndex + BarCnt[j];
+		}
+		Return dayOpenInt[nIndex];
+	}
+End
+
+//------------------------------------------------------------------------
+// 编译版本	GS2013.07.08
+// 版权所有	TradeBlazer Software 2003－2013
+// 更改声明	TradeBlazer Software保留对TradeBlazer平
+//			台每一版本的TradeBlazer公式修改和重写的权利
+//------------------------------------------------------------------------

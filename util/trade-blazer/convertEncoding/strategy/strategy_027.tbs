@@ -1,0 +1,159 @@
+//------------------------------------------------------------------------
+// 简称: CL_In_The_Zone_S
+// 名称: 基于k线建立箱体基于突破进行系统交易空 
+// 类别: 公式应用
+// 类型: 内建应用
+//------------------------------------------------------------------------
+
+//----------------------------------------------------------------------//
+// 策略说明:
+//			 本策略基于k线形成的区域设置进出场价格, 通过价格的上下突破来进行交易或取消做单
+//			 
+// 系统要素:
+//			 k线区域按时间顺序从左向右共由4根k线组成, 最左边的k线标号为3
+//			 1. 如果1号k线收盘价高于3号k线最高点, 开始设置做多交易区域, 上轨为3号K线高点, 下轨为标号为1起CancelFlagN根K线的低点
+//				如果标号为0的K线收盘价在上下轨之间, 则做多区域设置成功, 如果收盘价低于下轨则区域设置取消
+//			 2. 如果1号k线收盘价低于3号k线最低点, 开始设置做空交易区域, 下轨为3号K线低点, 上轨为标号为1起CancelFlagN根K线的高点
+//				如果标号为0的K线收盘价在上下轨之间, 则做空区域设置成功, 如果收盘价高于上轨则区域设置取消
+// 入场条件:
+//			 1. 做多区域设置成功时, 当前k线高于标号为0的K线高点时入场做多
+//			 2. 做空区域设置成功时, 当前k线低于标号为0的K线低点时入场做空
+// 出场条件: 
+//			 1. 基于ATR的保护性止损
+//			 2. 基于ATR的盈亏平衡止损
+//			 3. 基于ATR的盈利止盈
+//
+//		 注: 当前策略仅为做空系统, 如需做多, 请参见CL_In_The_Zone_L
+//----------------------------------------------------------------------//
+
+Params
+    Numeric ATRLength(10);				//ATR的值
+	Numeric CancelFlagN(5);				//用于计算取消区域成功设置标志的上下轨的N值
+	Numeric ProtectStopATRMulti(0.5);		//保护性止损的ATR乘数
+	Numeric BreakEvenStopATRMulti(3);	//盈亏平衡止损的ATR乘数
+	Numeric ProfitTargetATRMulti(5);	//盈利止盈的ATR乘数
+	
+Vars
+
+	NumericSeries ATR(0);				//ATR
+	
+	NumericSeries UpLine(0);			//区域设置上轨
+	NumericSeries DownLine(0);			//区域设置下轨
+	
+	NumericSeries UpLineTemp;
+
+	NumericSeries LowAfterEntry; 		//持仓后的低点记录
+	
+	NumericSeries EntryPriceS(0);		//开仓价格线
+	BoolSeries EntryFlag(False);		//入场标志
+	
+	NumericSeries ProtectStopS;			//基于ATR的保护性止损
+	NumericSeries ProfitTargetStopS;	//基于ATR的盈利止盈
+	Numeric BreakEvenStopS;				//基于ATR的盈亏平衡止损
+	Numeric ExitLineS;					//平仓价格线
+	
+	NumericSeries MP;					//MarketPosition的状态记录
+
+Begin
+
+	// 集合竞价和小节休息过滤
+	If(!CallAuctionFilter()) Return;
+	
+	//系统设置
+
+	ATR = AvgTrueRange(ATRLength);
+	UpLineTemp = HighestFC(High,CancelFlagN);
+	
+	//k线区域按时间顺序从左向右共由4根k线组成, 最左边的k线标号为3, 当前K线标号为0
+	//如果1号k线收盘价低于3号k线最低点, 开始设置做空交易区域, 下轨为3号K线低点, 上轨为从标号为1起CancelFlagN根K线的高点
+	//如果标号为0的K线收盘价在上下轨之间, 则做空区域设置成功, 做空触发价为标号为0的K线低点, 如果之后k线收盘价高于下轨则区域设置取消
+	if(MarketPosition <> -1)
+	{
+		If(EntryFlag[1] == False)
+		{
+			If(Close[1] <= Low[3])
+			{
+				UpLine = UpLineTemp[1];
+				DownLine = Low[3];
+				if(C[0]<=UpLine and C[0] >=DownLine) 
+				{
+					EntryFlag = True;
+					EntryPriceS = Low[0];
+				}
+			}
+		}
+		//如果未开仓前, 有k线收盘高于UpLine, 则做空区域设置取消
+		Else If(EntryFlag[1] == True)
+		{
+			if(C[0] > UpLine) EntryFlag = False;
+		}
+	}
+	//PlotNumeric("UpLine",UpLine);
+	//PlotNumeric("DownLine",DownLine);
+	//PlotBool("EntryFlag",EntryFlag);
+	//PlotNumeric("EntryPriceS",EntryPriceS);
+	
+	//系统入场
+	//做空区域设置成功时, 当前k线低于标号为1的K线低点时入场做多
+	If(MarketPosition <> -1 and CurrentBar >= ATRLength)
+	{
+		If(EntryFlag[1] == True and Low <= EntryPriceS[1] And Vol > 0)
+		{
+			SellShort(0,Min(Open,EntryPriceS[1]));
+			EntryFlag = False;
+			//基于ATR的保护性止损
+			ProtectStopS = High[1] + ProtectStopATRMulti * ATR[1];
+			//基于ATR的盈利止盈
+			ProfitTargetStopS = Low[1] - ProfitTargetATRMulti * ATR[1];
+		}
+	}
+	
+	//系统出场
+
+	If(BarsSinceEntry == 0)
+		LowAfterEntry = Low;
+	Else	
+		LowAfterEntry = Min(LowAfterEntry[1],Low);
+	
+	//基于ATR的盈亏平衡止损
+	BreakEvenStopS = LastEntryPrice;
+	
+	If(MarketPosition == -1 and mp[1] == -1 And Vol > 0)
+	{
+		//出场线选择
+		If(LowAfterEntry[1] <= BreakEvenStopS - BreakEvenStopATRMulti * ATR[1])
+		{
+			ExitLineS = BreakEvenStopS;
+		}
+		Else
+		{
+			ExitLineS = ProtectStopS[1];
+		}
+
+		//出场
+		//基于ATR的盈利止盈
+		if(Open <= ProfitTargetStopS[1])
+		{
+			BuyToCover(0,Open);
+		}
+		//基于ATR的保护性止损或盈亏平衡止损
+		Else if(H >= ExitLineS)
+		{
+			BuyToCover(0,Max(Open, ExitLineS));
+		}
+	}
+	//PlotNumeric("ProtectStopS",ProtectStopS);
+	//PlotNumeric("ProfitTargetStopS",ProfitTargetStopS);
+	//PlotNumeric("BreakEvenStopS",BreakEvenStopS);
+	//PlotNumeric("ExitLineS",ExitLineS);
+		
+	MP = MarketPosition;		
+		
+End
+
+//------------------------------------------------------------------------
+// 编译版本	GS2014.10.25
+// 版权所有	TradeBlazer Software 2003－2014
+// 更改声明	TradeBlazer Software保留对TradeBlazer平
+//			台每一版本的TradeBlazer公式修改和重写的权利
+//------------------------------------------------------------------------

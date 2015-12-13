@@ -1,0 +1,140 @@
+//------------------------------------------------------------------------
+// 简称: NthExtremes
+// 名称: 求N极值
+// 类别: 用户函数
+// 类型: 内建函数
+// 输出: 数值型
+//------------------------------------------------------------------------
+
+Params
+	NumericSeries Price(1);
+	Numeric Length(10);
+	Numeric N(5);
+	Bool bMax(True);
+	NumericRef NthExtremeBar;
+Vars
+	Numeric nMaxBar;
+	Numeric NthMaxValue;
+	Numeric nMinBar;
+	Numeric NthMinValue;
+	Numeric TmpValue;
+	Numeric NthReturnValue;
+	Numeric nBetterCnt;
+	Numeric nEqualCnt;
+	Numeric nEqualIndex;
+	Numeric i;
+	Numeric j;
+	Numeric k;
+Begin
+	if (Length > 0 && N>0 && N <= Length)
+	{
+		NthMaxValue = Extremes(Price, Length, True, nMaxBar);
+		NthMinValue = Extremes(Price, Length, False, nMinBar);
+		
+		If(bMax)
+		{
+			For i = 2 To N
+			{
+				TmpValue = NthMinValue - 1;
+				nBetterCnt = 0;
+				nEqualCnt = 0;
+				For j = 0 To Length - 1
+				{
+					If ( Price[j] > NthMaxValue)
+					{
+						nBetterCnt = nBetterCnt + 1;
+					}else If ( Price[j] < NthMaxValue)
+					{
+						if (Price[j] > TmpValue)
+						{
+							TmpValue = Price[j] ;
+							nMaxBar = j;
+						}
+					}Else
+					{
+						nEqualCnt = nEqualCnt + 1;
+					}
+				}
+					
+				if (nBetterCnt + nEqualCnt >= i)
+				{
+					nEqualIndex = 0;
+					for  k = 0 To  Length - 1
+					{
+						if (Price[k] == NthMaxValue)
+						{
+							nEqualIndex = nEqualIndex + 1;
+							if (nEqualIndex == (i - nBetterCnt))
+							{
+								nMaxBar = k;
+							}
+						}
+					}
+				}else
+				{
+					NthMaxValue = TmpValue;
+				}				
+			}
+			NthExtremeBar = nMaxBar;
+			NthReturnValue = NthMaxValue;
+		}Else
+		{
+			For i = 2 To N
+			{
+				TmpValue = NthMaxValue + 1;
+				nBetterCnt = 0;
+				nEqualCnt = 0;
+				For j = 0 To Length - 1
+				{
+					If ( Price[j] < NthMinValue)
+					{
+						nBetterCnt = nBetterCnt + 1;
+					}else If ( Price[j] > NthMinValue)
+					{
+						if (Price[j] < TmpValue)
+						{
+							TmpValue = Price[j] ;
+							nMinBar = j;
+						}
+					}Else
+					{
+						nEqualCnt = nEqualCnt + 1;
+					}
+				}
+					
+				if (nBetterCnt + nEqualCnt >= i)
+				{
+					nEqualIndex = 0;
+					for  k = 0 To  Length - 1
+					{
+						if (Price[k] == NthMinValue)
+						{
+							nEqualIndex = nEqualIndex + 1;
+							if (nEqualIndex == (i - nBetterCnt))
+							{
+								nMinBar = k;
+							}
+						}
+					}
+				}else
+				{
+					NthMinValue = TmpValue;
+				}				
+			}
+			NthExtremeBar = nMinBar;
+			NthReturnValue = NthMinValue;
+		}
+	}Else
+	{
+		NthReturnValue = -1;
+		NthExtremeBar = -1;
+	}
+	Return NthReturnValue;
+End
+
+//------------------------------------------------------------------------
+// 编译版本	GS2010.12.08
+// 版权所有	TradeBlazer Software 2003－2010
+// 更改声明	TradeBlazer Software保留对TradeBlazer平
+//			台每一版本的TradeBlazer公式修改和重写的权利
+//------------------------------------------------------------------------

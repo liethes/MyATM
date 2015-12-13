@@ -1,0 +1,99 @@
+//------------------------------------------------------------------------
+// 简称: DataConvert
+// 名称: 跨周期数据转换函数
+// 类别: 用户函数
+// 类型: 内建函数
+// 输出: 数值型
+//------------------------------------------------------------------------
+
+Params
+	NumericSeries Price(0);			// 数据源
+	String strPeriodType("min");	// 目标周期类型,Min,Day,Week,Month
+	Numeric nPeriodNums(3);			// 目标周期数目，和类型组合成 3Min,5Day,2Week,2Month等值
+	String strDataType("close"); 	// 转换的类型，分为High,Low,Open,Close,Vol,OpenInt六种类型
+Vars
+	NumericSeries nNext(-1);
+	NumericSeries returnValue;
+	Numeric nCur;
+	String strTmp1;
+	String strTmp2;
+Begin
+	strTmp1 = Lower(strPeriodType);
+	strTmp2 = Lower(strDataType);
+
+	If(BarType == 1 && strTmp1 == "min" && BarInterval > nPeriodNums ) // 当前数据周期是分钟线
+		Return Price;
+	
+	If((BarType == 0 || BarType == 4 || BarType == 5) && strTmp1 == "min")
+		Return Price;
+
+	If((BarType == 4 || BarType == 5 )&& strTmp1 == "day")
+		Return Price;
+	
+	If(BarType == 5 && strTmp1 =="week")
+		Return Price;
+	
+	If(nPeriodNums <= 0) Return Price;
+	
+	If(strTmp2 != "open" && strTmp2 != "high" && strTmp2 != "low" && 
+		strTmp2 != "close" && strTmp2 != "vol" && strTmp2 != "openint")
+		Return Price;
+
+	If(strTmp1 == "min")// 处理N分钟数据输出
+	{
+		nCur = (Hour*60+Minute)/nPeriodNums;
+	}Else if(strTmp1 == "day") // 处理N日数据输出
+	{
+		nCur = DateDiff(19700102,TrueDate(0))/nPeriodNums;
+	}Else if(strTmp1 == "week") // 处理N周数据输出
+	{
+		nCur = DateDiff(19700105,TrueDate(0))/(7*nPeriodNums);
+	}Else if(strTmp1 == "month") // 处理N月数据输出
+	{
+		nCur = ((Year()-1970)*12 + Month)/nPeriodNums;
+	}Else
+	{
+		Return Price;
+	}
+	nCur = IntPart(nCur);
+
+	If (BarStatus == 0)
+	{
+		nNext = nCur + 1;
+		returnValue = Price;
+	}Else
+	{
+		If((strTmp1 =="min" && TrueDate(0)==TrueDate(1) && nCur < nNext[1])||
+			(strTmp1 !="min" && nCur < nNext[1]))
+		{
+			if(strTmp2 =="high")
+			{
+				if(Price > returnValue)
+					returnValue = Price;
+			}Else if(strTmp2 =="low")
+			{
+				if(Price < returnValue)
+					returnValue = Price;
+			}Else if(strTmp2 =="close" || strTmp2 == "openInt")
+			{
+				returnValue = Price;
+			}Else if(strTmp2 =="vol")
+			{
+				returnValue = returnValue+Price;
+			}
+		}Else
+		{
+			nNext = nCur + 1;
+			returnValue = Price;
+		}
+	}
+	
+	Return returnValue;
+End
+
+//------------------------------------------------------------------------
+// 编译版本	GS2010.12.08
+// 版权所有	TradeBlazer Software 2003－2010
+// 更改声明	TradeBlazer Software保留对TradeBlazer平
+//			台每一版本的TradeBlazer公式修改和重写的权利
+//------------------------------------------------------------------------

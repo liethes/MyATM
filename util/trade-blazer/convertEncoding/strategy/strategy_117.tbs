@@ -1,0 +1,88 @@
+//------------------------------------------------------------------------
+// 简称: TS_DynamicBreakOutII_L
+// 名称: 动态突破_多
+// 类别: 公式应用
+// 类型: 内建应用
+// 输出:
+//------------------------------------------------------------------------
+/* 
+策略说明:
+		基于自适应的布林通道与自适应的唐奇安通道的突破系统
+系统要素:
+		1、自适应布林通道
+		2、自适应唐奇安通道
+		3、自适应出场均线
+入场条件:
+		1、昨日价格大于布林通道上轨，并且当日周期价格大于唐奇安通道上轨，开多单
+		2、昨日价格小于布林通道下轨，并且当日周期价格小于唐奇安通道下轨，开空单
+出场条件:
+		1、持有多单时，价格小于自适应出场均线，平多单
+		2、持有空单时，价格大于自适应出场均线，平空单
+注    意:
+		此公式仅做多
+*/
+Params
+	Numeric ceilingAmt(60);				// 自适应参数的上限
+	Numeric floorAmt(20);				// 自适应参数的下限
+	Numeric bolBandTrig(2);				// 布林通道参数
+	Numeric Lots(0);					// 交易手数
+Vars
+	Numeric lookBackDays(20);			// 自适应参数
+	NumericSeries todayVolatility(0);	// 当日市场波动
+	Numeric yesterDayVolatility(0);		// 昨日市场波动
+	Numeric deltaVolatility(0);			// 市场波动的变动率
+	NumericSeries buyPoint(0);			// 自适应唐奇安通道上轨
+	NumericSeries sellPoint(0);			// 自适应唐奇安通道下轨
+	NumericSeries LiqPoint(0);			// 自适应出场均线			
+
+	NumericSeries MidLine(0);			// 布林通道中轨
+	Numeric Band(0);
+	NumericSeries upBand(0);			// 布林通道上轨
+	NumericSeries dnBand(0);			// 布林通道下轨
+Begin
+	// 集合竞价和小节休息过滤
+	If(!CallAuctionFilter()) Return;
+	
+	// 当日市场波动
+	todayVolatility = StandardDev(Close,30,1);
+	// 昨日市场波动
+	yesterDayVolatility = todayVolatility[1];
+	// 市场波动的变动率
+	deltaVolatility = (todayVolatility - yesterDayVolatility)/todayVolatility;
+	
+	// 计算自适应参数
+	lookBackDays = lookBackDays*(1 + deltaVolatility);
+	lookBackDays = Round(lookBackDays,0);
+	lookBackDays = Min(lookBackDays,ceilingAmt);
+	lookBackDays = Max(lookBackDays,floorAmt);
+	
+	// 自适应布林通道中轨
+	MidLine = Average(Close,lookBackDays);
+	Band = StandardDev(Close,lookBackDays,2); 
+	// 自适应布林通道上轨
+	upBand = MidLine + bolBandTrig*Band;
+	// 自适应布林通道下轨
+	dnBand = MidLine - bolBandTrig*Band; 
+	
+	// 自适应唐奇安通道上轨
+	buyPoint = Highest(High,lookBackDays);
+	// 自适应唐奇安通道下轨
+	sellPoint = Lowest(Low,lookBackDays);
+	// 自适应出场均线
+	LiqPoint = MidLine;
+
+	// 昨日价格大于布林通道上轨，并且当日价格大于唐奇安通道上轨，开多单
+	If(MarketPosition != 1 And Close[1] > upBand[1] And High >= buyPoint[1]) Buy(Lots,Max(Open,buyPoint[1]));
+	// 持有多单时，昨日价格小于布林通道下轨，并且当日价格小于唐奇安通道下轨，平多单
+	If(MarketPosition == 1 And Close[1] < dnBand[1] And Low <= sellPoint[1]) Sell(0,Min(Open,sellPoint[1]));
+	
+	// 持有多单时，价格小于自适应出场均线，平多单
+ 	If(MarketPosition == 1 And BarsSinceEntry >= 1 And Low <= LiqPoint[1]) Sell(0,Min(Open,LiqPoint[1]));
+End
+
+//------------------------------------------------------------------------
+// 编译版本	GS2014.10.25
+// 版权所有	TradeBlazer Software 2003－2014
+// 更改声明	TradeBlazer Software保留对TradeBlazer平
+//			台每一版本的TradeBlazer公式修改和重写的权利
+//------------------------------------------------------------------------

@@ -1,0 +1,53 @@
+//------------------------------------------------------------------------
+// 简称: ModeArray
+// 名称: 求数组的众数
+// 类别: 用户函数
+// 类型: 内建函数
+// 输出: 数值型
+//------------------------------------------------------------------------
+
+Params
+	NumericArrayRef arr;
+Vars
+	Numeric arrSize;
+	Numeric ModeValue(-1);
+	Numeric ModeCounter(1);
+	Numeric TmpValue;
+	Numeric TmpCounter;
+	Numeric i;
+	Numeric j;
+Begin
+	arrSize = GetNumericArraySize(arr);
+	If (arrSize > 1)
+	{
+		For i = 0 To arrSize - 1
+		{
+			TmpCounter = 0;
+			TmpValue = arr[i];
+			If (TmpValue <> ModeValue)
+			{
+				For j = 0 To arrSize - 1
+				{
+					If ( TmpValue == arr[j] )
+					{
+						TmpCounter = TmpCounter + 1;
+					}
+				}
+
+				If (TmpCounter > ModeCounter)
+				{
+					ModeCounter = TmpCounter;
+					ModeValue = TmpValue;
+				}
+			}
+		}
+	}
+	Return ModeValue;
+End
+
+//------------------------------------------------------------------------
+// 编译版本	GS2014.10.25
+// 版权所有	TradeBlazer Software 2003－2014
+// 更改声明	TradeBlazer Software保留对TradeBlazer平
+//			台每一版本的TradeBlazer公式修改和重写的权利
+//------------------------------------------------------------------------

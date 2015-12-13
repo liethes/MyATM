@@ -1,0 +1,68 @@
+//------------------------------------------------------------------------
+// 简称: CoefficientR
+// 名称: 求皮尔森相关系数
+// 类别: 用户函数
+// 类型: 内建函数
+// 输出: 数值型
+//------------------------------------------------------------------------
+
+Params
+	NumericSeries Price1(1);
+	NumericSeries Price2(1);
+	Numeric Length(10);
+Vars
+	Numeric AvgX(0);
+	Numeric AvgY(0);
+	Numeric SumDySqr(0);
+	Numeric SumDxDy(0); 
+	Numeric SumDxSqr(0);
+	Numeric Dy(0);
+	Numeric Dx(0); 
+	Numeric CoefR(0) ;	
+	Numeric i;
+	Numeric tmp;
+Begin
+	CoefR = -2;
+	if (Length >0 )
+	{
+		AvgX = 0;
+		AvgY = 0;
+		for  i = 0 To Length - 1
+		{
+			AvgX = AvgX + Price1[i] ;
+			AvgY = AvgY + Price2[i] ;
+		}
+		AvgX = AvgX / Length;
+		AvgY = AvgY / Length;
+		
+		SumDySqr = 0;
+		SumDxSqr = 0;		
+		SumDxDy = 0;	
+		for i = 0 To Length - 1
+		{
+			Dx = Price1[i] - AvgX ;
+			Dy = Price2[i] - AvgY ;
+			SumDxSqr = SumDxSqr + Sqr( Dx ) ;
+			SumDySqr = SumDySqr + Sqr( Dy ) ;
+			SumDxDy = SumDxDy + Dx * Dy ;
+		}
+		
+		tmp = SumDxSqr * SumDySqr ;
+		If (tmp > 0)
+		{
+			tmp = SumDxDy / Sqrt( tmp ) ;
+			if ((tmp >= -1) and (tmp <= 1))
+			{
+				CoefR = tmp;
+			}
+		}
+	}
+	Return CoefR;
+End
+
+//------------------------------------------------------------------------
+// 编译版本	GS2010.12.08
+// 版权所有	TradeBlazer Software 2003－2010
+// 更改声明	TradeBlazer Software保留对TradeBlazer平
+//			台每一版本的TradeBlazer公式修改和重写的权利
+//------------------------------------------------------------------------

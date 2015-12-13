@@ -1,0 +1,136 @@
+//------------------------------------------------------------------------
+// 简称: CL_SupermanSystem_L
+// 名称: 基于市场强弱和动量的通道突破系统多 
+// 类别: 公式应用
+// 类型: 内建应用
+// 输出:
+//------------------------------------------------------------------------
+
+//----------------------------------------------------------------------//
+// 策略说明:
+//			 本策略是基于市场强弱指标和动量的通道突破系统
+//			 
+// 系统要素:
+//			 1. 根据N根K线的收盘价相对前一根K线的涨跌计算出市场强弱指标
+//			 2. 最近9根K线的动量变化趋势
+//			 3. 最近N根K线的高低点形成的通道
+// 入场条件:
+//			 1. 市场强弱指标为多头，且市场动量由空转多时，突破通道高点做多
+//			 2. 市场强弱指标为空头，且市场动量由多转空时，突破通道低点做空
+// 出场条件: 
+//			 1. 开多以开仓BAR的最近N根BAR的低点作为止损价
+//			    开空以开仓BAR的最近N根BAR的高点作为止损价
+//			 2. 盈利超过止损额的一定倍数止盈
+//			 3. 出现反向信号止损
+//
+//		 注: 当前策略仅为做多系统, 如需做空, 请参见CL_SupermanSystem_S
+//----------------------------------------------------------------------//
+
+
+Params
+	Numeric Length(5);				// 强弱指标和通道计算的周期值
+	Numeric Stop_Len(5);			// 止损通道的周期值
+	Numeric ProfitFactor(3);		// 止盈相对止损的倍数
+	Numeric EntryStrength(95);		// 强弱指标的进场值
+	
+Vars
+	NumericSeries CloseChange;		// 收盘价变动值
+	Numeric i;						// 循环控制变量
+	Numeric UpCloses;				// 收盘价上涨累计值
+	Numeric DnCloses;				// 收盘价下跌累计值
+	Numeric SumChange;				// 收盘价变动累计值
+	NumericSeries MarketStrength;	// 市场强弱指标
+	NumericSeries Momentum1;		// 当前Bar相对前4根BAR的动量
+	NumericSeries Momentum2;		// 前4根BAR相对前8根BAR的动量
+	NumericSeries HH;				// N周期高点 
+	NumericSeries LL1;				// N周期低点
+	NumericSeries LL2;				// N周期低点
+	NumericSeries StopLoss;			// 止损位
+	NumericSeries ProfitTarget;		// 止盈位
+
+Begin
+
+	// 集合竞价和小节休息过滤
+	If(!CallAuctionFilter()) Return;
+	
+	// 计算市场强弱指标
+	CloseChange = Close - Close[1];
+	UpCloses = 0;
+	DnCloses = 0;
+	For i = 0 To Length-1
+	{
+		// 收盘价上涨计入涨幅累计
+		If(CloseChange[i] > 0) 
+			UpCloses = UpCloses + CloseChange[i];
+		// 否则计入跌幅累计
+		Else
+			DnCloses = DnCloses + CloseChange[i];
+	}
+	// 计算周期内涨跌
+	SumChange = Summation(CloseChange,Length);
+
+	// 周期内上涨，计算上涨强度，0-100之间
+	If(SumChange >= 0)
+	{
+		MarketStrength = SumChange/UpCloses*100;
+	}
+	// 周期内下跌，计算下跌强度，0-100之间
+	Else
+	{
+		MarketStrength = SumChange/Abs(DnCloses)*100;
+	}
+
+	// 显示指标
+	// PlotNumeric("MarketStrength",MarketStrength);
+	
+	// 计算动量
+	Momentum1 =  Close - Close[4];
+	Momentum2 =  Close[4] - Close[8];
+
+	// 计算周期高低点，开仓突破用
+	HH = Highest(High,Length);
+	LL1 = Lowest(Low,Length);
+
+	// 计算周期低点，开仓后止损用
+	LL2 = Lowest(Low,Stop_Len);
+	
+	// 开仓
+	If(MarketPosition == 0 And MarketStrength[1] >= EntryStrength And Momentum1[1] >= 0 And Momentum2[1] < 0 And High >= HH[1] And Vol > 0)
+	{
+		Buy(0, Max(Open,HH[1]));
+
+		// 记录开仓BAR的周期低点作为止损位
+		StopLoss = LL2;
+
+		// 根据止损位计算止盈位
+		ProfitTarget = EntryPrice + (EntryPrice - StopLoss) * ProfitFactor;
+		Commentary("ProfitTarget="+text(ProfitTarget));
+	}
+	
+	// 平仓
+	If(MarketPosition == 1 And BarsSinceEntry > 0 And Vol > 0)
+	{
+		If(High >= ProfitTarget)
+		{
+			Sell(0,Max(Open,ProfitTarget));
+			Commentary("止盈");
+		}
+		Else If(Low <= StopLoss)
+		{
+			Sell(0,Min(Open,StopLoss));
+			Commentary("止损");
+		}
+		Else If(MarketStrength[1] <= -1*EntryStrength And Momentum1[1] < 0 And Momentum2[1] >= 0 And Low <= LL1[1])
+		{
+			Sell(0,Min(Open,LL1[1]));
+			Commentary("反向出场");
+		}
+	}
+End
+
+//------------------------------------------------------------------------
+// 编译版本	GS2014.10.25
+// 版权所有	TradeBlazer Software 2003－2014
+// 更改声明	TradeBlazer Software保留对TradeBlazer平
+//			台每一版本的TradeBlazer公式修改和重写的权利
+//------------------------------------------------------------------------

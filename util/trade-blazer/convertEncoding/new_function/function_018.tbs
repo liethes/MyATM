@@ -1,0 +1,71 @@
+//------------------------------------------------------------------------
+// 简称: CoefficientRArray
+// 名称: 求数组的皮尔森相关系数
+// 类别: 用户函数
+// 类型: 内建函数
+// 输出: 数值型
+//------------------------------------------------------------------------
+
+Params
+	NumericArrayRef arr1;
+	NumericArrayRef arr2;
+Vars
+	Numeric arrSize1;
+	Numeric arrSize2;
+	Numeric AvgX(0);
+	Numeric AvgY(0);
+	Numeric SumDySqr(0);
+	Numeric SumDxDy(0); 
+	Numeric SumDxSqr(0);
+	Numeric Dy(0);
+	Numeric Dx(0); 
+	Numeric CoefR(0) ;	
+	Numeric i;
+	Numeric tmp;
+Begin
+	arrSize1 = GetNumericArraySize(arr1);
+	arrSize2 = GetNumericArraySize(arr2);
+	CoefR = -2;
+	If (arrSize1 > 0 And arrSize2 > 0 And arrSize1 == arrSize2)
+	{
+		AvgX = 0;
+		AvgY = 0;
+		For  i = 0 To arrSize1 - 1
+		{
+			AvgX = AvgX + arr1[i] ;
+			AvgY = AvgY + arr2[i] ;
+		}
+		AvgX = AvgX / arrSize1;
+		AvgY = AvgY / arrSize1;
+		
+		SumDySqr = 0;
+		SumDxSqr = 0;		
+		SumDxDy = 0;	
+		For i = 0 To arrSize1 - 1
+		{
+			Dx = arr1[i] - AvgX ;
+			Dy = arr2[i] - AvgY ;
+			SumDxSqr = SumDxSqr + Sqr( Dx ) ;
+			SumDySqr = SumDySqr + Sqr( Dy ) ;
+			SumDxDy = SumDxDy + Dx * Dy ;
+		}
+		
+		tmp = SumDxSqr * SumDySqr ;
+		If (tmp > 0)
+		{
+			tmp = SumDxDy / Sqrt( tmp ) ;
+			If ((tmp >= -1) And (tmp <= 1))
+			{
+				CoefR = tmp;
+			}
+		}
+	}
+	Return CoefR;
+End
+ 
+//------------------------------------------------------------------------
+// 编译版本	GS2014.10.25
+// 版权所有	TradeBlazer Software 2003－2014
+// 更改声明	TradeBlazer Software保留对TradeBlazer平
+//			台每一版本的TradeBlazer公式修改和重写的权利
+//------------------------------------------------------------------------

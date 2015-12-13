@@ -1,0 +1,37 @@
+//------------------------------------------------------------------------
+// 简称: Correlation
+// 名称: 求相关系数
+// 类别: 用户函数
+// 类型: 内建函数
+// 输出: 数值型
+//------------------------------------------------------------------------
+
+PARAMS
+	NumericSeries Price1(1);
+	NumericSeries Price2(1);
+	Numeric Length(10);
+VARS
+	Numeric Matches(0);
+	BoolSeries Con;
+	Numeric i;
+BEGIN
+	Con = (Price1 >= Price1[1] and Price2 >= Price2[1]) or(Price1 < Price1[1] and Price2 < Price2[1]);
+	if (CurrentBar < Length) {
+		RETURN 0;
+	}
+	else {
+		for i = 0 to Length - 1 {
+			if (Con[i]) {
+				Matches = Matches + 1;
+			}
+		}
+		RETURN 2 * Matches / Length - 1;
+	}
+END
+
+//------------------------------------------------------------------------
+// 编译版本	GS2010.12.08
+// 版权所有	TradeBlazer Software 2003－2010
+// 更改声明	TradeBlazer Software保留对TradeBlazer平
+//			台每一版本的TradeBlazer公式修改和重写的权利
+//------------------------------------------------------------------------

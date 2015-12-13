@@ -1,0 +1,32 @@
+//------------------------------------------------------------------------
+// 简称: RVI
+// 名称: 相对波动指数
+// 类别: 公式应用
+// 类型: 内建应用
+//------------------------------------------------------------------------
+
+PARAMS
+	Numeric StdLength(10);
+	Numeric Length(14);
+	Numeric MidLine(50);
+VARS
+	Numeric StdValue;
+	Numeric RVIUp;
+	Numeric RVIDn;
+	Numeric RVIValue(50);
+BEGIN
+	StdValue = StandardDev(Close, StdLength);
+	RVIUp = AverageFC(IIF(C > Close[1], StdValue, 0), Length);
+	RVIDn = AverageFC(IIF(C < Close[1], StdValue, 0), Length);
+	if (RVIUp + RVIDn < > 0)
+		RVIValue = RVIUp / (RVIUp + RVIDn) * 100;
+	PlotNumeric("RVI", RVIValue);
+	PlotNumeric("中轴线", MidLine);
+END
+
+//------------------------------------------------------------------------
+// 编译版本	GS2010.12.08
+// 版权所有	TradeBlazer Software 2003－2010
+// 更改声明	TradeBlazer Software保留对TradeBlazer平
+//			台每一版本的TradeBlazer公式修改和重写的权利
+//------------------------------------------------------------------------

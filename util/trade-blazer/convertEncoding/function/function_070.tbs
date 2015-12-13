@@ -1,0 +1,52 @@
+//------------------------------------------------------------------------
+// 简称: Mode
+// 名称: 求众数
+// 类别: 用户函数
+// 类型: 内建函数
+// 输出: 数值型
+//------------------------------------------------------------------------
+
+Params
+	NumericSeries Price(1);
+	Numeric Length(10);
+Vars
+	Numeric ModeValue(-1);
+	Numeric ModeCounter(1);
+	Numeric TmpValue;
+	Numeric TmpCounter;
+	Numeric i;
+	Numeric j;
+Begin
+	If (Length > 1)
+	{
+		For i = 0 To Length - 1
+		{
+			TmpCounter = 0;
+			TmpValue = Price[i];
+			If (TmpValue <> ModeValue)
+			{
+				For j = 0 To Length - 1
+				{
+					If ( TmpValue == Price[j] )
+					{
+						TmpCounter = TmpCounter + 1;
+					}
+				}
+
+				If (TmpCounter>ModeCounter)
+				{
+					ModeCounter = TmpCounter;
+					ModeValue = TmpValue;
+				}
+			}
+		}
+	}
+	Return ModeValue;
+End
+
+//------------------------------------------------------------------------
+// 编译版本	GS2010.12.08
+// 版权所有	TradeBlazer Software 2003－2010
+// 更改声明	TradeBlazer Software保留对TradeBlazer平
+//			台每一版本的TradeBlazer公式修改和重写的权利
+//------------------------------------------------------------------------

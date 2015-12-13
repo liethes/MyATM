@@ -1,0 +1,148 @@
+//------------------------------------------------------------------------
+// 简称: CL_TrendScore_S
+// 名称: 基于收盘价与之前K线高低进行打分的交易系统空 
+// 类别: 公式应用 
+// 类型: 内建应用
+//------------------------------------------------------------------------
+
+//----------------------------------------------------------------------//
+// 策略说明:
+//			 本策略基于当前收盘价与之前k线的高低进行打分, 并通过打分的均值与对应的收盘价均值进行交易
+//			 
+// 系统要素:
+//			 1. 当当前收盘价格大于之前LookBack根K线内某一根k线的收盘价时记+1分, 否则记-1分, 加总这些分数以获得当前K线的得分
+//			 2. 对k线的打分计算一条均线
+//			 3. 对k线的收盘计算一条均线
+// 入场条件:
+//			 1. 当价格高于收盘价均线, 且打分也高于打分均线时的入场做多
+//			 2. 当价格低于收盘价均线, 且打分也低于打分均线时的入场做空
+// 出场条件: 
+//			 1. 基于ATR的保护性止损
+//			 2. 基于ATR的跟踪止损
+//			 3. 基于ATR的盈亏平衡止损
+//
+//		 注: 当前策略仅为做空系统, 如需做多, 请参见CL_TrendScore_L
+//----------------------------------------------------------------------//
+
+Params
+    Numeric LookBack(10);				//用于给当前K线打分的回溯根数
+    Numeric MALength(18);				//均线值
+    Numeric ATRLength(10);				//ATR的值
+	Numeric ProtectStopATRMulti(0.5);	//保护性止损的ATR乘数
+	Numeric TrailStopATRMulti(3);		//跟踪止损的ATR乘数
+	Numeric BreakEvenStopATRMulti(5);	//盈亏平衡止损的ATR乘数
+	
+Vars
+	NumericSeries MA(0);				//收盘价均线
+	NumericSeries TrendScore(0);		//当前K线的打分
+	NumericSeries TrendScoreMA(0);		//k线打分的均线
+	NumericSeries ATR(0);				//ATR
+
+	Numeric i;
+	Numeric Temp;
+	
+	NumericSeries LowAfterEntry; 		//持仓后的低点记录
+
+	NumericSeries ProtectStopS;			//基于ATR的保护性止损
+	Numeric TrailStopS;					//基于ATR的跟踪止损
+	Numeric BreakEvenStopS;				//基于ATR的盈亏平衡止损
+	Numeric ExitLineS;					//平仓线
+	
+	NumericSeries MP;					//MarketPosition状态记录
+Begin
+
+	// 集合竞价和小节休息过滤
+	If(!CallAuctionFilter()) Return;
+	
+	//系统设置
+	//K线打分 - 当当前收盘价格大于之前LookBack根K线内某一根k线的收盘价时记+1分, 否则记-1分, 加总这些分数以获得当前K线的得分
+	
+	TrendScore = 0;
+	SetGlobalVar(1,0);
+	
+	for  i = LookBack DownTo 1 /*循环次数*/
+    {
+    	If(i == LookBack)
+		{
+			Temp = 0;
+		}
+		Else
+		{
+			Temp = GetGlobalVar(1);
+		}
+		
+		If(C>=C[i]) Temp = Temp +1;
+		Else Temp = Temp - 1;
+		SetGlobalVar(1,Temp);			
+    }
+	
+	TrendScore = GetGlobalVar(1);
+	//PlotNumeric("TrendScore",TrendScore);
+	
+	//均线和ATR计算
+	MA = AverageFC(C,MALength);
+	TrendScoreMA = AverageFC(TrendScore,MALength);
+	ATR = AvgTrueRange(ATRLength);
+	//PlotNumeric("TrendScoreMA",TrendScoreMA);
+	//PlotNumeric("MA",MA);
+	
+	//系统入场
+	//当价格低于收盘价均线, 且打分也低于打分均线时的入场做空
+	If(MarketPosition <> -1 and MA[1] <> 0)
+	{
+		If(Close[1] <= MA[1] and TrendScore[1] <= TrendScoreMA[1] And Vol > 0)
+		{
+			SellShort(0,Open);
+			//基于ATR的保护性止损
+			ProtectStopS = High[1] + ProtectStopATRMulti * ATR[1];
+		}
+	}
+	
+	//系统出场
+
+	If(BarsSinceEntry == 0)
+		LowAfterEntry = Low;
+	Else	
+		LowAfterEntry = Min(LowAfterEntry[1],Low);
+
+	//基于ATR的跟踪止损
+	TrailStopS = LowAfterEntry[1] + TrailStopATRMulti * ATR[1];
+	
+	//基于ATR的盈亏平衡止损
+	BreakEvenStopS = LastEntryPrice;
+	
+	If(MarketPosition == -1 and mp[1] == -1)
+	{
+		//出场线选择
+		If(LowAfterEntry[1] <= BreakEvenStopS - BreakEvenStopATRMulti * ATR[1])
+		{
+			if(TrailStopS <= BreakEvenStopS) ExitLineS = TrailStopS;
+			Else ExitLineS = BreakEvenStopS;
+		}
+		Else
+		{
+			if(TrailStopS <= ProtectStopS[1]) ExitLineS = TrailStopS;
+			Else ExitLineS = ProtectStopS[1];
+		}
+
+		//出场
+		if(H >= ExitLineS And Vol > 0)
+		{
+			BuyToCover(0,Max(Open, ExitLineS));
+		}
+	}
+	//PlotNumeric("ProtectStopS",ProtectStopS);
+	//PlotNumeric("TrailStopS",TrailStopS);
+	//PlotNumeric("BreakEvenStopS",BreakEvenStopS);
+	//PlotNumeric("ExitLineS",ExitLineS);
+		
+	MP = MarketPosition;		
+		
+End
+
+//------------------------------------------------------------------------
+// 编译版本	GS2014.10.25
+// 版权所有	TradeBlazer Software 2003－2014
+// 更改声明	TradeBlazer Software保留对TradeBlazer平
+//			台每一版本的TradeBlazer公式修改和重写的权利
+//------------------------------------------------------------------------

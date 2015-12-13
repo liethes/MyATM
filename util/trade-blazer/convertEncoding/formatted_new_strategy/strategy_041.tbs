@@ -1,0 +1,96 @@
+//------------------------------------------------------------------------
+// 简称: CL_Open_Close_Histogram_S
+// 名称: 基于开收盘价格间的相对关系变化进行判断 空
+// 类别: 公式应用
+// 类型: 内建应用
+// 输出:
+//------------------------------------------------------------------------
+//----------------------------------------------------------------------//
+// 策略说明:
+//			 本策略计算指数移动平均(10个开盘价和10个收盘价, 然后后者减去前者得到柱状图)，通过柱状图上穿零轴还是下穿零轴来判断上升和下降趋势
+//			 
+// 系统要素:
+//			 1. 10个开盘价的指数移动平均与10个收盘价的指数移动平均之差若上穿零轴定义为上升趋势，上升趋势定义满足后将上穿K线的最高价加上10周
+//				期的ATR的一半作为多头入场触发价，同时将上穿K线的最低价减去10周期的ATR的一半作为多头平仓触发价；
+//			 2. 10个开盘价的指数移动平均与10个收盘价的指数移动平均之差若下穿零轴定义为下降趋势，下降趋势定义满足后将下穿K线的最低价减去10周
+//				期的ATR的一半作为空头入场触发价，同时将下穿K线的最高价加上10周期的ATR的一半作为空头平仓触发价；
+// 入场条件:
+//			 1. 10个开盘价的指数移动平均大于10个收盘价的指数移动平均并且向上突破了多头触发价则进场做多；
+//			 2. 10个开盘价的指数移动平均小于10个收盘价的指数移动平均并且向下突破了空头触发价则进场做空；
+// 出场条件: 
+//			 1. 跌破多头平仓触发价或者转为下降趋势多头平仓；
+//			 2. 突破空头平仓触发价或者转为上升趋势空头平仓；
+//			 
+//
+//		 注: 当前策略仅为做空系统, 如需做多, 请参见CL_Open_Close_Histogram_L
+//----------------------------------------------------------------------//
+
+PARAMS
+	Numeric OpenLen(10); //用于计算开盘价指数移动平均的周期
+	Numeric CloseLen(10); //用于计算收盘价指数移动平均的周期
+VARS
+	NumericSeries Histogram(0); //记录开盘价的指数移动平均与收盘价的指数移动平均之差
+	NumericSeries SellPrice(0); //空头触发价格	
+	NumericSeries ShortExitPrice(0); //空头平仓触发价格
+	BoolSeries con1; //判断是否为上升趋势
+	BoolSeries con2; //判断是否为下降趋势
+	NumericSeries ATR10(0);
+BEGIN
+
+// 集合竞价和小节休息过滤
+	if (!CallAuctionFilter()) RETURN;
+
+//条件设置
+	Histogram = XAverage(Close, CloseLen) - XAverage(Open, OpenLen);
+//PlotNumeric("Ma1",XAverage(Close,CloseLen));	
+//PlotNumeric("Ma2",XAverage(Open,OpenLen));
+
+
+	con1 = CrossOver(Histogram, 0);
+	con2 = CrossUnder(Histogram, 0);
+	ATR10 = Average(trueRange, 10);
+
+
+//设置空头入场触发价与空头平仓触发价
+	if (con2) {
+		SellPrice = Low - ATR10 * 0.5;
+		ShortExitPrice = High + ATR10 * 0.5;
+	}
+
+//满足下降趋势且向下突破触发价则进场做空
+	if (Histogram[1] < 0 And Vol > 0) {
+		if (low <= SellPrice) SellShort(0, Min(Open, SellPrice));
+	}
+
+
+//转为上升趋势空头平仓出场
+	if (MarketPosition == -1 and BarsSinceEntry > 0 And con1[1] And Vol > 0) {
+		BuytoCover(0, Open);
+	}
+
+
+//向上突破空头平仓触发价格则空头平仓出场
+	if (MarketPosition == -1 and BarsSinceEntry > 0 And High >= ShortExitPrice And Vol > 0) {
+		BuytoCover(0, Max(Open, ShortExitPrice));
+	}
+
+
+//Commentary("con1="+IIFString(con1,"true","false"));
+//Commentary("con2="+IIFString(con2,"true","false"));
+//Commentary("SellPrice="+Text(SellPrice));
+//Commentary("ShortExitPrice="+Text(ShortExitPrice));
+//Commentary("histogram="+Text(Histogram));
+//Commentary("MP="+Text(MarketPosition));
+
+
+//在图表上显示空头进场触发价格与空头平仓触发价格
+	if (MarketPosition == 0 and histogram < 0 and SellPrice > 0) PlotNumeric("SellPrice", SellPrice);
+	if (MarketPosition == -1) PlotNumeric("ShortExitPrice", ShortExitPrice);
+END
+
+//------------------------------------------------------------------------
+// 编译版本	GS2014.10.25
+// 版权所有	TradeBlazer Software 2003－2014
+// 更改声明	TradeBlazer Software保留对TradeBlazer平
+//			台每一版本的TradeBlazer公式修改和重写的权利
+//------------------------------------------------------------------------

@@ -1,0 +1,50 @@
+//------------------------------------------------------------------------
+// 简称: RSI
+// 名称: 相对强弱指数
+// 类别: 公式应用
+// 类型: 内建应用
+//------------------------------------------------------------------------
+
+Params 
+	Numeric Length(14) ;
+	Numeric OverSold(30) ;
+	Numeric OverBought(70) ;
+Vars
+	NumericSeries NetChgAvg( 0 );
+	NumericSeries TotChgAvg( 0 );
+	Numeric SF( 0 );
+	Numeric Change( 0 );	
+	Numeric ChgRatio( 0 ) ;
+	Numeric RSIValue;
+Begin	
+	If(CurrentBar <= Length - 1)
+	{
+		NetChgAvg = ( Close - Close[Length] ) / Length ;
+		TotChgAvg = Average( Abs( Close - Close[1] ), Length ) ;
+	}Else
+	{
+		SF = 1/Length;
+		Change = Close - Close[1] ;
+		NetChgAvg = NetChgAvg[1] + SF * ( Change - NetChgAvg[1] ) ;
+		TotChgAvg = TotChgAvg[1] + SF * ( Abs( Change ) - TotChgAvg[1] ) ;	
+	}
+	
+	If( TotChgAvg <> 0 )
+	{
+		ChgRatio = NetChgAvg / TotChgAvg;
+	}else
+	{
+		ChgRatio = 0 ;
+	}	
+	RSIValue = 50 * ( ChgRatio + 1 );	
+	PlotNumeric("RSI",RSIValue);
+	PlotNumeric("超买",OverBought);
+	PlotNumeric("超卖",OverSold);
+End
+
+//------------------------------------------------------------------------
+// 编译版本	GS2010.12.08
+// 版权所有	TradeBlazer Software 2003－2010
+// 更改声明	TradeBlazer Software保留对TradeBlazer平
+//			台每一版本的TradeBlazer公式修改和重写的权利
+//------------------------------------------------------------------------

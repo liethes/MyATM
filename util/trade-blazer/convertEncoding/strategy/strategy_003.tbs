@@ -1,0 +1,32 @@
+//------------------------------------------------------------------------
+// 简称: AROON
+// 名称: 阿隆指标
+// 类别: 公式应用
+// 类型: 内建应用
+//------------------------------------------------------------------------
+
+Params
+	Numeric Length(5);
+Vars
+	Numeric UpAroon;
+	Numeric DownAroon;
+	Numeric UpBar;		//最高价的回溯周期
+	Numeric DownBar;	//最低价的回溯周期
+	Numeric TmpValue;
+Begin
+	TmpValue = Extremes(High, Length+1, True, UpBar); 
+	UpAroon = (Length - UpBar)/Length*100;     	  
+	TmpValue = Extremes(Low,Length+1, False, DownBar);
+	DownAroon = (Length-DownBar)/Length*100;	
+	PlotNumeric("UpAroon",UpAroon);
+	PlotNumeric("DownAroon",DownAroon);
+	PlotNumeric("Ref1",70);
+	PlotNumeric("Ref2",30);
+End
+
+//------------------------------------------------------------------------
+// 编译版本	GS2010.12.08
+// 版权所有	TradeBlazer Software 2003－2010
+// 更改声明	TradeBlazer Software保留对TradeBlazer平
+//			台每一版本的TradeBlazer公式修改和重写的权利
+//------------------------------------------------------------------------

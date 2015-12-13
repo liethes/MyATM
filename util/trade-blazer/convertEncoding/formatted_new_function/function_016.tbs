@@ -1,0 +1,52 @@
+//------------------------------------------------------------------------
+// 简称: CloseD
+// 名称: 求N天前的收盘价
+// 类别: 用户函数
+// 类型: 内建函数
+// 输出: 数值型
+//------------------------------------------------------------------------
+
+PARAMS
+	Numeric daysAgo(2);
+VARS
+	NumericSeries barCnt;
+	NumericSeries dayClose;
+	Numeric i;
+	Numeric j;
+	Numeric nIndex(0);
+	Numeric CBIndex;
+BEGIN
+	CBIndex = CurrentBar;
+	if (CBIndex == 0 || trueDate(0) != trueDate(1)) {
+		barCnt = 1;
+	}
+	else {
+		barCnt = barCnt + 1;
+	}
+	dayClose = Close;
+
+	if (daysAgo == 0) {
+		return dayClose;
+	}
+	else {
+		for i = 1 to daysAgo {
+			if (i == 1) {
+				j = 0;
+			}
+			else {
+				j = j + BarCnt[j];
+			}
+			if (j > CBIndex)
+				RETURN InvalidNumeric;
+			nIndex = nIndex + BarCnt[j];
+		}
+		RETURN dayClose[nIndex];
+	}
+END
+
+//------------------------------------------------------------------------
+// 编译版本	GS2013.07.08
+// 版权所有	TradeBlazer Software 2003－2013
+// 更改声明	TradeBlazer Software保留对TradeBlazer平
+//			台每一版本的TradeBlazer公式修改和重写的权利
+//------------------------------------------------------------------------

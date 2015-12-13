@@ -1,0 +1,165 @@
+//------------------------------------------------------------------------
+// 简称: TS_Thermostat_L
+// 名称: 恒温器_多
+// 类别: 公式应用
+// 类型: 内建应用
+// 输出:
+//------------------------------------------------------------------------
+
+/* 
+策略说明:
+		通过计算市场的潮汐指数，把市场划分为震荡和趋势两种走势；震荡市中
+采用开盘区间突破进场；趋势市中采用布林通道突破进场。
+系统要素:
+		1、潮汐指数
+		2、关键价格
+		3、布林通道
+		4、真实波幅
+		5、出场均线
+入场条件:
+		1、震荡市中采用开盘区间突破进场
+		2、趋势市中采用布林通道突破进场
+出场条件:
+		1、震荡市时进场单的出场为反手信号和ATR保护性止损
+		2、趋势市时进场单的出场为反手信号和均线出场
+注    意:
+		此公式仅做多
+*/
+Params
+	Numeric swingTrendSwitch(20);			// 潮汐指数小于此值为震荡市，否则为趋势市
+	Numeric swingPrcnt1(0.50);				// 震荡市开仓参数
+	Numeric swingPrcnt2(0.75);				// 震荡市开仓参数
+	Numeric atrLength(10);					// 真实波幅参数
+
+	Numeric bollingerLengths(50);			// 布林通道参数
+	Numeric numStdDevs(2);					// 布林通道参数
+	Numeric trendLiqLength(50);				// 趋势市时进场单的出场均线参数
+	Numeric Lots(0);						// 交易手数
+Vars
+	NumericSeries cmiVal(0);				// 潮汐指数
+	BoolSeries buyEasierDay(False); 		// 宜买市
+	BoolSeries sellEasierDay(False); 		// 宜卖市
+	NumericSeries myATR(0);					// 真实波幅
+	
+	NumericSeries MidLine(0);				// 布林通道中轨
+	Numeric Band(0);
+	NumericSeries upBand(0);				// 布林通道上轨
+	NumericSeries dnBand(0);				// 布林通道下轨
+	
+	NumericSeries trendLokBuy(0);
+	NumericSeries trendLokSell(0);
+	NumericSeries keyOfDay(0);				// 关键价格
+	
+	NumericSeries swingBuyPt(0);			// 震荡市的买触发价格
+	NumericSeries swingSellPt(0);			// 震荡市的卖触发价格
+	NumericSeries trendBuyPt(0);			// 趋势市的买触发价格
+	NumericSeries trendSellPt(0);			// 趋势市的卖触发价格
+	NumericSeries swingProtStop(0);			// 震荡市时进场单的出场触发价格
+	NumericSeries trendProtStop(0);			// 趋势市时进场单的出场触发价格
+	
+	BoolSeries swingEntry(False);			// 震荡市时进场标识
+	BoolSeries trendEntry(False);			// 趋势市时进场标识	
+Begin
+	// 集合竞价和小节休息过滤
+	If(!CallAuctionFilter()) Return;
+	
+	// 计算潮汐指数用以区分震荡市与趋势市
+	cmiVal = Abs(Close - Close[29])/(Highest(High,30) - Lowest(Low,30))*100;
+	
+	trendLokBuy = Average(Low,3);
+	trendLokSell= Average(High,3);
+	
+	// 关键价格
+	keyOfDay = (High + Low + Close)/3;
+	
+	// 震荡市中收盘价大于关键价格为宜卖市，否则为宜买市
+	buyEasierDay = False;
+	sellEasierDay = False;
+	If(Close > keyOfDay[1]) sellEasierDay = True;
+	If(Close <= keyOfDay[1]) buyEasierDay = True;
+	
+	// 计算震荡市的进场价格
+	myATR = AvgTrueRange(atrLength);
+	If(buyEasierDay == True)
+	{
+		swingBuyPt = Open + swingPrcnt1*myATR[1];
+		swingSellPt = Open - swingPrcnt2*myATR[1];
+	}
+	If(sellEasierDay == True)
+	{
+		swingBuyPt = Open + swingPrcnt2*myATR[1];
+		swingSellPt = Open - swingPrcnt1*myATR[1];
+	}
+	swingBuyPt = Max(swingBuyPt,trendLokBuy[1]);
+	swingSellPt = Min(swingSellPt,trendLokSell[1]);
+
+	// 计算趋势市的进场价格
+	MidLine = AverageFC(Close,bollingerLengths);
+	Band = StandardDev(Close,bollingerLengths,2); 
+	upBand = MidLine + numStdDevs*Band;
+	dnBand = MidLine - numStdDevs*Band; 
+	
+	trendBuyPt = upBand;
+	trendSellPt = dnBand;
+	
+	// 震荡市
+	If(cmiVal[1] < swingTrendSwitch)	
+	{
+		If(MarketPosition != 1 And High >= swingBuyPt)
+		{
+			Buy(Lots,Max(Open,swingBuyPt));
+			swingEntry = True;
+		}
+		If(MarketPosition == 1 And Low <= swingSellPt)
+		{
+			Sell(0,Min(Open,swingSellPt));
+			swingEntry = False;
+		}
+	}
+
+	swingProtStop = 3*myATR;
+	trendProtStop = Average(Close,trendLiqLength);	
+
+	// 趋势市
+	If(cmiVal[1] >= swingTrendSwitch)
+	{
+		// 震荡市时进场单在趋势市的出场
+		If(swingEntry == True)
+		{			
+			If(MarketPosition == 1 And BarsSinceEntry >= 1 And Low <= (EntryPrice - swingProtStop[1]))
+			{
+				Sell(0,Min(Open,EntryPrice - swingProtStop[1]));	
+				swingEntry = False;
+			}
+		}	
+	
+		// 趋势市时进场
+		If(swingEntry == False And BarsSinceExit >= 1)
+		{
+			If(MarketPosition != 1 And High >= trendBuyPt[1])
+			{
+				Buy(Lots,Max(Open,trendBuyPt[1]));
+				trendEntry = True;
+			}
+			If(MarketPosition == 1 And Low <= trendSellPt[1])
+			{
+				Sell(0,Min(Open,trendSellPt[1]));
+				trendEntry = False;
+			}
+		}
+	
+		// 趋势市时进场单的出场
+		If(MarketPosition == 1 And BarsSinceEntry >= 1 And trendEntry == True And Low <= trendProtStop[1])
+		{
+			Sell(0,Min(Open,trendProtStop[1]));	
+			trendEntry = False;
+		}
+	}
+End	
+
+//------------------------------------------------------------------------
+// 编译版本	GS2014.10.25
+// 版权所有	TradeBlazer Software 2003－2014
+// 更改声明	TradeBlazer Software保留对TradeBlazer平
+//			台每一版本的TradeBlazer公式修改和重写的权利
+//------------------------------------------------------------------------

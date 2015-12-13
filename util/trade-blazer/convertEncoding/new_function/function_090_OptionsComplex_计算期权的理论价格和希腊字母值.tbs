@@ -1,0 +1,133 @@
+//------------------------------------------------------------------------
+// 简称: OptionsComplex
+// 名称: 计算期权的理论价格和希腊字母值
+// 类别: 用户函数
+// 类型: 内建函数
+// 输出: 数值型
+//------------------------------------------------------------------------
+
+Params
+	Numeric MyAssetType;
+	Numeric DaysLeft;
+	Numeric StrikePr;
+	Numeric AssetPr;
+	Numeric Rate100;
+	Numeric Yield100;
+	Numeric ForeignRate100;
+	Numeric Volty100;
+	Numeric PutCall;			// OptionType 0 - Put, 1 - Call
+	Numeric EuroAmer01;			// OptionStyle 欧式或美式
+	NumericRef oOptPrice;
+	NumericRef oDelta;
+	NumericRef oGamma;
+	NumericRef oVega;
+	NumericRef oTheta;
+	NumericRef oRho;
+Vars
+	Bool CalcImpossible(false);
+	Numeric Rate(0);
+	Numeric Volty(0); 
+	Numeric Yield(0); 
+	Numeric ForeignRate(0); 
+	Numeric Carry(0); 
+	Numeric YearsLeft(0); 
+	Numeric YearsLeftRoot(0); 
+	Numeric Temp1(0); 
+	Numeric Temp2(0); 
+	Numeric Temp3(0); 
+	Numeric d1(0); 
+	Numeric Z1(0);
+	Numeric N1(0); 
+	Numeric d2(0); 
+	Numeric N2(0);
+Begin
+	CalcImpossible = (MyAssetType != 1 && MyAssetType != 2 && MyAssetType != 3 && MyAssetType != 4) ||
+					(StrikePr <= 0) || (Volty100 <= 0) || (PutCall != Enum_PutOption && PutCall != Enum_CallOption);
+
+	If (CalcImpossible || AssetPr <= 0 || DaysLeft <= 0)
+	{
+		oOptPrice = 0;
+		oDelta = 0;
+		oGamma = 0;
+		oVega = 0;
+		oTheta = 0;
+		oRho = 0;
+		If (!CalcImpossible)
+		{
+			If(DaysLeft <= 0)
+			{
+				If(PutCall == Enum_CallOption && StrikePr <= AssetPr)
+					oDelta = 1;
+				else If(PutCall == Enum_PutOption && StrikePr >= AssetPr)
+					oDelta = -1;
+				oOptPrice = Intrinsic(AssetPr, PutCall, StrikePr);
+			}
+			
+			If(AssetPr <= 0 && PutCall == Enum_PutOption) // Put
+			{
+				oOptPrice = StrikePr;
+			}		
+		}
+		Return -1;
+	}Else
+	{
+		Rate = Rate100 * 0.01;
+		Yield = Yield100 * 0.01;
+		ForeignRate = ForeignRate100 * 0.01;	
+		If (MyAssetType == 1) // NON-DIVIDEND-PAYING STOCK
+		{
+			Carry = Rate;
+		}else If(MyAssetType == 2) // DIVIDEND-PAYING STOCK
+		{
+			Carry = Rate - Yield;
+		}else If(MyAssetType == 3) // FUTURES
+		{
+			Carry = 0;
+		}else If(MyAssetType == 4) // CURRENCIES
+		{
+			Carry = Rate - ForeignRate;
+		}
+		
+		Volty = Volty100 * 0.01;
+		YearsLeft = DaysLeft * 0.002739726027; // 1/365
+		YearsLeftRoot = Sqrt(YearsLeft);
+		Temp1 = Volty * YearsLeftRoot;
+		Temp2 = StrikePr * Exp( -1 * Rate * YearsLeft);
+		Temp3 = Exp((Carry - Rate) * YearsLeft);
+
+		d1 = ( Ln(AssetPr/StrikePr) + (Carry + Power( Volty, 2 ) / 2 ) * YearsLeft)/Temp1;
+		Z1 = Exp( -1 * Sqr(d1) * 0.5 ) * 0.398942280407; // 1/Sqrt(2Pi) 
+		N1 = NormalSCDensity(d1);
+		d2 = d1 - Temp1;
+		N2 = NormalSCDensity(d2);
+		
+		If(PutCall == Enum_CallOption) // Call
+		{
+			oOptPrice = N1 * AssetPr * Temp3  - N2 * Temp2;
+			oDelta = N1 * Temp3;
+			oTheta = ( -1*Z1 * AssetPr * Volty * Temp3 / ( 2 * YearsLeftRoot ) - N1 * ( Carry - Rate ) * AssetPr * Temp3 - N2 * Rate * Temp2 ) * 0.002739726027; // 1/365
+			oRho = N2 * YearsLeft * Temp2 * 0.01;
+		}else If(PutCall == Enum_PutOption) // Put
+		{
+			if (EuroAmer01 == Enum_EuropeanOption) // Euro 
+				oOptPrice = ( N1 - 1 ) * AssetPr * Temp3  + ( 1 - N2 ) * Temp2;
+			else if(EuroAmer01 == Enum_AmericanOption) // American
+				oOptPrice = BjerkStensCall( StrikePr, AssetPr, YearsLeft, Rate - Carry, -1*Carry, Volty );
+		
+			oDelta = ( N1 - 1 ) * Temp3;
+			oTheta = ( -1*Z1 * AssetPr * Volty * Temp3 / ( 2 * YearsLeftRoot ) + ( 1 - N1 ) * ( Carry - Rate ) * AssetPr * Temp3 + ( 1 - N2 ) * Rate * Temp2 ) * 0.002739726027; // 1/365
+			oRho = ( N2 - 1 ) * YearsLeft * Temp2 * 0.01;
+		}
+		oGamma = ( Z1 * Temp3 ) / ( AssetPr * Temp1 );
+		oVega = Z1 * AssetPr * YearsLeftRoot * Temp3 * 0.01;
+		
+		Return 1;
+	}
+End
+
+//------------------------------------------------------------------------
+// 编译版本	GS2014.10.25
+// 版权所有	TradeBlazer Software 2003－2014
+// 更改声明	TradeBlazer Software保留对TradeBlazer平
+//			台每一版本的TradeBlazer公式修改和重写的权利
+//------------------------------------------------------------------------

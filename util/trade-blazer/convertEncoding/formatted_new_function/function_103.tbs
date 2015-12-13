@@ -1,0 +1,30 @@
+//------------------------------------------------------------------------
+// 简称: StandardDev
+// 名称: 求标准差
+// 类别: 用户函数
+// 类型: 内建函数
+// 输出: 数值型
+//------------------------------------------------------------------------
+
+PARAMS
+	NumericSeries Price(1);
+	Numeric Length(10);
+	Numeric DataType(1);
+VARS
+	Numeric VarPSValue;
+BEGIN
+	VarPSValue = VariancePS(Price, Length, DataType);
+	if (VarPSValue > 0) {
+		RETURN Sqrt(VarPSValue);
+	}
+	else {
+		RETURN 0;
+	}
+END
+
+//------------------------------------------------------------------------
+// 编译版本	GS2010.12.08
+// 版权所有	TradeBlazer Software 2003－2010
+// 更改声明	TradeBlazer Software保留对TradeBlazer平
+//			台每一版本的TradeBlazer公式修改和重写的权利
+//------------------------------------------------------------------------

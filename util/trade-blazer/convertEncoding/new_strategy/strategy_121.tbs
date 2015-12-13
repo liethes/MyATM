@@ -1,0 +1,57 @@
+//------------------------------------------------------------------------
+// 简称: TS_KingKeltner_L
+// 名称: 金肯特纳_多
+// 类别: 公式应用
+// 类型: 内建应用
+// 输出:
+//------------------------------------------------------------------------
+/* 
+策略说明:
+		基于肯特纳通道的突破系统
+系统要素:
+		1、基于最高价、最低价、收盘价三者平均值计算而来的三价均线
+		2、基于三价均线加减真实波幅计算而来的通道上下轨
+入场条件:
+		1、三价均线向上，并且价格上破通道上轨，开多单
+		2、三价均线向下，并且价格下破通道下轨，开空单
+出场条件:
+		1、持有多单时，价格下破三价均线，平多单
+		2、持有空单时，价格上破三价均线，平空单
+注    意:
+		此公式仅做多
+*/
+Params
+	Numeric avgLength(40);			// 三价均线参数
+	Numeric atrLength(40);			// 真实波幅参数
+	Numeric Lots(0);				// 交易手数
+Vars
+	NumericSeries movAvgVal(0);		// 三价均线参数
+	NumericSeries upBand(0);		// 通道上轨
+	NumericSeries liquidPoint(0);	// 出场条件
+Begin
+	// 集合竞价和小节休息过滤
+	If(!CallAuctionFilter()) Return;
+	
+	// 三价均线
+	movAvgVal = Average((High + Low + Close)/3,avgLength);
+	// 通道上轨
+	upBand = movAvgVal + AvgTrueRange(atrLength);
+	// 出场条件
+	liquidPoint = movAvgVal;
+	
+	// 画线
+	PlotNumeric("movAvgVal",movAvgVal);
+	PlotNumeric("upBand",upBand);
+	
+	// 三价均线向上，并且价格上破通道上轨，开多单
+	If(MarketPosition != 1 And movAvgVal[1] > movAvgVal[2] And High >= upBand[1]) Buy(Lots,Max(Open,upBand[1]));
+	// 持有多单时，价格下破三价均线，平多单
+	If(MarketPosition == 1 And BarsSinceEntry >= 1 And Low <= liquidPoint[1]) Sell(0,Min(Open,liquidPoint[1]));
+End
+
+//------------------------------------------------------------------------
+// 编译版本	GS2014.10.25
+// 版权所有	TradeBlazer Software 2003－2014
+// 更改声明	TradeBlazer Software保留对TradeBlazer平
+//			台每一版本的TradeBlazer公式修改和重写的权利
+//------------------------------------------------------------------------

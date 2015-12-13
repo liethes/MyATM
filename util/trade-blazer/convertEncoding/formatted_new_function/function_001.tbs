@@ -1,0 +1,41 @@
+//------------------------------------------------------------------------
+// 简称: AdaptiveMovAvg
+// 名称: 求卡夫曼自适应移动平均
+// 类别: 用户函数
+// 类型: 内建函数
+// 输出: 数值型
+//------------------------------------------------------------------------
+
+PARAMS
+	NumericSeries Price(1);
+	Numeric EffRatioLength(10);
+	Numeric FastAvgLength(2);
+	Numeric SlowAvgLength(30);
+VARS
+	Numeric NetChg(0);
+	Numeric totChg(0);
+	Numeric EffRatio(0);
+	Numeric ScaledSFSqr(0);
+	NumericSeries AMAValue;
+	Numeric SFDiff;
+BEGIN
+	if (CurrentBar == 0) {
+		AMAValue = Price;
+	}
+	else {
+		NetChg = Abs(Price - Price[EffRatioLength]);
+		totChg = Summation(Abs(Price - Price[1]), EffRatioLength);
+		EffRatio = IIF(totChg > 0, NetChg / totChg, 0);
+		SFDiff = 2 / (FastAvgLength + 1) - 2 / (SlowAvgLength + 1);
+		ScaledSFSqr = Sqr(2 / (SlowAvgLength + 1) + EffRatio * SFDiff);
+		AMAValue = AMAValue[1] + ScaledSFSqr * (Price - AMAValue[1]);
+	}
+	RETURN AMAValue;
+END
+
+//------------------------------------------------------------------------
+// 编译版本	GS2010.12.08
+// 版权所有	TradeBlazer Software 2003－2010
+// 更改声明	TradeBlazer Software保留对TradeBlazer平
+//			台每一版本的TradeBlazer公式修改和重写的权利
+//------------------------------------------------------------------------

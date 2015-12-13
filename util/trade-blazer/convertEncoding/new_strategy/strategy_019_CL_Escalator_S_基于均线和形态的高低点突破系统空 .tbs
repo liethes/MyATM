@@ -1,0 +1,98 @@
+//------------------------------------------------------------------------
+// 简称: CL_Escalator_S
+// 名称: 基于均线和形态的高低点突破系统空 
+// 类别: 公式应用
+// 类型: 内建应用
+// 输出:
+//------------------------------------------------------------------------
+
+//----------------------------------------------------------------------//
+// 策略说明:
+//			 本策略是基于均线和K线形态的高低点突破系统
+//			 
+// 系统要素:
+//			 1. 根据价格与快速均线和慢速均线的关系来判断大的趋势，价格在上为多头趋势，在下为空头趋势
+//			 2. 根据2根K线收盘位置构成的形态来判断小趋势，第一根收盘靠近低点第二根收盘靠近高点为上涨趋势，否则为下跌趋势
+//			 3. 最近2根K线的高低点形成的通道
+// 入场条件:
+//			 1. 大趋势为多头趋势，且K线形态也为多头趋势时，突破通道高点做多
+//			 2. 大趋势为空头趋势，且K线形态也为空头趋势时，突破通道低点做空
+// 出场条件: 
+//			 1. 开多以开仓BAR的最近N根BAR的低点作为止损价
+//			    开空以开仓BAR的最近N根BAR的高点作为止损价
+//			 2. 盈利超过止损额的一定倍数止盈
+//
+//		 注: 当前策略仅为做空系统, 如需做多, 请参见CL_Escalator_L
+//----------------------------------------------------------------------//
+
+
+Params
+	Numeric FastLength(8);			// 快速均线周期
+	Numeric SlowLength(40);			// 慢速均线周期
+	Numeric RiskLength(2);			// 止损通道的周期数
+	Numeric ProfitFactor(2);		// 止盈相对止损的倍数
+	
+Vars
+	NumericSeries MA_Fast;			// 快速均线
+	NumericSeries MA_Slow;			// 慢速均线
+	Numeric Range;					// K线波动范围
+	BoolSeries Condition1;			// 条件1
+	BoolSeries Condition2;			// 条件2
+	NumericSeries HH;				// 周期的高点
+	NumericSeries LL;				// 周期的低点
+	NumericSeries ShortRisk;		// 止损时的风险额
+	
+Begin
+
+	// 集合竞价和小节休息过滤
+	If(!CallAuctionFilter()) Return;
+
+	// 计算及输出均线指标
+	MA_Fast = Average(Close,FastLength);
+	MA_Slow = Average(Close,SlowLength);
+	PlotNumeric("Ma_Fast",MA_Fast);
+	PlotNumeric("Ma_Slow",MA_Slow);
+
+	// 每根K线的波动范围
+	Range = High - Low;
+
+	// K线形态判断的2个条件
+	Condition1 = Close >= High - 0.25 * Range;
+	Condition2 = Close <= Low + 0.25 * Range;
+	
+	// 计算周期的高低点
+	LL = Lowest(Low,2);
+	HH = Highest(High,RiskLength);
+
+	// 开仓
+	If(MarketPosition == 0 And Condition1[2] And Condition2[1] And Close[1] < MA_Fast[1] And Close[1] < MA_Slow[1] And Vol > 0)
+	{
+		If(Low <= LL[1] - MinMove * PriceScale)
+		{
+			SellShort(0, Min(Open,LL[1] - MinMove * PriceScale));
+			ShortRisk = HH[1] + MinMove * PriceScale;
+		}
+	}
+
+	// 平仓
+	If(MarketPosition == -1 And BarsSinceEntry > 0 And Vol > 0)
+	{
+		// 止盈
+		If(Low <= EntryPrice - ProfitFactor * (ShortRisk - EntryPrice))
+		{
+			BuyToCover(0, Min(Open,EntryPrice - ProfitFactor * (ShortRisk - EntryPrice)));
+		}
+		// 止损
+		Else If(High >= ShortRisk)
+		{
+			BuyToCover(0, Max(Open,ShortRisk));
+		}
+	}
+End
+
+//------------------------------------------------------------------------
+// 编译版本	GS2014.10.25
+// 版权所有	TradeBlazer Software 2003－2014
+// 更改声明	TradeBlazer Software保留对TradeBlazer平
+//			台每一版本的TradeBlazer公式修改和重写的权利
+//------------------------------------------------------------------------

@@ -1,0 +1,216 @@
+//------------------------------------------------------------------------
+// 简称: CL_Traffic_Jam_L
+// 名称: 基于DMI中ADX的震荡交易系统多 
+// 类别: 公式应用
+// 类型: 内建应用
+//------------------------------------------------------------------------
+
+//----------------------------------------------------------------------//
+// 策略说明:
+//			 本策略基于DMI指标中的ADX指数判断行情是否为震荡, 然后通过k线形态进行逆势交易的系统
+//			 
+// 系统要素:
+//			 1. DMI指标中的ADX指数
+//			 2. ConsecBars根阴线(收盘低于前根即可)或ConsecBars根阳线(收盘高于前根即可)
+// 入场条件:
+//			 当ADX指数低于25且低于ADXLowThanBefore天前的值时
+//			 1. 如果出现连续ConsecBars根阴线(收盘低于前根即可), 则在下根k线开盘做多
+//			 2. 如果出现连续ConsecBars根阳线(收盘高于前根即可), 则在下根k线开盘做空
+// 出场条件: 
+//			 1. 基于ATR的保护性止损
+//			 2. 入场ProactiveStopBars根K线后的主动性平仓
+//
+//		 注: 当前策略仅为做多系统, 如需做空, 请参见CL_Traffic_Jam_S
+//----------------------------------------------------------------------//
+
+Params
+    Numeric DMI_N(14);					//DMI的N值
+    Numeric DMI_M(6);					//DMI的M值, 本策略中用不到
+	Numeric ADXLevel(25);				//ADX低于此值时被认为行情处于震荡中
+	Numeric ADXLowThanBefore(3);		//入场条件中ADX需要弱于之前值的天数
+	Numeric ConsecBars(3);				//入场条件中连续阳线或阴线的个数
+    Numeric ATRLength(10);				//ATR值
+	Numeric ProtectStopATRMulti(0.5);		//保护性止损的ATR乘数
+	Numeric ProactiveStopBars(10);		//入场后主动平仓的等待根数
+	
+Vars
+	//DMI最终输出
+	NumericSeries oDMIPlus;
+	NumericSeries oDMIMinus;
+	NumericSeries oDMI;
+	NumericSeries oADX;
+	NumericSeries oADXR;
+	NumericSeries oVolty;
+	//DMI过程计算
+	NumericSeries sDMI;
+	NumericSeries sADX;
+	NumericSeries cumm;
+	NumericSeries sVolty;
+	Numeric PlusDM;
+	Numeric MinusDM;
+	Numeric UpperMove;
+	Numeric LowerMove;
+	Numeric SumPlusDM(0);
+	Numeric SumMinusDM(0);
+	Numeric SumTR(0);
+	NumericSeries AvgPlusDM;
+	NumericSeries AvgMinusDM;
+	Numeric SF;                        // smoothing factor
+	Numeric Divisor;
+	Numeric i;
+	NumericSeries TRValue;
+
+	//--------------------
+
+	NumericSeries ATR(0);				//ATR值
+
+	NumericSeries ConsecBarsCount(0);	//连续阳线或阴线计数
+	
+	NumericSeries ProtectStopL;			//基于ATR的保护性止损
+
+	NumericSeries MP;					//MarketPosition的状态记录
+	
+Begin
+
+	// 集合竞价和小节休息过滤
+	If(!CallAuctionFilter()) Return;
+	
+	//系统设置
+	//DMI指标计算, 最终将输出ADX指标
+	//--------------------------DMI计算开始-----------------------------------//
+	SF = 1/DMI_N;
+	TRValue = TrueRange; 
+	If(CurrentBar == DMI_N)
+	{
+			for i = 0 To DMI_N - 1
+			{
+					PlusDM = 0 ;
+					MinusDM = 0 ;
+					UpperMove = High[i] - High[ i + 1 ] ;
+					LowerMove = Low[ i + 1 ] - Low[i] ;
+					if (UpperMove > LowerMove and UpperMove > 0 )
+					{
+							PlusDM = UpperMove;
+					}else if (LowerMove > UpperMove and LowerMove > 0)
+					{
+							MinusDM = LowerMove ;
+					}
+					SumPlusDM = SumPlusDM + PlusDM ;
+					SumMinusDM = SumMinusDM + MinusDM ;
+					SumTR = SumTR + TRValue[i] ;
+			}
+			AvgPlusDM = SumPlusDM / DMI_N ;
+			AvgMinusDM = SumMinusDM / DMI_N ;
+			sVolty = SumTR / DMI_N ;
+	}Else if(CurrentBar > DMI_N)
+	{
+			PlusDM = 0 ;
+			MinusDM = 0 ; 
+			UpperMove = High - High[1] ;
+			LowerMove = Low[1] -Low ;
+			if (UpperMove > LowerMove and UpperMove > 0 )
+			{
+					PlusDM = UpperMove;
+			}else if (LowerMove > UpperMove and LowerMove > 0 )
+			{
+					MinusDM = LowerMove ;
+			}
+			AvgPlusDM = AvgPlusDM[1] + SF * ( PlusDM - AvgPlusDM[1] ) ;
+			AvgMinusDM = AvgMinusDM[1] + SF * ( MinusDM - AvgMinusDM[1] ) ;
+			sVolty = sVolty[1] + SF * ( TRValue  - sVolty[1] ) ;
+	}Else
+	{ 
+			oDMIPlus = InvalidNumeric;
+			oDMIMinus = InvalidNumeric;
+			oDMI = InvalidNumeric;
+			oADX = InvalidNumeric;
+			oADXR = InvalidNumeric;
+			oVolty = InvalidNumeric;
+	}
+	
+	if (sVolty > 0)
+	{
+			oDMIPlus = 100 * AvgPlusDM / sVolty ;
+			oDMIMinus = 100 * AvgMinusDM / sVolty ;
+	}else
+	{
+			oDMIPlus = 0 ;
+			oDMIMinus = 0 ;
+	}
+
+	Divisor = oDMIPlus + oDMIMinus ;
+	if (Divisor > 0)
+	{
+			sDMI = 100 * Abs( oDMIPlus - oDMIMinus ) / Divisor;
+	}else
+	{
+			sDMI = 0 ;
+	}
+	cumm=Cum( sDMI );
+	if(CurrentBar > 0)
+	{
+			if (CurrentBar <= DMI_N)
+			{
+					sADX = Cumm / CurrentBar ;
+					oADXR = ( sADX + sADX[ CurrentBar - 1 ] ) * 0.5 ;
+			}else  
+			{
+					sADX = sADX[1] + SF * ( sDMI - sADX[1] ) ;
+					oADXR = ( sADX + sADX[ DMI_M - 1 ] ) * 0.5 ;
+			}
+	}
+	oVolty = sVolty;
+	oDMI = sDMI;
+	oADX = sADX;
+	
+	//PlotNumeric("oADX",oADX);
+	
+	//--------------------------DMI计算结束-----------------------------------//
+
+	//ATR计算
+	ATR = AvgTrueRange(ATRLength);	
+	
+	//系统入场
+	//当ADX指数低于25且低于ADXLowThanBefore天前的值时, 如果出现连续ConsecBars根阴线(收盘低于前根即可), 则在下根k线开盘做多
+	
+	ConsecBarsCount = CountIf(Close < Close[1], ConsecBars);
+	
+	If(MarketPosition<>1 and CurrentBar > DMI_N)
+	{
+		if(oADX[1] < ADXLevel and oADX[1] < oADX[ADXLowThanBefore+1] and ConsecBarsCount[1] == ConsecBars And Vol > 0)
+		{
+			Buy(0,Open);
+			//基于ATR的保护性止损
+			ProtectStopL = Low[1] - ProtectStopATRMulti * ATR[1];
+		}
+	}
+	//PlotNumeric("ConsecBarsCount",ConsecBarsCount);
+	
+	//系统出场
+	
+	If(MarketPosition == 1 and mp[1] == 1 And Vol > 0)
+	{
+		//入场ProactiveStopBars根K线后的主动性平仓
+		If(BarsSinceEntry >= ProactiveStopBars)
+		{
+			Sell(0,Open);
+		}
+		//基于ATR的保护性止损
+		Else if(L <= ProtectStopL[1])
+		{
+			Sell(0,Min(Open, ProtectStopL[1]));
+		}
+
+	}
+	//PlotNumeric("ProtectStopL",ProtectStopL);
+
+	MP = MarketPosition;	
+
+End
+
+//------------------------------------------------------------------------
+// 编译版本	GS2014.10.25
+// 版权所有	TradeBlazer Software 2003－2014
+// 更改声明	TradeBlazer Software保留对TradeBlazer平
+//			台每一版本的TradeBlazer公式修改和重写的权利
+//------------------------------------------------------------------------

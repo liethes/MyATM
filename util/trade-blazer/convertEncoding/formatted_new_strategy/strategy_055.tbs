@@ -1,0 +1,112 @@
+//------------------------------------------------------------------------
+// 简称: CL_Trading_Range_breakout_S
+// 名称: 基于初始交易范围突破的思想来建立系统 做空
+// 类别: 公式应用
+// 类型: 内建应用
+// 输出:
+//------------------------------------------------------------------------
+//------------------------------------------------------------------------
+// 策略说明:
+//			  用特定时间周期内的最高价位和最低价位计算交易范围，然后计算真实的波动范围和周期内的ATR对比，如果
+//			  当前k线的波动范围比n*交易范围的值小，并且真实波动范围比ATR小，这就满足了前两个系统挂单的条件
+//			 
+// 入场条件:
+//			1.7周期区间“空隙”之和 >7周期区间高度的2倍
+//			  当前的k线比交易范围的最高值大, 而且如果当前k线的中间价格高于之前一根k线的最高值
+//			  做多
+//			2.7周期区间“空隙”之和 >7周期区间高度的2倍
+//			  当前的k线比交易范围的最低值小, 而且如果当前k线的中间价格低于之前一根k线的最低值
+//			  做空
+// 出场条件: 
+//			 1.初始止损
+//			 2.跟踪止损（盈利峰值价回落ATR的一定倍数）	
+//			 3.收盘价创7周期高点，且K线中点高于前K线最高价空头出场
+//
+//		 注: 当前策略仅为做空系统, 如需做多, 请参见CL_Trading_Range_breakout_L
+//----------------------------------------------------------------------//
+PARAMS
+	Numeric RangeLen(7);
+	Numeric RngPcnt(200);
+	Numeric ATRs(8);
+	Numeric ATRLen(2);
+VARS
+	NumericSeries RangeH(0); //7周期高点
+	NumericSeries RangeL(0); //7周期低点
+	NumericSeries TRange(0); //7周期区间
+	NumericSeries NoTrades(0); //记录7周期高低点分别与7周期内各K线最高最低值的距离之和
+	NumericSeries ShortRisk(0); //初始止损价
+	NumericSeries ShortLow(0); //跟踪止盈价
+	NumericSeries ATR; //2周期ATR均值
+	NumericSeries ATRMA; //7周期ATR均值 
+	Numeric value1;
+	BoolSeries Condition1;
+	BoolSeries Condition2;
+	BoolSeries Condition3;
+	BoolSeries Condition4;
+
+BEGIN
+
+// 集合竞价和小节休息过滤
+	if (!CallAuctionFilter()) RETURN;
+
+//初始设置
+	RangeH = Highest(High[1], RangeLen);
+	RangeL = Lowest(Low[1], RangeLen);
+	TRange = RangeH - RangeL;
+	ATR = AvgtrueRange(ATRLen);
+	NoTrades = 0;
+	ATRMA = AvgtrueRange(RangeLen); //7周期ATR均值 
+
+	for value1 = 1 to RangeLen //1-7循环
+		{
+			if (High[value1] <= RangeH)
+				NoTrades = NoTrades + (RangeH - High[value1]); //7周期高点与7周期内各K线最高值的距离之和
+			if (Low[value1] >= RangeL)
+				NoTrades = NoTrades + (Low[value1] - RangeL); //7周期低点与7周期内各K线最低值的距离之和
+		}
+
+	Condition1 = NoTrades >= TRange * (RngPcnt * 0.01); //7周期区间“空隙”之和 >7周期区间高度的2倍
+	Condition2 = trueRange > ATRMA[1]; //当根K线ATR>前根7周期均值
+	Condition3 = Close > RangeH And(High + Low) * 0.5 > High[1]; //收盘价创7周期高点，且K线中点高于前K线最高价
+	Condition4 = Close < RangeL And(High + Low) * 0.5 < Low[1]; //收盘价创7周期低点，且K线中点低于前K线最低价
+
+
+//空头入场
+	if (Condition1[1] And Condition2[1]) {
+		if (Condition4[1] And MarketPosition == 0 And vol > 0) {
+			SellShort(0, Open);
+			ShortRisk = RangeH; //记录初始止损价
+			ShortLow = Low; //记录跟踪止盈价
+		}
+	}
+
+
+//更新盈利峰值价
+	if (MarketPosition == -1 And BarsSinceEntry > 0) ShortLow = Min(ShortLow, Low);
+
+//空头出场
+	if (MarketPosition == -1 And BarsSinceEntry > 0 And Vol > 0) {
+		//收盘价创7周期高点且K线中点高于前K线最高价空头出场
+		if (Condition3[1]) {
+			BuytoCover(0, Open);
+		}
+
+		//突破初始止损价空头出场
+		if (High >= ShortRisk) {
+			BuytoCover(0, Max(Open, ShortRisk));
+		}
+
+
+		//盈利峰值价回落ATR一定倍数空头出场
+		if (High >= ShortLow[1] + (ATRs * ATR[1])) {
+			BuytoCover(0, Max(Open, ShortLow[1] + (ATRs * ATR[1])));
+		}
+	}
+END
+
+//------------------------------------------------------------------------
+// 编译版本	GS2014.10.25
+// 版权所有	TradeBlazer Software 2003－2014
+// 更改声明	TradeBlazer Software保留对TradeBlazer平
+//			台每一版本的TradeBlazer公式修改和重写的权利
+//------------------------------------------------------------------------

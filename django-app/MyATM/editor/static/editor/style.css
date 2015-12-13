@@ -1,0 +1,37 @@
+/* 通用 */
+body {
+	font-family: Menlo;
+	padding: 3px;
+}
+
+h1 {
+	margin: 5px 0;
+}
+
+.titleSpan {
+	background-color: black;
+	color: white;
+	padding: 3px;
+	border-radius: 3px;
+	font-size: 9pt;
+}
+
+/* edit页 */
+#theContainer {
+	margin: 5px 0;
+}
+
+#theEditor {
+	width: 1210px;
+	height: 680px;
+	border: solid 1px #999;
+}
+
+#theToc {
+	width: 200px;
+	height: 680px;
+	border: solid 1px #999;
+	border-right: none;
+}
+
+/* END */

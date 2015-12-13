@@ -1,0 +1,85 @@
+//------------------------------------------------------------------------
+// 简称: CL_Going_in_Style_L
+// 名称: 价格通道突破, 在价格回调时进行判断，做多
+// 类别: 公式应用
+// 类型: 内建应用
+//------------------------------------------------------------------------
+//------------------------------------------------------------------------
+// 策略说明:
+//			1.计算价格通道
+//			2.收盘价加上ATR的一定倍数作为进场价
+//			 
+// 入场条件:
+//			1.上一根Bar创新高
+//			2.当前Bar最高价突破上一根Bar收盘价加上ATR的一定倍数
+// 出场条件: 
+//			1.记录多头进场后的跟踪止损价
+//			2.价格向下突破跟踪止损价多头出场
+//
+//		 注: 当前策略仅为做多系统, 如需做空, 请参见CL_Going_in_Style_S
+//----------------------------------------------------------------------//
+Params
+    Numeric  Length(10);    //用于计算ATR和新高价的Bar数
+	Numeric  Trigger(0.79);	//用于计算多头进场价的驱动系数
+	Numeric  Acceleration(0.05);	//抛物线的加速系数
+	Numeric  FirstBarMultp(5);		//用于计算在进场Bar设置止损价的系数
+	
+Vars
+	NumericSeries  ATR;
+	NumericSeries  StopPrice;	//跟踪止损价
+	NumericSeries  HighValue;	//多头进场之后的盈利峰值价
+	NumericSeries  AF;			//跟踪Acceleration
+	BoolSeries  Condition1(False);	
+	Numeric StopATR;
+Begin
+
+	// 集合竞价和小节休息过滤
+	If(!CallAuctionFilter()) Return;
+
+	//初始设置
+	ATR=AvgTrueRange(Length);
+	Condition1=High>Highest(High[1],Length);
+	
+	//上一根Bar创新高后且当前Bar最高价突破上一根Bar收盘价加上ATR的一定倍数多头入场
+	If(Condition1[1])
+	{
+	    If(High>=Close[1]+ATR[1]*Trigger And Vol > 0)
+		{
+		    Buy(0,Max(Open,Close[1]+ATR[1]*Trigger));
+		}
+	}
+	
+	//记录盈利峰值价和跟踪止损价
+	StopATR = Average(TrueRange,3);
+	If(MarketPosition==1 And BarsSinceEntry==0)
+	{
+	    StopPrice=Low-StopATR*FirstBarMultp;
+		AF=Acceleration;
+		HighValue=High;
+	}Else If(MarketPosition==1 And BarsSinceEntry>0)
+	{
+		If(High>HighValue)  HighValue=High;
+		If(HighValue>HighValue[1] And AF<0.2)
+		{
+		    AF=AF+Min(Acceleration,0.2-AF);
+		}
+		StopPrice=StopPrice+AF*(HighValue-StopPrice);
+	}
+	
+	//在图标上画出跟踪止损价
+	PlotNumeric("StopPrice",StopPrice);
+	
+	//向下突破跟踪止损价多头出场
+	If(MarketPosition==1 And BarsSinceEntry>0 And Low<=StopPrice[1] And Vol > 0)
+	{
+	    Sell(0,Min(Open,StopPrice[1]));
+	}
+	
+End
+
+//------------------------------------------------------------------------
+// 编译版本	GS2014.10.25
+// 版权所有	TradeBlazer Software 2003－2014
+// 更改声明	TradeBlazer Software保留对TradeBlazer平
+//			台每一版本的TradeBlazer公式修改和重写的权利
+//------------------------------------------------------------------------

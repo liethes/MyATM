@@ -1,0 +1,1585 @@
+'.source.tbs':
+	'关键字':
+		'prefix': 'Params'
+		'body': 'Params'
+
+	'关键字':
+		'prefix': 'Vars'
+		'body': 'Vars'
+
+	'关键字':
+		'prefix': 'If'
+		'body': 'If'
+
+	'关键字':
+		'prefix': 'Else'
+		'body': 'Else'
+
+	'关键字':
+		'prefix': 'Begin'
+		'body': 'Begin'
+
+	'关键字':
+		'prefix': 'End'
+		'body': 'End'
+
+	'关键字':
+		'prefix': 'For'
+		'body': 'For'
+
+	'关键字':
+		'prefix': 'To'
+		'body': 'To'
+
+	'关键字':
+		'prefix': 'DownTo'
+		'body': 'DownTo'
+
+	'关键字':
+		'prefix': 'While'
+		'body': 'While'
+
+	'关键字':
+		'prefix': 'Break'
+		'body': 'Break'
+
+	'关键字':
+		'prefix': 'Continue'
+		'body': 'Continue'
+
+	'关键字':
+		'prefix': 'True'
+		'body': 'True'
+
+	'关键字':
+		'prefix': 'False'
+		'body': 'False'
+
+	'布尔型':
+		'prefix': 'Bool'
+		'body': 'Bool'
+
+	'布尔型引用':
+		'prefix': 'BoolRef'
+		'body': 'BoolRef'
+
+	'和周期长度一致的Bool型序列值':
+		'prefix': 'BoolSeries'
+		'body': 'BoolSeries'
+
+	'数值型':
+		'prefix': 'Numeric'
+		'body': 'Numeric'
+
+	'数值型引用':
+		'prefix': 'NumericRef'
+		'body': 'NumericRef'
+
+	'和周期长度一致的Numeric型序列值':
+		'prefix': 'NumericSeries'
+		'body': 'NumericSeries'
+
+	'字符串':
+		'prefix': 'String'
+		'body': 'String'
+
+	'字符串引用':
+		'prefix': 'StringRef'
+		'body': 'StringRef'
+
+	'和周期长度一致的String型序列值':
+		'prefix': 'StringSeries'
+		'body': 'StringSeries'
+
+	'返回参数的绝对值':
+		'prefix': 'Abs'
+		'body': 'Abs'
+
+	'返回参数的反余弦值':
+		'prefix': 'Acos'
+		'body': 'Acos'
+
+	'返回参数的反双曲余弦值':
+		'prefix': 'Acosh'
+		'body': 'Acosh'
+
+	'返回参数的反正弦值':
+		'prefix': 'Asin'
+		'body': 'Asin'
+
+	'返回参数的反双曲正弦值':
+		'prefix': 'Asinh'
+		'body': 'Asinh'
+
+	'返回参数的反正切值':
+		'prefix': 'Atan'
+		'body': 'Atan'
+
+	'返回给定的X及Y坐标值的反正切值':
+		'prefix': 'Atan2'
+		'body': 'Atan2'
+
+	'返回参数的反双曲正切值':
+		'prefix': 'Atanh'
+		'body': 'Atanh'
+
+	'将参数 Number 沿绝对值增大的方向，舍入为最接近的整数或基数Significance的最小倍数':
+		'prefix': 'Ceiling'
+		'body': 'Ceiling'
+
+	'计算从给定数目的对象集合中提取若干对象的组合数':
+		'prefix': 'Combin'
+		'body': 'Combin'
+
+	'返回给定角度的余弦值':
+		'prefix': 'Cos'
+		'body': 'Cos'
+
+	'返回参数的双曲余弦值':
+		'prefix': 'Cosh'
+		'body': 'Cosh'
+
+	'返回给定角度的余切值':
+		'prefix': 'Ctan'
+		'body': 'Ctan'
+
+	'返回沿绝对值增大方向取整后最接近的偶数':
+		'prefix': 'Even'
+		'body': 'Even'
+
+	'返回e的Number次幂':
+		'prefix': 'Exp'
+		'body': 'Exp'
+
+	'返回数的阶乘':
+		'prefix': 'Fact'
+		'body': 'Fact'
+
+	'将参数 Number 沿绝对值减小的方向去尾舍入，使其等于最接近的 Significance 的倍数':
+		'prefix': 'Floor'
+		'body': 'Floor'
+
+	'返回实数舍入后的小数值':
+		'prefix': 'FracPart'
+		'body': 'FracPart'
+
+	'返回实数舍入后的整数值':
+		'prefix': 'IntPart'
+		'body': 'IntPart'
+
+	'返回一个数的自然对数':
+		'prefix': 'Ln'
+		'body': 'Ln'
+
+	'按所指定的底数，返回一个数的对数':
+		'prefix': 'Log'
+		'body': 'Log'
+
+	'返回两数相除的余数':
+		'prefix': 'Mod'
+		'body': 'Mod'
+
+	'返回参数的负绝对值':
+		'prefix': 'Neg'
+		'body': 'Neg'
+
+	'返回对指定数值进行舍入后的奇数':
+		'prefix': 'Odd'
+		'body': 'Odd'
+
+	'返回数字3.1415926535898':
+		'prefix': 'Pi'
+		'body': 'Pi'
+
+	'返回给定数字的乘幂':
+		'prefix': 'Power'
+		'body': 'Power'
+
+	'返回位于两个指定数之间的一个随机数':
+		'prefix': 'Rand'
+		'body': 'Rand'
+
+	'返回某个数字按指定位数舍入后的数字':
+		'prefix': 'Round'
+		'body': 'Round'
+
+	'靠近零值，向下（绝对值减小的方向）舍入数字':
+		'prefix': 'RoundDown'
+		'body': 'RoundDown'
+
+	'远离零值，向上（绝对值增大的方向）舍入数字':
+		'prefix': 'RoundUp'
+		'body': 'RoundUp'
+
+	'返回数字的符号':
+		'prefix': 'Sign'
+		'body': 'Sign'
+
+	'返回给定角度的正弦值':
+		'prefix': 'Sin'
+		'body': 'Sin'
+
+	'返回某一数字的双曲正弦值':
+		'prefix': 'Sinh'
+		'body': 'Sinh'
+
+	'返回参数的平方':
+		'prefix': 'Sqr'
+		'body': 'Sqr'
+
+	'返回参数的正平方根':
+		'prefix': 'Sqrt'
+		'body': 'Sqrt'
+
+	'返回给定角度的正切值':
+		'prefix': 'Tan'
+		'body': 'Tan'
+
+	'返回某一数字的双曲正切值':
+		'prefix': 'Tanh'
+		'body': 'Tanh'
+
+	'布尔型数组的全部删除':
+		'prefix': 'BoolArrayClear'
+		'body': 'BoolArrayClear'
+
+	'对两个布尔型数组进行比较':
+		'prefix': 'BoolArrayCompare'
+		'body': 'BoolArrayCompare'
+
+	'复制布尔型数组的内容':
+		'prefix': 'BoolArrayCopy'
+		'body': 'BoolArrayCopy'
+
+	'检验两个布尔型数组是否相等':
+		'prefix': 'BoolArrayEqual'
+		'body': 'BoolArrayEqual'
+
+	'布尔型数组的元素删除':
+		'prefix': 'BoolArrayErase'
+		'body': 'BoolArrayErase'
+
+	'布尔型数组的单个数据插入':
+		'prefix': 'BoolArrayInsert'
+		'body': 'BoolArrayInsert'
+
+	'布尔型数组的多个数据插入':
+		'prefix': 'BoolArrayInsertRange'
+		'body': 'BoolArrayInsertRange'
+
+	'对布尔型数组进行排序':
+		'prefix': 'BoolArraySort'
+		'body': 'BoolArraySort'
+
+	'交换布尔型数组的内容':
+		'prefix': 'BoolArraySwap'
+		'body': 'BoolArraySwap'
+
+	'获取布尔型数组的大小':
+		'prefix': 'GetBoolArraySize'
+		'body': 'GetBoolArraySize'
+
+	'获取数值型数组的大小':
+		'prefix': 'GetNumericArraySize'
+		'body': 'GetNumericArraySize'
+
+	'获取字符串数组的大小':
+		'prefix': 'GetStringArraySize'
+		'body': 'GetStringArraySize'
+
+	'数值型数组的全部删除':
+		'prefix': 'NumericArrayClear'
+		'body': 'NumericArrayClear'
+
+	'对两个数值型数组进行比较':
+		'prefix': 'NumericArrayCompare'
+		'body': 'NumericArrayCompare'
+
+	'复制数值型数组的内容':
+		'prefix': 'NumericArrayCopy'
+		'body': 'NumericArrayCopy'
+
+	'检验两个数值型数组是否相等':
+		'prefix': 'NumericArrayEqual'
+		'body': 'NumericArrayEqual'
+
+	'数值型数组的元素删除':
+		'prefix': 'NumericArrayErase'
+		'body': 'NumericArrayErase'
+
+	'数值型数组的单个数据插入':
+		'prefix': 'NumericArrayInsert'
+		'body': 'NumericArrayInsert'
+
+	'数值型数组的多个数据插入':
+		'prefix': 'NumericArrayInsertRange'
+		'body': 'NumericArrayInsertRange'
+
+	'对数值型数组进行排序':
+		'prefix': 'NumericArraySort'
+		'body': 'NumericArraySort'
+
+	'交换数值型数组的内容':
+		'prefix': 'NumericArraySwap'
+		'body': 'NumericArraySwap'
+
+	'设置布尔型数组的大小和初始值':
+		'prefix': 'SetBoolArraySize'
+		'body': 'SetBoolArraySize'
+
+	'设置数值型数组的大小和初始值':
+		'prefix': 'SetNumericArraySize'
+		'body': 'SetNumericArraySize'
+
+	'设置字符串数组的大小和初始值':
+		'prefix': 'SetStringArraySize'
+		'body': 'SetStringArraySize'
+
+	'字符串数组的全部删除':
+		'prefix': 'StringArrayClear'
+		'body': 'StringArrayClear'
+
+	'对两个字符串数组进行比较':
+		'prefix': 'StringArrayCompare'
+		'body': 'StringArrayCompare'
+
+	'复制字符串数组的内容':
+		'prefix': 'StringArrayCopy'
+		'body': 'StringArrayCopy'
+
+	'检验两个字符串数组是否相等':
+		'prefix': 'StringArrayEqual'
+		'body': 'StringArrayEqual'
+
+	'字符串数组的元素删除':
+		'prefix': 'StringArrayErase'
+		'body': 'StringArrayErase'
+
+	'字符串数组的单个数据插入':
+		'prefix': 'StringArrayInsert'
+		'body': 'StringArrayInsert'
+
+	'字符串数组的多个数据插入':
+		'prefix': 'StringArrayInsertRange'
+		'body': 'StringArrayInsertRange'
+
+	'对字符串数组进行排序':
+		'prefix': 'StringArraySort'
+		'body': 'StringArraySort'
+
+	'交换字符串数组的内容':
+		'prefix': 'StringArraySwap'
+		'body': 'StringArraySwap'
+
+	'该函数测试两个字符串是否完全相同':
+		'prefix': 'Exact'
+		'body': 'Exact'
+
+	'返回文本串的前lCount位':
+		'prefix': 'Left'
+		'body': 'Left'
+
+	'返回文本串中的字符数':
+		'prefix': 'Len'
+		'body': 'Len'
+
+	'将一个文字串中的所有大写字母转换为小写字母':
+		'prefix': 'Lower'
+		'body': 'Lower'
+
+	'返回文本串的后lCount位':
+		'prefix': 'Mid'
+		'body': 'Mid'
+
+	'返回文本串的从lFirst开始的lCount位':
+		'prefix': 'Right'
+		'body': 'Right'
+
+	'将参数中的数字转化为字符串':
+		'prefix': 'Text'
+		'body': 'Text'
+
+	'除了文本两边所有的空格':
+		'prefix': 'Trim'
+		'body': 'Trim'
+
+	'将一个文字串中的所有小写字母转换为大写字母':
+		'prefix': 'Upper'
+		'body': 'Upper'
+
+	'将代表数字的文字串转换成数字':
+		'prefix': 'Value'
+		'body': 'Value'
+
+	'返回黑色的RGB值':
+		'prefix': 'Black'
+		'body': 'Black'
+
+	'返回蓝色的RGB值':
+		'prefix': 'Blue'
+		'body': 'Blue'
+
+	'返回青色的RGB值':
+		'prefix': 'Cyan'
+		'body': 'Cyan'
+
+	'返回茶色的RGB值':
+		'prefix': 'DarkBrown'
+		'body': 'DarkBrown'
+
+	'返回深青色的RGB值':
+		'prefix': 'DarkCyan'
+		'body': 'DarkCyan'
+
+	'返回深灰色的RGB值':
+		'prefix': 'DarkGray'
+		'body': 'DarkGray'
+
+	'返回深绿色的RGB值':
+		'prefix': 'DarkGreen'
+		'body': 'DarkGreen'
+
+	'返回深褐色的RGB值':
+		'prefix': 'DarkMagenta'
+		'body': 'DarkMagenta'
+
+	'返回深红色的RGB值':
+		'prefix': 'DarkRed'
+		'body': 'DarkRed'
+
+	'返回默认颜色值':
+		'prefix': 'DefaultColor'
+		'body': 'DefaultColor'
+
+	'返回绿色的RGB值':
+		'prefix': 'Green'
+		'body': 'Green'
+
+	'返回浅灰色的RGB值':
+		'prefix': 'LightGray'
+		'body': 'LightGray'
+
+	'返回紫红色的RGB值':
+		'prefix': 'Magenta'
+		'body': 'Magenta'
+
+	'返回红色的RGB值':
+		'prefix': 'Red'
+		'body': 'Red'
+
+	'返回自定义颜色值':
+		'prefix': 'Rgb'
+		'body': 'Rgb'
+
+	'返回白色的RGB值':
+		'prefix': 'White'
+		'body': 'White'
+
+	'返回黄色的RGB值':
+		'prefix': 'Yellow'
+		'body': 'Yellow'
+
+	'获取交易开拓者平台的当前日期':
+		'prefix': 'CurrentDate'
+		'body': 'CurrentDate'
+
+	'获取交易开拓者平台的当前时间':
+		'prefix': 'CurrentTime'
+		'body': 'CurrentTime'
+
+	'返回已添加指定天数的日期':
+		'prefix': 'DateAdd'
+		'body': 'DateAdd'
+
+	'返回两个日期之间的天数间隔':
+		'prefix': 'DateDiff'
+		'body': 'DateDiff'
+
+	'将日期时间值转化为字符串类型':
+		'prefix': 'DateTimeToString'
+		'body': 'DateTimeToString'
+
+	'将日期值转化为字符串类型':
+		'prefix': 'DateToString'
+		'body': 'DateToString'
+
+	'获得当前Bar的日信息':
+		'prefix': 'Day'
+		'body': 'Day'
+
+	'获取输入日期时间的日信息':
+		'prefix': 'DayFromDateTime'
+		'body': 'DayFromDateTime'
+
+	'获得星期五的值':
+		'prefix': 'Friday'
+		'body': 'Friday'
+
+	'获得当前Bar的小时信息':
+		'prefix': 'Hour'
+		'body': 'Hour'
+
+	'获取输入日期时间的小时信息':
+		'prefix': 'HourFromDateTime'
+		'body': 'HourFromDateTime'
+
+	'将参数生成日期值':
+		'prefix': 'MakeDate'
+		'body': 'MakeDate'
+
+	'将参数生成日期时间值':
+		'prefix': 'MakeDateTime'
+		'body': 'MakeDateTime'
+
+	'将参数生成时间值':
+		'prefix': 'MakeTime'
+		'body': 'MakeTime'
+
+	'获得当前Bar的毫秒信息':
+		'prefix': 'MilliSecond'
+		'body': 'MilliSecond'
+
+	'获取输入日期时间的毫秒信息':
+		'prefix': 'MilliSecondFromDateTime'
+		'body': 'MilliSecondFromDateTime'
+
+	'获得当前Bar的分钟信息':
+		'prefix': 'Minute'
+		'body': 'Minute'
+
+	'获取输入日期时间的分钟信息':
+		'prefix': 'MinuteFromDateTime'
+		'body': 'MinuteFromDateTime'
+
+	'获得星期一的值':
+		'prefix': 'Monday'
+		'body': 'Monday'
+
+	'获得当前Bar的月信息':
+		'prefix': 'Month'
+		'body': 'Month'
+
+	'获取输入日期时间的月信息':
+		'prefix': 'MonthFromDateTime'
+		'body': 'MonthFromDateTime'
+
+	'获得星期六的值':
+		'prefix': 'Saturday'
+		'body': 'Saturday'
+
+	'获得当前Bar的秒信息':
+		'prefix': 'Second'
+		'body': 'Second'
+
+	'获取输入日期时间的秒信息':
+		'prefix': 'SecondFromDateTime'
+		'body': 'SecondFromDateTime'
+
+	'将字符串转化为日期':
+		'prefix': 'StringToDate'
+		'body': 'StringToDate'
+
+	'将字符串转化为日期时间':
+		'prefix': 'StringToDateTime'
+		'body': 'StringToDateTime'
+
+	'将字符串转化为时间':
+		'prefix': 'StringToTime'
+		'body': 'StringToTime'
+
+	'获得星期日的值':
+		'prefix': 'Sunday'
+		'body': 'Sunday'
+
+	'获取交易开拓者平台的当前日期时间':
+		'prefix': 'SystemDateTime'
+		'body': 'SystemDateTime'
+
+	'获得星期四的值':
+		'prefix': 'Thursday'
+		'body': 'Thursday'
+
+	'返回两个时间之间的间隔秒数，忽略日期差异':
+		'prefix': 'TimeDiff'
+		'body': 'TimeDiff'
+
+	'将时间值转化为字符串类型':
+		'prefix': 'TimeToString'
+		'body': 'TimeToString'
+
+	'获得星期二的值':
+		'prefix': 'Tuesday'
+		'body': 'Tuesday'
+
+	'获得星期三的值':
+		'prefix': 'Wednesday'
+		'body': 'Wednesday'
+
+	'获得当前Bar的周信息':
+		'prefix': 'Weekday'
+		'body': 'Weekday'
+
+	'获取输入日期时间的周信息':
+		'prefix': 'WeekdayFromDateTime'
+		'body': 'WeekdayFromDateTime'
+
+	'获得当前Bar的年信息':
+		'prefix': 'Year'
+		'body': 'Year'
+
+	'获取输入日期时间的年信息':
+		'prefix': 'YearFromDateTime'
+		'body': 'YearFromDateTime'
+
+	'当前公式应用商品数据的Bar总数':
+		'prefix': 'BarCount'
+		'body': 'BarCount'
+
+	'当前公式应用商品当前Bar的状态值':
+		'prefix': 'BarStatus'
+		'body': 'BarStatus'
+
+	'当前公式应用商品在当前Bar的收盘价':
+		'prefix': 'C'
+		'body': 'C'
+
+	'当前公式应用商品在当前Bar的收盘价':
+		'prefix': 'Close'
+		'body': 'Close'
+
+	'当前公式应用商品在当前Bar的索引值':
+		'prefix': 'CurrentBar'
+		'body': 'CurrentBar'
+
+	'当前公式应用商品在当前Bar的日期':
+		'prefix': 'D'
+		'body': 'D'
+
+	'获取数据源的个数':
+		'prefix': 'DataSourceSize'
+		'body': 'DataSourceSize'
+
+	'当前公式应用商品在当前Bar的日期':
+		'prefix': 'Date'
+		'body': 'Date'
+
+	'当前公式应用商品在当前Bar的最高价':
+		'prefix': 'H'
+		'body': 'H'
+
+	'当前公式应用商品在当前Bar的最高价':
+		'prefix': 'High'
+		'body': 'High'
+
+	'当前公式应用商品的历史数据是否有效':
+		'prefix': 'HistoryDataExist'
+		'body': 'HistoryDataExist'
+
+	'当前公式应用商品在当前Bar的最低价':
+		'prefix': 'L'
+		'body': 'L'
+
+	'当前公式应用商品在当前Bar的最低价':
+		'prefix': 'Low'
+		'body': 'Low'
+
+	'当前公式应用商品在当前Bar的开盘价':
+		'prefix': 'O'
+		'body': 'O'
+
+	'当前公式应用商品在当前Bar的开盘价':
+		'prefix': 'Open'
+		'body': 'Open'
+
+	'当前公式应用商品在当前Bar的持仓量':
+		'prefix': 'OpenInt'
+		'body': 'OpenInt'
+
+	'当前公式应用商品在当前Bar的时间':
+		'prefix': 'T'
+		'body': 'T'
+
+	'当前公式应用商品在当前Bar的时间':
+		'prefix': 'Time'
+		'body': 'Time'
+
+	'当前公式应用商品在当前Bar的成交量':
+		'prefix': 'V'
+		'body': 'V'
+
+	'当前公式应用商品在当前Bar的成交量':
+		'prefix': 'Vol'
+		'body': 'Vol'
+
+	'当前公式应用商品数据的周期数值':
+		'prefix': 'BarInterval'
+		'body': 'BarInterval'
+
+	'当前公式应用商品数据的周期类型值':
+		'prefix': 'BarType'
+		'body': 'BarType'
+
+	'当前公式应用商品数据的买卖盘个数':
+		'prefix': 'BidAskSize'
+		'body': 'BidAskSize'
+
+	'当前公式应用商品数据的一个整数点的价值':
+		'prefix': 'BigPointValue'
+		'body': 'BigPointValue'
+
+	'当前公式应用商品是否支持市价委托':
+		'prefix': 'CanMarketOrder'
+		'body': 'CanMarketOrder'
+
+	'当前公式应用商品是否支持空头交易':
+		'prefix': 'CanShortTrade'
+		'body': 'CanShortTrade'
+
+	'当前公式应用商品是否支持STOP委托':
+		'prefix': 'CanStopOrder'
+		'body': 'CanStopOrder'
+
+	'当前公式应用商品是否支持交易':
+		'prefix': 'CanTrade'
+		'body': 'CanTrade'
+
+	'当前公式应用商品的大类信息':
+		'prefix': 'Category'
+		'body': 'Category'
+
+	'当前商品的合约大小':
+		'prefix': 'ContractSize'
+		'body': 'ContractSize'
+
+	'当前公式应用商品的每张合约包含的基本单位数量':
+		'prefix': 'ContractUnit'
+		'body': 'ContractUnit'
+
+	'当前公式应用商品交易的货币名称':
+		'prefix': 'CurrencyName'
+		'body': 'CurrencyName'
+
+	'当前公式应用商品交易的货币符号':
+		'prefix': 'CurrencySymbol'
+		'body': 'CurrencySymbol'
+
+	'当前公式应用图表数据源的总数':
+		'prefix': 'DataCount'
+		'body': 'DataCount'
+
+	'当前公式应用商品的交易所名称':
+		'prefix': 'ExchangeName'
+		'body': 'ExchangeName'
+
+	'当前公式应用商品的最后交易日':
+		'prefix': 'ExpiredDate'
+		'body': 'ExpiredDate'
+
+	'获取交易时间段的个数':
+		'prefix': 'GetSessionCount'
+		'body': 'GetSessionCount'
+
+	'获取指定交易时间段的结束时间':
+		'prefix': 'GetSessionEndTime'
+		'body': 'GetSessionEndTime'
+
+	'获取指定交易时间段的起始时间':
+		'prefix': 'GetSessionStartTime'
+		'body': 'GetSessionStartTime'
+
+	'当前登录的用户ID':
+		'prefix': 'GetUserID'
+		'body': 'GetUserID'
+
+	'当前公式应用商品的初始保证金':
+		'prefix': 'InitialMargin'
+		'body': 'InitialMargin'
+
+	'当前公式应用商品的维持保证金':
+		'prefix': 'MaintenanceMargin'
+		'body': 'MaintenanceMargin'
+
+	'当前公式应用商品的默认保证金比率':
+		'prefix': 'MarginRatio'
+		'body': 'MarginRatio'
+
+	'获得公式应用所需的最大回溯Bar数':
+		'prefix': 'MaxBarsBack'
+		'body': 'MaxBarsBack'
+
+	'当前公式应用商品的单笔交易限量':
+		'prefix': 'MaxSingleTradeSize'
+		'body': 'MaxSingleTradeSize'
+
+	'当前公式应用商品的最小变动量':
+		'prefix': 'MinMove'
+		'body': 'MinMove'
+
+	'返回期权的类型，欧式还是美式':
+		'prefix': 'OptionStyle'
+		'body': 'OptionStyle'
+
+	'返回期权的类型，是看涨还是看跌期权':
+		'prefix': 'OptionType'
+		'body': 'OptionType'
+
+	'当前公式应用商品的计数单位':
+		'prefix': 'PriceScale'
+		'body': 'PriceScale'
+
+	'获取当前商品的关联代码':
+		'prefix': 'RelativeSymbol'
+		'body': 'RelativeSymbol'
+
+	'返回期权的行权价':
+		'prefix': 'StrikePrice'
+		'body': 'StrikePrice'
+
+	'当前公式应用商品的代码':
+		'prefix': 'Symbol'
+		'body': 'Symbol'
+
+	'当前公式应用商品的名称':
+		'prefix': 'SymbolName'
+		'body': 'SymbolName'
+
+	'当前公式应用商品的类型':
+		'prefix': 'SymbolType'
+		'body': 'SymbolType'
+
+	'商品截至到期剩余的日期':
+		'prefix': 'TradingDayLeft'
+		'body': 'TradingDayLeft'
+
+	'当前公式应用商品的最新卖盘价格':
+		'prefix': 'Q_AskPrice'
+		'body': 'Q_AskPrice'
+
+	'当前公式应用商品的卖盘价格变化标志':
+		'prefix': 'Q_AskPriceFlag'
+		'body': 'Q_AskPriceFlag'
+
+	'当前公式应用商品的最新卖盘量':
+		'prefix': 'Q_AskVol'
+		'body': 'Q_AskVol'
+
+	'当前公式应用商品的实时均价':
+		'prefix': 'Q_AvgPrice'
+		'body': 'Q_AvgPrice'
+
+	'当前公式应用商品的最新买盘价格':
+		'prefix': 'Q_BidPrice'
+		'body': 'Q_BidPrice'
+
+	'当前公式应用商品的买盘价格变化标志':
+		'prefix': 'Q_BidPriceFlag'
+		'body': 'Q_BidPriceFlag'
+
+	'当前公式应用商品的最新买盘量':
+		'prefix': 'Q_BidVol'
+		'body': 'Q_BidVol'
+
+	'当前公式应用商品的当日收盘价':
+		'prefix': 'Q_Close'
+		'body': 'Q_Close'
+
+	'当前公式应用商品的当日最高价':
+		'prefix': 'Q_High'
+		'body': 'Q_High'
+
+	'当前公式应用商品的历史最高价':
+		'prefix': 'Q_HisHigh'
+		'body': 'Q_HisHigh'
+
+	'当前公式应用商品的历史最低价':
+		'prefix': 'Q_HisLow'
+		'body': 'Q_HisLow'
+
+	'当前公式应用商品的内盘':
+		'prefix': 'Q_InsideVol'
+		'body': 'Q_InsideVol'
+
+	'当前公式应用商品的最新价':
+		'prefix': 'Q_Last'
+		'body': 'Q_Last'
+
+	'当前公式应用商品的最新成交日期':
+		'prefix': 'Q_LastDate'
+		'body': 'Q_LastDate'
+
+	'当前公式应用商品的最新价变化标志':
+		'prefix': 'Q_LastFlag'
+		'body': 'Q_LastFlag'
+
+	'当前公式应用商品的最新成交时间':
+		'prefix': 'Q_LastTime'
+		'body': 'Q_LastTime'
+
+	'当前公式应用商品的现手':
+		'prefix': 'Q_LastVol'
+		'body': 'Q_LastVol'
+
+	'当前公式应用商品的当日最低价':
+		'prefix': 'Q_Low'
+		'body': 'Q_Low'
+
+	'当前公式应用商品的当日跌停板价':
+		'prefix': 'Q_LowerLimit'
+		'body': 'Q_LowerLimit'
+
+	'当前公式应用商品的当日开盘价':
+		'prefix': 'Q_Open'
+		'body': 'Q_Open'
+
+	'当前公式应用商品的持仓量':
+		'prefix': 'Q_OpenInt'
+		'body': 'Q_OpenInt'
+
+	'当前公式应用商品的持仓量变化标志':
+		'prefix': 'Q_OpenIntFlag'
+		'body': 'Q_OpenIntFlag'
+
+	'当前公式应用商品的振幅':
+		'prefix': 'Q_Oscillation'
+		'body': 'Q_Oscillation'
+
+	'当前公式应用商品的外盘':
+		'prefix': 'Q_OutsideVol'
+		'body': 'Q_OutsideVol'
+
+	'当前公式应用商品的昨日持仓量':
+		'prefix': 'Q_PreOpenInt'
+		'body': 'Q_PreOpenInt'
+
+	'当前公式应用商品的昨日结算价':
+		'prefix': 'Q_PreSettlePrice'
+		'body': 'Q_PreSettlePrice'
+
+	'当前公式应用商品的当日涨跌':
+		'prefix': 'Q_PriceChg'
+		'body': 'Q_PriceChg'
+
+	'当前公式应用商品的当日涨跌幅':
+		'prefix': 'Q_PriceChgRatio'
+		'body': 'Q_PriceChgRatio'
+
+	'当前公式应用商品的最新笔升跌':
+		'prefix': 'Q_TickChg'
+		'body': 'Q_TickChg'
+
+	'当前公式应用商品的当日开仓量':
+		'prefix': 'Q_TodayEntryVol'
+		'body': 'Q_TodayEntryVol'
+
+	'当前公式应用商品的当日平仓量':
+		'prefix': 'Q_TodayExitVol'
+		'body': 'Q_TodayExitVol'
+
+	'当前公式应用商品的当日成交量':
+		'prefix': 'Q_TotalVol'
+		'body': 'Q_TotalVol'
+
+	'当前公式应用商品的成交金额':
+		'prefix': 'Q_TurnOver'
+		'body': 'Q_TurnOver'
+
+	'当前公式应用商品的当日涨停板价':
+		'prefix': 'Q_UpperLimit'
+		'body': 'Q_UpperLimit'
+
+	'当前公式应用商品的行情数据是否有效':
+		'prefix': 'QuoteDataExist'
+		'body': 'QuoteDataExist'
+
+	'返回当前公式应用的交易帐户ID':
+		'prefix': 'A_AccountID'
+		'body': 'A_AccountID'
+
+	'返回当前公式应用的交易帐户对应的交易商ID':
+		'prefix': 'A_BrokerID'
+		'body': 'A_BrokerID'
+
+	'返回当前公式应用的帐户下当前商品的买入持仓均价':
+		'prefix': 'A_BuyAvgPrice'
+		'body': 'A_BuyAvgPrice'
+
+	'返回当前公式应用的帐户下当前商品的买入持仓':
+		'prefix': 'A_BuyPosition'
+		'body': 'A_BuyPosition'
+
+	'返回当前公式应用的帐户下当前商品的买入持仓盈亏':
+		'prefix': 'A_BuyProfitLoss'
+		'body': 'A_BuyProfitLoss'
+
+	'返回当前公式应用的交易帐户的动态权益':
+		'prefix': 'A_CurrentEquity'
+		'body': 'A_CurrentEquity'
+
+	'针对当前公式应用的帐户、商品发送撤单指令':
+		'prefix': 'A_DeleteOrder'
+		'body': 'A_DeleteOrder'
+
+	'返回当前公式应用的交易帐户的可用资金':
+		'prefix': 'A_FreeMargin'
+		'body': 'A_FreeMargin'
+
+	'返回当前公式应用的帐户下当前商品的最后一个未成交委托单索引，按输入参数为条件':
+		'prefix': 'A_GetLastOpenOrderIndex'
+		'body': 'A_GetLastOpenOrderIndex'
+
+	'返回当前公式应用的帐户下当前商品的最后一个当日委托单索引，按输入参数为条件':
+		'prefix': 'A_GetLastOrderIndex'
+		'body': 'A_GetLastOrderIndex'
+
+	'返回当前公式应用的帐户下当前商品的未成交委托单数量':
+		'prefix': 'A_GetOpenOrderCount'
+		'body': 'A_GetOpenOrderCount'
+
+	'返回当前公式应用的帐户下当前商品的当日委托单数量':
+		'prefix': 'A_GetOrderCount'
+		'body': 'A_GetOrderCount'
+
+	'返回当前公式应用的帐户下当前商品的某个未成交委托单的买卖类型':
+		'prefix': 'A_OpenOrderBuyOrSell'
+		'body': 'A_OpenOrderBuyOrSell'
+
+	'返回当前公式应用的帐户下当前商品的某个委托单的合同号':
+		'prefix': 'A_OpenOrderContractNo'
+		'body': 'A_OpenOrderContractNo'
+
+	'返回当前公式应用的帐户下当前商品的某个未成交委托单的开平仓状态':
+		'prefix': 'A_OpenOrderEntryOrExit'
+		'body': 'A_OpenOrderEntryOrExit'
+
+	'返回当前公式应用的帐户下当前商品的某个未成交委托单的成交数量':
+		'prefix': 'A_OpenOrderFilledLot'
+		'body': 'A_OpenOrderFilledLot'
+
+	'返回当前公式应用的帐户下当前商品的某个未成交委托单的成交价格':
+		'prefix': 'A_OpenOrderFilledPrice'
+		'body': 'A_OpenOrderFilledPrice'
+
+	'返回当前公式应用的帐户下当前商品的某个未成交委托单的委托数量':
+		'prefix': 'A_OpenOrderLot'
+		'body': 'A_OpenOrderLot'
+
+	'返回当前公式应用的帐户下当前商品的某个未成交委托单的委托价格':
+		'prefix': 'A_OpenOrderPrice'
+		'body': 'A_OpenOrderPrice'
+
+	'返回当前公式应用的帐户下当前商品的某个未成交委托单的状态':
+		'prefix': 'A_OpenOrderStatus'
+		'body': 'A_OpenOrderStatus'
+
+	'返回当前公式应用的帐户下当前商品的某个未成交委托单的委托时间':
+		'prefix': 'A_OpenOrderTime'
+		'body': 'A_OpenOrderTime'
+
+	'返回当前公式应用的帐户下当前商品的某个委托单的买卖类型':
+		'prefix': 'A_OrderBuyOrSell'
+		'body': 'A_OrderBuyOrSell'
+
+	'返回当前公式应用的帐户下当前商品的某个委托单的撤单数量':
+		'prefix': 'A_OrderCanceledLot'
+		'body': 'A_OrderCanceledLot'
+
+	'返回当前公式应用的帐户下当前商品的某个委托单的合同号':
+		'prefix': 'A_OrderContractNo'
+		'body': 'A_OrderContractNo'
+
+	'返回当前公式应用的帐户下当前商品的某个委托单的开平仓状态':
+		'prefix': 'A_OrderEntryOrExit'
+		'body': 'A_OrderEntryOrExit'
+
+	'返回当前公式应用的帐户下当前商品的某个委托单的成交数量':
+		'prefix': 'A_OrderFilledLot'
+		'body': 'A_OrderFilledLot'
+
+	'返回当前公式应用的帐户下当前商品的某个委托单的成交价格':
+		'prefix': 'A_OrderFilledPrice'
+		'body': 'A_OrderFilledPrice'
+
+	'返回当前公式应用的帐户下当前商品的某个委托单的委托数量':
+		'prefix': 'A_OrderLot'
+		'body': 'A_OrderLot'
+
+	'返回当前公式应用的帐户下当前商品的某个委托单的委托价格':
+		'prefix': 'A_OrderPrice'
+		'body': 'A_OrderPrice'
+
+	'返回当前公式应用的帐户下当前商品的某个委托单的状态':
+		'prefix': 'A_OrderStatus'
+		'body': 'A_OrderStatus'
+
+	'返回当前公式应用的帐户下当前商品的某个委托单的委托时间':
+		'prefix': 'A_OrderTime'
+		'body': 'A_OrderTime'
+
+	'返回当前公式应用的帐户下当前商品的持仓盈亏':
+		'prefix': 'A_PositionProfitLoss'
+		'body': 'A_PositionProfitLoss'
+
+	'返回当前公式应用的交易帐户的昨日结存':
+		'prefix': 'A_PreviousEquity'
+		'body': 'A_PreviousEquity'
+
+	'返回当前公式应用的交易帐户的浮动盈亏':
+		'prefix': 'A_ProfitLoss'
+		'body': 'A_ProfitLoss'
+
+	'返回当前公式应用的帐户下当前商品的卖出持仓均价':
+		'prefix': 'A_SellAvgPrice'
+		'body': 'A_SellAvgPrice'
+
+	'返回当前公式应用的帐户下当前商品的卖出持仓':
+		'prefix': 'A_SellPosition'
+		'body': 'A_SellPosition'
+
+	'返回当前公式应用的帐户下当前商品的卖出持仓盈亏':
+		'prefix': 'A_SellProfitLoss'
+		'body': 'A_SellProfitLoss'
+
+	'针对当前公式应用的帐户、商品发送委托单':
+		'prefix': 'A_SendOrder'
+		'body': 'A_SendOrder'
+
+	'返回当前公式应用的帐户下当前商品的当日买入持仓':
+		'prefix': 'A_TodayBuyPosition'
+		'body': 'A_TodayBuyPosition'
+
+	'返回当前公式应用的交易帐户的当日入金':
+		'prefix': 'A_TodayDeposit'
+		'body': 'A_TodayDeposit'
+
+	'返回当前公式应用的交易帐户的当日出金':
+		'prefix': 'A_TodayDrawing'
+		'body': 'A_TodayDrawing'
+
+	'返回当前公式应用的帐户下当前商品的当日卖出持仓':
+		'prefix': 'A_TodaySellPosition'
+		'body': 'A_TodaySellPosition'
+
+	'返回当前公式应用的帐户下当前商品的持仓均价':
+		'prefix': 'A_TotalAvgPrice'
+		'body': 'A_TotalAvgPrice'
+
+	'返回当前公式应用的交易帐户的资金冻结':
+		'prefix': 'A_TotalFreeze'
+		'body': 'A_TotalFreeze'
+
+	'返回当前公式应用的交易帐户的持仓保证金':
+		'prefix': 'A_TotalMargin'
+		'body': 'A_TotalMargin'
+
+	'返回当前公式应用的帐户下当前商品的总持仓':
+		'prefix': 'A_TotalPosition'
+		'body': 'A_TotalPosition'
+
+	'当前公式应用商品的帐户数据是否有效':
+		'prefix': 'AccountDataExist'
+		'body': 'AccountDataExist'
+
+	'返回美式期权的枚举值':
+		'prefix': 'Enum_AmericanOption'
+		'body': 'Enum_AmericanOption'
+
+	'返回买卖状态的买入枚举值':
+		'prefix': 'Enum_Buy'
+		'body': 'Enum_Buy'
+
+	'返回看涨期权的枚举值':
+		'prefix': 'Enum_CallOption'
+		'body': 'Enum_CallOption'
+
+	'返回委托状态的已撤单枚举值':
+		'prefix': 'Enum_Canceled'
+		'body': 'Enum_Canceled'
+
+	'返回委托状态的正在撤单枚举值':
+		'prefix': 'Enum_Canceling'
+		'body': 'Enum_Canceling'
+
+	'返回委托状态的正在申报枚举值':
+		'prefix': 'Enum_Declare'
+		'body': 'Enum_Declare'
+
+	'返回委托状态的已申报枚举值':
+		'prefix': 'Enum_Declared'
+		'body': 'Enum_Declared'
+
+	'返回委托状态的已废除枚举值':
+		'prefix': 'Enum_Deleted'
+		'body': 'Enum_Deleted'
+
+	'返回开平仓状态的开仓枚举值':
+		'prefix': 'Enum_Entry'
+		'body': 'Enum_Entry'
+
+	'返回欧式期权的枚举值':
+		'prefix': 'Enum_EuropeanOption'
+		'body': 'Enum_EuropeanOption'
+
+	'返回开平仓状态的平仓枚举值':
+		'prefix': 'Enum_Exit'
+		'body': 'Enum_Exit'
+
+	'返回开平仓状态的平今仓枚举值':
+		'prefix': 'Enum_ExitToday'
+		'body': 'Enum_ExitToday'
+
+	'返回委托状态的全部成交枚举值':
+		'prefix': 'Enum_Filled'
+		'body': 'Enum_Filled'
+
+	'返回委托状态的部分成交枚举值':
+		'prefix': 'Enum_FillPart'
+		'body': 'Enum_FillPart'
+
+	'返回看跌期权的枚举值':
+		'prefix': 'Enum_PutOption'
+		'body': 'Enum_PutOption'
+
+	'返回买卖状态的卖出枚举值':
+		'prefix': 'Enum_Sell'
+		'body': 'Enum_Sell'
+
+	'产生一个多头建仓操作':
+		'prefix': 'Buy'
+		'body': 'Buy'
+
+	'产生一个空头平仓操作':
+		'prefix': 'BuyToCover'
+		'body': 'BuyToCover'
+
+	'产生一个多头平仓操作':
+		'prefix': 'Sell'
+		'body': 'Sell'
+
+	'产生一个空头建仓操作':
+		'prefix': 'SellShort'
+		'body': 'SellShort'
+
+	'产生一个报警动作':
+		'prefix': 'Alert'
+		'body': 'Alert'
+
+	'返回当前公式应用的报警设置':
+		'prefix': 'AlertEnabled'
+		'body': 'AlertEnabled'
+
+	'在超级图表当前Bar添加一行注释信息':
+		'prefix': 'Commentary'
+		'body': 'Commentary'
+
+	'在指定文件中追加一行字符串':
+		'prefix': 'FileAppend'
+		'body': 'FileAppend'
+
+	'删除指定文件':
+		'prefix': 'FileDelete'
+		'body': 'FileDelete'
+
+	'获得当前执行的公式名称':
+		'prefix': 'FormulaName'
+		'body': 'FormulaName'
+
+	'获取某个索引的全局变量值':
+		'prefix': 'GetGlobalVar'
+		'body': 'GetGlobalVar'
+
+	'获取某个字符串索引的全局变量值':
+		'prefix': 'GetGlobalVar2'
+		'body': 'GetGlobalVar2'
+
+	'读取公式信息文件指定块中的键名对应的字符串':
+		'prefix': 'GetTBProfileString'
+		'body': 'GetTBProfileString'
+
+	'读取公式信息文件指定块中的键名对应的字符串':
+		'prefix': 'GetTBProfileString2File'
+		'body': 'GetTBProfileString2File'
+
+	'执行真假值判断，根据逻辑测试的真假值返回不同的数值':
+		'prefix': 'IIF'
+		'body': 'IIF'
+
+	'执行真假值判断，根据逻辑测试的真假值返回不同的字符串':
+		'prefix': 'IIFString'
+		'body': 'IIFString'
+
+	'返回整型的无效值':
+		'prefix': 'InvalidInteger'
+		'body': 'InvalidInteger'
+
+	'返回数值型的无效值':
+		'prefix': 'InvalidNumeric'
+		'body': 'InvalidNumeric'
+
+	'字符串的无效值':
+		'prefix': 'InvalidString'
+		'body': 'InvalidString'
+
+	'播放指定路径的Wav声音文件':
+		'prefix': 'PlayWavSound'
+		'body': 'PlayWavSound'
+
+	'在当前Bar输出一个布尔值':
+		'prefix': 'PlotBool'
+		'body': 'PlotBool'
+
+	'在当前Bar输出一个数值':
+		'prefix': 'PlotNumeric'
+		'body': 'PlotNumeric'
+
+	'在当前Bar输出一个字符串':
+		'prefix': 'PlotString'
+		'body': 'PlotString'
+
+	'设置某个索引的全局变量值':
+		'prefix': 'SetGlobalVar'
+		'body': 'SetGlobalVar'
+
+	'设置某个字符串索引的全局变量值':
+		'prefix': 'SetGlobalVar2'
+		'body': 'SetGlobalVar2'
+
+	'把给定的键名及其值写入到公式信息文件的相应块中':
+		'prefix': 'SetTBProfileString'
+		'body': 'SetTBProfileString'
+
+	'把给定的键名及其值写入到公式信息文件的相应块中':
+		'prefix': 'SetTBProfileString2File'
+		'body': 'SetTBProfileString2File'
+
+	'删除曾经输出的值':
+		'prefix': 'Unplot'
+		'body': 'Unplot'
+
+	'获得保本交易的平均持仓Bar数':
+		'prefix': 'AvgBarsEvenTrade'
+		'body': 'AvgBarsEvenTrade'
+
+	'获得亏损交易的平均持仓Bar数':
+		'prefix': 'AvgBarsLosTrade'
+		'body': 'AvgBarsLosTrade'
+
+	'获得盈利交易的平均持仓Bar数':
+		'prefix': 'AvgBarsWinTrade'
+		'body': 'AvgBarsWinTrade'
+
+	'获得累计的总亏损':
+		'prefix': 'GrossLoss'
+		'body': 'GrossLoss'
+
+	'获得累计的总利润':
+		'prefix': 'GrossProfit'
+		'body': 'GrossProfit'
+
+	'获得最大单次交易亏损数':
+		'prefix': 'LargestLosTrade'
+		'body': 'LargestLosTrade'
+
+	'获得最大单次交易盈利数':
+		'prefix': 'LargestWinTrade'
+		'body': 'LargestWinTrade'
+
+	'获得最大连续亏损交易手数':
+		'prefix': 'MaxConsecLosers'
+		'body': 'MaxConsecLosers'
+
+	'获得最大连续盈利交易手数':
+		'prefix': 'MaxConsecWinners'
+		'body': 'MaxConsecWinners'
+
+	'获得最大的持仓合约数':
+		'prefix': 'MaxContractsHeld'
+		'body': 'MaxContractsHeld'
+
+	'获得累计的净利润':
+		'prefix': 'NetProfit'
+		'body': 'NetProfit'
+
+	'获得保本交易的总手数':
+		'prefix': 'NumEvenTrades'
+		'body': 'NumEvenTrades'
+
+	'获得亏损交易的总手数':
+		'prefix': 'NumLosTrades'
+		'body': 'NumLosTrades'
+
+	'获得盈利交易的总手数':
+		'prefix': 'NumWinTrades'
+		'body': 'NumWinTrades'
+
+	'获得盈利的成功率':
+		'prefix': 'PercentProfit'
+		'body': 'PercentProfit'
+
+	'获得保本交易的总持仓Bar数':
+		'prefix': 'TotalBarsEvenTrades'
+		'body': 'TotalBarsEvenTrades'
+
+	'获得亏损交易的总持仓Bar数':
+		'prefix': 'TotalBarsLosTrades'
+		'body': 'TotalBarsLosTrades'
+
+	'获得盈利交易的总持仓Bar数':
+		'prefix': 'TotalBarsWinTrades'
+		'body': 'TotalBarsWinTrades'
+
+	'获得交易的总手数':
+		'prefix': 'TotalTrades'
+		'body': 'TotalTrades'
+
+	'获得当前持仓的平均建仓价格':
+		'prefix': 'AvgEntryPrice'
+		'body': 'AvgEntryPrice'
+
+	'获得当前持仓的第一个建仓位置到当前位置的Bar计数':
+		'prefix': 'BarsSinceEntry'
+		'body': 'BarsSinceEntry'
+
+	'获得最近平仓位置到当前位置的Bar计数':
+		'prefix': 'BarsSinceExit'
+		'body': 'BarsSinceExit'
+
+	'获得当前持仓的最后一个建仓位置到当前位置的Bar计数':
+		'prefix': 'BarsSinceLastEntry'
+		'body': 'BarsSinceLastEntry'
+
+	'获得当前持仓位置的每手浮动盈亏':
+		'prefix': 'ContractProfit'
+		'body': 'ContractProfit'
+
+	'获得当前持仓的持仓合约数':
+		'prefix': 'CurrentContracts'
+		'body': 'CurrentContracts'
+
+	'获得当前持仓的建仓次数':
+		'prefix': 'CurrentEntries'
+		'body': 'CurrentEntries'
+
+	'获得当前持仓的第一个建仓位置的日期':
+		'prefix': 'EntryDate'
+		'body': 'EntryDate'
+
+	'获得当前持仓的第一个建仓价格':
+		'prefix': 'EntryPrice'
+		'body': 'EntryPrice'
+
+	'获得当前持仓的第一个建仓位置的时间':
+		'prefix': 'EntryTime'
+		'body': 'EntryTime'
+
+	'获得最近平仓位置Bar日期':
+		'prefix': 'ExitDate'
+		'body': 'ExitDate'
+
+	'获得最近平仓位置的平仓价格':
+		'prefix': 'ExitPrice'
+		'body': 'ExitPrice'
+
+	'获得最近平仓位置Bar时间':
+		'prefix': 'ExitTime'
+		'body': 'ExitTime'
+
+	'获得当前持仓的最后一个建仓位置的日期':
+		'prefix': 'LastEntryDate'
+		'body': 'LastEntryDate'
+
+	'获得当前持仓的最后一个建仓价格':
+		'prefix': 'LastEntryPrice'
+		'body': 'LastEntryPrice'
+
+	'获得当前持仓的最后一个建仓位置的时间':
+		'prefix': 'LastEntryTime'
+		'body': 'LastEntryTime'
+
+	'获得当前持仓状态':
+		'prefix': 'MarketPosition'
+		'body': 'MarketPosition'
+
+	'获得当前持仓的最大持仓合约数':
+		'prefix': 'MaxContracts'
+		'body': 'MaxContracts'
+
+	'获得最大的建仓次数':
+		'prefix': 'MaxEntries'
+		'body': 'MaxEntries'
+
+	'获得当前持仓的最大浮动亏损数':
+		'prefix': 'MaxPositionLoss'
+		'body': 'MaxPositionLoss'
+
+	'获得当前持仓的最大浮动盈利数':
+		'prefix': 'MaxPositionProfit'
+		'body': 'MaxPositionProfit'
+
+	'获得当前持仓位置的浮动盈亏':
+		'prefix': 'PositionProfit'
+		'body': 'PositionProfit'
+
+	'获得投资组合的毛损':
+		'prefix': 'Portfolio_GrossLoss'
+		'body': 'Portfolio_GrossLoss'
+
+	'获得投资组合的毛利':
+		'prefix': 'Portfolio_GrossProfit'
+		'body': 'Portfolio_GrossProfit'
+
+	'获得投资组合的最大资产回撤':
+		'prefix': 'Portfolio_MaxDrawDown'
+		'body': 'Portfolio_MaxDrawDown'
+
+	'获得投资组合的最大资产回撤比率':
+		'prefix': 'Portfolio_MaxDrawDownRatio'
+		'body': 'Portfolio_MaxDrawDownRatio'
+
+	'获得投资组合的净利润':
+		'prefix': 'Portfolio_NetProfit'
+		'body': 'Portfolio_NetProfit'
+
+	'获得投资组合的交易成功率':
+		'prefix': 'Portfolio_PercentProfit'
+		'body': 'Portfolio_PercentProfit'
+
+	'获得投资组合的交易盈利手数':
+		'prefix': 'Portfolio_NumWinTrades'
+		'body': 'Portfolio_NumWinTrades'
+
+	'获得投资组合的交易亏损手数':
+		'prefix': 'Portfolio_NumLossTrades'
+		'body': 'Portfolio_NumLossTrades'
+
+	'获得投资组合的总交易手数':
+		'prefix': 'Portfolio_TotalTrades'
+		'body': 'Portfolio_TotalTrades'
+
+	'获得按当前Bar开盘价计算的可用资金':
+		'prefix': 'Portfolio_CurrentCapital'
+		'body': 'Portfolio_CurrentCapital'
+
+	'获得投资组合的当前建仓次数':
+		'prefix': 'Portfolio_CurrentEntries'
+		'body': 'Portfolio_CurrentEntries'
+
+	'获得投资组合的动态权益':
+		'prefix': 'Portfolio_CurrentEquity'
+		'body': 'Portfolio_CurrentEquity'
+
+	'获得投资组合的初始资金':
+		'prefix': 'Portfolio_InitCapital'
+		'body': 'Portfolio_InitCapital'
+
+	'获得投资组合的浮动盈亏':
+		'prefix': 'Portfolio_PositionProfit'
+		'body': 'Portfolio_PositionProfit'
+
+	'获得投资组合的累计交易盈亏':
+		'prefix': 'Portfolio_TotalProfit'
+		'body': 'Portfolio_TotalProfit'
+
+	'获得当前的持仓保证金':
+		'prefix': 'Portfolio_UsedMargin'
+		'body': 'Portfolio_UsedMargin'
+
